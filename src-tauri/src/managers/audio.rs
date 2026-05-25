@@ -489,6 +489,14 @@ impl AudioRecordingManager {
         )
     }
 
+    pub fn peek_recording(&self) -> Option<Vec<f32>> {
+        if let Some(rec) = self.recorder.lock().unwrap().as_ref() {
+            rec.peek().ok()
+        } else {
+            None
+        }
+    }
+
     /// Cancel any ongoing recording without returning audio samples
     pub fn cancel_recording(&self) {
         let mut state = self.state.lock().unwrap();

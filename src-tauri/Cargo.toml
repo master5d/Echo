@@ -1,11 +1,11 @@
 [package]
-name = "handy"
-version = "0.8.3"
-description = "Handy"
-authors = ["cjpais"]
+name = "echo"
+version = "1.0.0"
+description = "Echo"
+authors = ["Sovern"]
 edition = "2021"
 license = "MIT"
-default-run = "handy"
+default-run = "echo"
 
 [profile.dev]
 incremental = true # Compile your binary in smaller steps.
@@ -88,7 +88,7 @@ tauri-plugin-single-instance = "2.3.2"
 tauri-plugin-updater = "2.10.0"
 
 [target.'cfg(windows)'.dependencies]
-transcribe-rs = { version = "0.3.3", features = ["whisper-vulkan", "ort-directml"] }
+transcribe-rs = { version = "0.3.3", features = ["whisper-cpp", "ort-directml"] }
 windows = { version = "0.61.3", features = [
   "Win32_Media_Audio_Endpoints",
   "Win32_System_Com_StructuredStorage",

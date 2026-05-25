@@ -430,6 +430,24 @@ pub struct AppSettings {
     pub whisper_gpu_device: i32,
     #[serde(default)]
     pub extra_recording_buffer_ms: u64,
+    #[serde(default = "default_auto_punctuate")]
+    pub auto_punctuate: bool,
+    #[serde(default = "default_auto_capitalize")]
+    pub auto_capitalize: bool,
+    #[serde(default = "default_subtitle_overlay")]
+    pub subtitle_overlay: bool,
+}
+
+pub fn default_auto_punctuate() -> bool {
+    true
+}
+
+pub fn default_auto_capitalize() -> bool {
+    true
+}
+
+pub fn default_subtitle_overlay() -> bool {
+    true
 }
 
 fn default_model() -> String {
@@ -814,6 +832,9 @@ pub fn get_default_settings() -> AppSettings {
         ort_accelerator: OrtAcceleratorSetting::default(),
         whisper_gpu_device: default_whisper_gpu_device(),
         extra_recording_buffer_ms: 0,
+        auto_punctuate: default_auto_punctuate(),
+        auto_capitalize: default_auto_capitalize(),
+        subtitle_overlay: default_subtitle_overlay(),
     }
 }
 

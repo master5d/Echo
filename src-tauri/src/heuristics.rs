@@ -1,0 +1,109 @@
+use std::collections::HashSet;
+
+pub struct Heuristics {
+    question_words: HashSet<String>,
+    comma_before_words: HashSet<String>,
+}
+
+impl Heuristics {
+    pub fn new() -> Self {
+        let question_words: HashSet<String> = [
+            "who", "what", "where", "when", "why", "how",
+            "is", "are", "was", "were", "do", "does", "did",
+            "can", "could", "will", "would", "should", "shall",
+            "have", "has", "had", "may", "might",
+            // Russian question words
+            "кто", "что", "где", "когда", "почему", "как",
+            "какой", "какая", "какие", "сколько", "зачем", "откуда",
+            "чей", "чья", "чьё", "чьи", "куда", "откуда", "доколе",
+            "неужели", "разве", "ли"
+        ].iter().map(|s| s.to_string()).collect();
+
+        let comma_before_words: HashSet<String> = [
+            "but", "however", "although", "though", "yet", "so",
+            "which", "because", "while", "whereas",
+            // Russian
+            "но", "а", "однако", "хотя", "потому", "поэтому", 
+            "который", "которая", "которые", "которое",
+            "что", "чтобы", "если", "так как", "ибо", "словно", "будто",
+            "как будто", "нежели", "пока", "прежде чем"
+        ].iter().map(|s| s.to_string()).collect();
+
+        Self {
+            question_words,
+            comma_before_words,
+        }
+    }
+
+    pub fn auto_punctuate(&self, text: &str) -> String {
+        if text.trim().is_empty() {
+            return text.to_string();
+        }
+
+        let trimmed_text = text.trim();
+        let last_char = trimmed_text.chars().last().unwrap();
+        if last_char == '.' || last_char == '!' || last_char == '?' || last_char == '…' {
+            return text.to_string();
+        }
+
+        let mut words: Vec<String> = trimmed_text
+            .split_whitespace()
+            .map(|s| s.to_string())
+            .collect();
+
+        if words.is_empty() {
+            return text.to_string();
+        }
+
+        for i in 1..words.len() {
+            let clean_word = words[i]
+                .trim_matches(|c: char| c.is_ascii_punctuation())
+                .to_lowercase();
+            
+            if self.comma_before_words.contains(&clean_word) {
+                let prev_index = i - 1;
+                let prev_word = &words[prev_index];
+                if !prev_word.chars().last().map_or(false, |c| c.is_ascii_punctuation()) {
+                    words[prev_index] = format!("{},", prev_word);
+                }
+            }
+        }
+
+        let mut result = words.join(" ");
+
+        let first_word_clean = words[0]
+            .trim_matches(|c: char| c.is_ascii_punctuation())
+            .to_lowercase();
+
+        if self.question_words.contains(&first_word_clean) {
+            result.push('?');
+        } else {
+            result.push('.');
+        }
+
+        result
+    }
+
+    pub fn auto_capitalize(&self, text: &str) -> String {
+        if text.trim().is_empty() {
+            return text.to_string();
+        }
+
+        let mut result = String::with_capacity(text.len());
+        let mut capitalize_next = true;
+
+        for ch in text.chars() {
+            if capitalize_next && ch.is_alphabetic() {
+                result.extend(ch.to_uppercase());
+                capitalize_next = false;
+            } else {
+                result.push(ch);
+                if ch == '.' || ch == '!' || ch == '?' {
+                    capitalize_next = true;
+                }
+            }
+        }
+
+        result
+    }
+}

@@ -1,3 +1,14 @@
+.overlay-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+
 .recording-overlay {
   height: 36px;
   width: 172px;
@@ -5,11 +16,36 @@
   grid-template-columns: auto 1fr auto;
   align-items: center;
   padding: 6px;
-  background: #000000cc;
+  background: #0f172acc; /* Obsidian */
+  border: 1px solid #6366f144; /* Electric Indigo subtle border */
   border-radius: 18px;
   opacity: 0;
   transition: opacity 300ms ease-out;
   box-sizing: border-box;
+  pointer-events: auto;
+  backdrop-filter: blur(8px);
+}
+
+.subtitle-area {
+  margin-top: 12px;
+  background: #0f172aaa; /* Obsidian */
+  color: #f8fafc;
+  padding: 8px 16px;
+  border-radius: 12px;
+  max-width: 80%;
+  text-align: center;
+  font-size: 16px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.4;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+  border-left: 3px solid #6366f1; /* Electric Indigo accent */
+}
+
+.subtitle-area.fade-in {
+  opacity: 1;
 }
 
 .overlay-left {

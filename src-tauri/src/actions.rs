@@ -17,7 +17,7 @@ use log::{debug, error, warn};
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use tauri::Manager;
 use tauri::{AppHandle, Emitter};
 
@@ -356,7 +356,17 @@ pub(crate) async fn process_transcription_output(
     let mut post_processed_text: Option<String> = None;
     let mut post_process_prompt: Option<String> = None;
 
-    if let Some(converted_text) = maybe_convert_chinese_variant(&settings, transcription).await {
+    if settings.auto_punctuate || settings.auto_capitalize {
+        let h = crate::heuristics::Heuristics::new();
+        if settings.auto_punctuate {
+            final_text = h.auto_punctuate(&final_text);
+        }
+        if settings.auto_capitalize {
+            final_text = h.auto_capitalize(&final_text);
+        }
+    }
+
+    if let Some(converted_text) = maybe_convert_chinese_variant(&settings, &final_text).await {
         final_text = converted_text;
     }
 
@@ -460,6 +470,37 @@ impl ShortcutAction for TranscribeAction {
         if recording_error.is_none() {
             // Dynamically register the cancel shortcut in a separate task to avoid deadlock
             shortcut::register_cancel_shortcut(app);
+
+            // Phase 4: Streaming Subtitles
+            if settings.subtitle_overlay {
+                let app_handle = app.clone();
+                let rm_clone = Arc::clone(&rm);
+                let tm_clone = Arc::clone(&tm);
+                
+                tauri::async_runtime::spawn(async move {
+                    debug!("Starting subtitle streaming task");
+                    let mut last_peek_time = Instant::now();
+                    
+                    while rm_clone.is_recording() {
+                        if last_peek_time.elapsed() >= Duration::from_millis(800) {
+                            if let Some(samples) = rm_clone.peek_recording() {
+                                if !samples.is_empty() {
+                                    // Transcribe a slice of the audio for speed, or the whole thing
+                                    // Parakeet is fast enough for the whole thing usually
+                                    if let Ok(partial_text) = tm_clone.transcribe(samples) {
+                                        if !partial_text.is_empty() {
+                                            let _ = app_handle.emit("subtitle-update", partial_text);
+                                        }
+                                    }
+                                }
+                            }
+                            last_peek_time = Instant::now();
+                        }
+                        tokio::time::sleep(Duration::from_millis(100)).await;
+                    }
+                    debug!("Subtitle streaming task stopped");
+                });
+            }
         } else {
             // Starting failed (for example due to blocked microphone permissions).
             // Revert UI state so we don't stay stuck in the recording overlay.
@@ -585,6 +626,9 @@ impl ShortcutAction for TranscribeAction {
                             let processed =
                                 process_transcription_output(&ah, &transcription, post_process)
                                     .await;
+
+                            // Emit the processed text as a subtitle update for the overlay
+                            let _ = ah.emit("subtitle-update", &processed.final_text);
 
                             // Save to history if WAV was saved
                             if wav_saved {
