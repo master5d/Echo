@@ -6,6 +6,8 @@ import { CustomWords } from "../CustomWords";
 import { SettingsGroup } from "../../ui/SettingsGroup";
 import { StartHidden } from "../StartHidden";
 import { AutostartToggle } from "../AutostartToggle";
+import { AutoPunctuate } from "../AutoPunctuate";
+import { AutoCapitalize } from "../AutoCapitalize";
 import { ShowTrayIcon } from "../ShowTrayIcon";
 import { PasteMethodSetting } from "../PasteMethod";
 import { TypingToolSetting } from "../TypingTool";
@@ -46,6 +48,8 @@ export const AdvancedSettings: React.FC = () => {
 
       <SettingsGroup title={t("settings.advanced.groups.transcription")}>
         <CustomWords descriptionMode="tooltip" grouped />
+        <AutoPunctuate descriptionMode="tooltip" grouped={true} />
+        <AutoCapitalize descriptionMode="tooltip" grouped={true} />
         <AppendTrailingSpace descriptionMode="tooltip" grouped={true} />
       </SettingsGroup>
 

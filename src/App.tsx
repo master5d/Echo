@@ -8,7 +8,6 @@ import {
   checkMicrophonePermission,
 } from "tauri-plugin-macos-permissions-api";
 import { ModelStateEvent, RecordingErrorEvent } from "./lib/types/events";
-import "./App.css";
 import AccessibilityPermissions from "./components/AccessibilityPermissions";
 import Footer from "./components/footer";
 import Onboarding, { AccessibilityOnboarding } from "./components/onboarding";
@@ -21,8 +20,23 @@ import { getLanguageDirection, initializeRTL } from "@/lib/utils/rtl";
 type OnboardingStep = "accessibility" | "model" | "done";
 
 const renderSettingsContent = (section: SidebarSection) => {
-  const ActiveComponent =
-    SECTIONS_CONFIG[section]?.component || SECTIONS_CONFIG.general.component;
+  const config = SECTIONS_CONFIG[section] || SECTIONS_CONFIG.general;
+  const ActiveComponent = config.component;
+
+  if (!ActiveComponent) {
+    console.error(`ActiveComponent for section "${section}" is undefined!`, {
+      section,
+      config,
+      SECTIONS_CONFIG,
+    });
+    return (
+      <div className="p-8 text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl">
+        <h2 className="text-xl font-bold">{t("errors.renderingSettingsTitle")}</h2>
+        <p>{t("errors.renderingSettingsDescription", { section })}</p>
+      </div>
+    );
+  }
+
   return <ActiveComponent />;
 };
 
@@ -166,9 +180,11 @@ function App() {
   };
 
   const checkOnboardingStatus = async () => {
+    console.log("Checking onboarding status...");
     try {
       // Check if they have any models available
       const result = await commands.hasAnyModelsAvailable();
+      console.log("hasAnyModelsAvailable result:", result);
       const hasModels = result.status === "ok" && result.data;
       const currentPlatform = platform();
 
@@ -236,7 +252,14 @@ function App() {
 
   // Still checking onboarding status
   if (onboardingStep === null) {
-    return null;
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#0F172A] text-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm font-medium tracking-wide animate-pulse">Initializing Echo...</p>
+        </div>
+      </div>
+    );
   }
 
   if (onboardingStep === "accessibility") {
@@ -250,7 +273,7 @@ function App() {
   return (
     <div
       dir={direction}
-      className="h-screen flex flex-col select-none cursor-default"
+      className="h-screen flex flex-col select-none cursor-default bg-background"
     >
       <Toaster
         theme="system"
@@ -272,7 +295,7 @@ function App() {
         />
         {/* Scrollable content area */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
             <div className="flex flex-col items-center p-4 gap-4">
               <AccessibilityPermissions />
               {renderSettingsContent(currentSection)}

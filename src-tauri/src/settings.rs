@@ -536,7 +536,7 @@ fn default_show_tray_icon() -> bool {
 }
 
 fn default_post_process_provider_id() -> String {
-    "openai".to_string()
+    "custom".to_string()
 }
 
 fn default_post_process_providers() -> Vec<PostProcessProvider> {
@@ -617,14 +617,14 @@ fn default_post_process_providers() -> Vec<PostProcessProvider> {
         supports_structured_output: true,
     });
 
-    // Custom provider always comes last
+    // Custom provider for NAUTILUS / Local LLM
     providers.push(PostProcessProvider {
         id: "custom".to_string(),
-        label: "Custom".to_string(),
-        base_url: "http://localhost:11434/v1".to_string(),
+        label: "NAUTILUS LiteLLM".to_string(),
+        base_url: "http://localhost:4000/v1".to_string(),
         allow_base_url_edit: true,
         models_endpoint: Some("/models".to_string()),
-        supports_structured_output: false,
+        supports_structured_output: true,
     });
 
     providers
@@ -642,6 +642,9 @@ fn default_model_for_provider(provider_id: &str) -> String {
     if provider_id == APPLE_INTELLIGENCE_PROVIDER_ID {
         return APPLE_INTELLIGENCE_DEFAULT_MODEL_ID.to_string();
     }
+    if provider_id == "custom" {
+        return "qwen2.5-coder-32b-instruct".to_string(); // SOTA local model fallback
+    }
     String::new()
 }
 
@@ -657,11 +660,22 @@ fn default_post_process_models() -> HashMap<String, String> {
 }
 
 fn default_post_process_prompts() -> Vec<LLMPrompt> {
-    vec![LLMPrompt {
-        id: "default_improve_transcriptions".to_string(),
-        name: "Improve Transcriptions".to_string(),
-        prompt: "Clean this transcript:\n1. Fix spelling, capitalization, and punctuation errors\n2. Convert number words to digits (twenty-five → 25, ten percent → 10%, five dollars → $5)\n3. Replace spoken punctuation with symbols (period → ., comma → ,, question mark → ?)\n4. Remove filler words (um, uh, like as filler)\n5. Keep the language in the original version (if it was french, keep it in french for example)\n\nPreserve exact meaning and word order. Do not paraphrase or reorder content.\n\nReturn only the cleaned transcript.\n\nTranscript:\n${output}".to_string(),
-    }]
+    vec![
+        LLMPrompt {
+            id: "sovern-smoothing".to_string(),
+            name: "Sovern Semantic Smoothing".to_string(),
+            prompt: "You are a professional transcription editor. Fix grammar, punctuation, and remove disfluencies (um, uh, fillers, repeated words, э-э, ну, типа) from the following text. PRESERVE THE ORIGINAL LANGUAGE (Russian or English) strictly. Output ONLY the corrected text without any chat or explanation: ${output}".to_string(),
+        },
+        LLMPrompt {
+            id: "default_improve_transcriptions".to_string(),
+            name: "Improve Transcriptions".to_string(),
+            prompt: "Clean this transcript:\n1. Fix spelling, capitalization, and punctuation errors\n2. Convert number words to digits (twenty-five → 25, ten percent → 10%, five dollars → $5)\n3. Replace spoken punctuation with symbols (period → ., comma → ,, question mark → ?)\n4. Remove filler words (um, uh, like as filler)\n5. Keep the language in the original version (if it was french, keep it in french for example)\n\nPreserve exact meaning and word order. Do not paraphrase or reorder content.\n\nReturn only the cleaned transcript.\n\nTranscript:\n${output}".to_string(),
+        }
+    ]
+}
+
+fn default_post_process_selected_prompt_id() -> Option<String> {
+    Some("sovern-smoothing".to_string())
 }
 
 fn default_whisper_gpu_device() -> i32 {
@@ -723,6 +737,25 @@ fn ensure_post_process_defaults(settings: &mut AppSettings) -> bool {
                 changed = true;
             }
         }
+    }
+
+    // Ensure default prompts exist
+    for default_prompt in default_post_process_prompts() {
+        if !settings
+            .post_process_prompts
+            .iter()
+            .any(|p| p.id == default_prompt.id)
+        {
+            debug!("Adding missing default prompt: {}", default_prompt.id);
+            settings.post_process_prompts.push(default_prompt);
+            changed = true;
+        }
+    }
+
+    // Default to sovern-smoothing if no prompt selected
+    if settings.post_process_selected_prompt_id.is_none() {
+        settings.post_process_selected_prompt_id = Some("sovern-smoothing".to_string());
+        changed = true;
     }
 
     changed

@@ -42,9 +42,19 @@ mod tests {
         assert_eq!(output, "я приду, если будет время.");
         
         let input2 = "он сказал что придет";
-        let output2 = h.auto_punctuate(input2);
-        // Note: "что" isn't in our current list but "чтобы" is. 
-        // Let's verify our current list behavior.
+        assert_eq!(h.auto_punctuate(input2), "он сказал, что придет.");
+        
+        // Let's verify our current list behavior for "чтобы".
         assert_eq!(h.auto_punctuate("я пойду чтобы купить хлеба"), "я пойду, чтобы купить хлеба.");
+    }
+
+    #[test]
+    fn test_camel_case() {
+        let h = Heuristics::new();
+        assert_eq!(h.to_camel_case("user profile service"), "userProfileService");
+        assert_eq!(h.to_camel_case("Get Data FROM api"), "getDataFromApi");
+        assert_eq!(h.to_camel_case("   multiple   spaces   "), "multipleSpaces");
+        assert_eq!(h.to_camel_case("with-hyphens_and.dots"), "withHyphensAndDots");
+        assert_eq!(h.to_camel_case(""), "");
     }
 }

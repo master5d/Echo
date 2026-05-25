@@ -28,36 +28,36 @@ const ModelStatusButton: React.FC<ModelStatusButtonProps> = ({
   const getStatusColor = (status: ModelStatus): string => {
     switch (status) {
       case "ready":
-        return "bg-green-400";
+        return "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]";
       case "loading":
-        return "bg-yellow-400 animate-pulse";
+        return "bg-amber-400 animate-pulse";
       case "downloading":
-        return "bg-logo-primary animate-pulse";
+        return "bg-indigo-400 animate-pulse";
       case "verifying":
         return "bg-orange-400 animate-pulse";
       case "extracting":
         return "bg-orange-400 animate-pulse";
       case "error":
-        return "bg-red-400";
+        return "bg-rose-400 shadow-[0_0_8px_rgba(251,113,133,0.5)]";
       case "unloaded":
-        return "bg-mid-gray/60";
+        return "bg-slate-600";
       case "none":
-        return "bg-red-400";
+        return "bg-rose-400";
       default:
-        return "bg-mid-gray/60";
+        return "bg-slate-600";
     }
   };
 
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 hover:text-text/80 transition-colors ${className}`}
+      className={`flex items-center gap-2.5 hover:text-indigo-300 transition-all duration-200 group ${className}`}
       title={`Model status: ${displayText}`}
     >
-      <div className={`w-2 h-2 rounded-full ${getStatusColor(status)}`} />
-      <span className="max-w-28 truncate">{displayText}</span>
+      <div className={`w-2 h-2 rounded-full transition-shadow duration-300 ${getStatusColor(status)}`} />
+      <span className="max-w-32 truncate font-bold tracking-tight text-slate-300 group-hover:text-indigo-200">{displayText}</span>
       <svg
-        className={`w-3 h-3 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+        className={`w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400 transition-all duration-300 ${isDropdownOpen ? "rotate-180 text-indigo-400" : ""}`}
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -65,7 +65,7 @@ const ModelStatusButton: React.FC<ModelStatusButtonProps> = ({
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth={2}
+          strokeWidth={3}
           d="M19 9l-7 7-7-7"
         />
       </svg>

@@ -1155,3 +1155,30 @@ pub async fn get_available_accelerators() -> crate::managers::transcription::Ava
         .await
         .expect("get_available_accelerators panicked")
 }
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_auto_punctuate_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.auto_punctuate = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_auto_capitalize_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.auto_capitalize = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_subtitle_overlay_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.subtitle_overlay = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}

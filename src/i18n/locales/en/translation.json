@@ -356,6 +356,14 @@
         "add": "Add",
         "remove": "Remove {{word}}",
         "duplicate": "\"{{word}}\" already exists"
+      },
+      "autoPunctuate": {
+        "label": "Auto-Punctuate",
+        "description": "Automatically insert commas and ending punctuation based on sentence structure (RU/EN support)."
+      },
+      "autoCapitalize": {
+        "label": "Auto-Capitalize",
+        "description": "Automatically capitalize the first letter of sentences."
       }
     },
     "postProcessing": {
@@ -511,6 +519,8 @@
     },
     "about": {
       "title": "About",
+      "eliteEdition": "Echo 2.0: Sovern Elite Edition",
+      "nautilusIntegration": "Integrated with NAUTILUS Knowledge Mesh",
       "version": {
         "title": "Version",
         "description": "Current version of Echo"
@@ -585,6 +595,8 @@
     "dismiss": "Dismiss"
   },
   "errors": {
+    "renderingSettingsTitle": "Error Rendering Settings",
+    "renderingSettingsDescription": "Component for section \"{{section}}\" is missing.",
     "loadDirectory": "Error loading directory: {{error}}",
     "micPermissionDeniedTitle": "Microphone Access Denied",
     "micPermissionDenied": {

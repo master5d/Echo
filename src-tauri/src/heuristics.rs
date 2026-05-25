@@ -1,4 +1,8 @@
 use std::collections::HashSet;
+use regex::Regex;
+use once_cell::sync::Lazy;
+
+static WORD_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\wа-яА-ЯёЁ]+").unwrap());
 
 pub struct Heuristics {
     question_words: HashSet<String>,
@@ -12,7 +16,6 @@ impl Heuristics {
             "is", "are", "was", "were", "do", "does", "did",
             "can", "could", "will", "would", "should", "shall",
             "have", "has", "had", "may", "might",
-            // Russian question words
             "кто", "что", "где", "когда", "почему", "как",
             "какой", "какая", "какие", "сколько", "зачем", "откуда",
             "чей", "чья", "чьё", "чьи", "куда", "откуда", "доколе",
@@ -22,7 +25,6 @@ impl Heuristics {
         let comma_before_words: HashSet<String> = [
             "but", "however", "although", "though", "yet", "so",
             "which", "because", "while", "whereas",
-            // Russian
             "но", "а", "однако", "хотя", "потому", "поэтому", 
             "который", "которая", "которые", "которое",
             "что", "чтобы", "если", "так как", "ибо", "словно", "будто",
@@ -32,6 +34,40 @@ impl Heuristics {
         Self {
             question_words,
             comma_before_words,
+        }
+    }
+
+    pub fn to_camel_case(&self, text: &str) -> String {
+        let mut result = String::new();
+        let mut first_word = true;
+        let mut current_word = String::new();
+
+        for c in text.chars() {
+            if c.is_alphanumeric() {
+                current_word.push(c);
+            } else if !current_word.is_empty() {
+                self.append_word(&mut result, &current_word, first_word);
+                first_word = false;
+                current_word.clear();
+            }
+        }
+
+        if !current_word.is_empty() {
+            self.append_word(&mut result, &current_word, first_word);
+        }
+
+        result
+    }
+
+    fn append_word(&self, result: &mut String, word: &str, is_first: bool) {
+        if is_first {
+            result.push_str(&word.to_lowercase());
+        } else {
+            let mut chars = word.chars();
+            if let Some(first) = chars.next() {
+                result.push_str(&first.to_uppercase().to_string());
+                result.push_str(&chars.as_str().to_lowercase());
+            }
         }
     }
 
@@ -51,32 +87,28 @@ impl Heuristics {
             .map(|s| s.to_string())
             .collect();
 
-        if words.is_empty() {
-            return text.to_string();
-        }
-
         for i in 1..words.len() {
-            let clean_word = words[i]
-                .trim_matches(|c: char| c.is_ascii_punctuation())
-                .to_lowercase();
-            
-            if self.comma_before_words.contains(&clean_word) {
-                let prev_index = i - 1;
-                let prev_word = &words[prev_index];
-                if !prev_word.chars().last().map_or(false, |c| c.is_ascii_punctuation()) {
-                    words[prev_index] = format!("{},", prev_word);
+            if let Some(mat) = WORD_REGEX.find(&words[i]) {
+                let clean_word = mat.as_str().to_lowercase();
+                if self.comma_before_words.contains(&clean_word) {
+                    let prev_index = i - 1;
+                    let prev_word = &words[prev_index];
+                    if !prev_word.chars().last().map_or(false, |c| c.is_ascii_punctuation() || c == ',') {
+                        words[prev_index] = format!("{},", prev_word);
+                    }
                 }
             }
         }
 
         let mut result = words.join(" ");
-
-        let first_word_clean = words[0]
-            .trim_matches(|c: char| c.is_ascii_punctuation())
-            .to_lowercase();
-
-        if self.question_words.contains(&first_word_clean) {
-            result.push('?');
+        
+        if let Some(mat) = WORD_REGEX.find(&words[0]) {
+            let first_word_clean = mat.as_str().to_lowercase();
+            if self.question_words.contains(&first_word_clean) {
+                result.push('?');
+            } else {
+                result.push('.');
+            }
         } else {
             result.push('.');
         }

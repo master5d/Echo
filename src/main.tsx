@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { platform } from "@tauri-apps/plugin-os";
+import "./App.css";
 import App from "./App";
 
 // Set platform before render so CSS can scope per-platform (e.g. scrollbar styles)

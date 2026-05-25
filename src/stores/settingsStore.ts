@@ -155,6 +155,12 @@ const settingUpdaters: {
     commands.changeWhisperGpuDevice(value as number),
   extra_recording_buffer_ms: (value) =>
     commands.changeExtraRecordingBufferSetting(value as number),
+  auto_punctuate: (value) =>
+    commands.changeAutoPunctuateSetting(value as boolean),
+  auto_capitalize: (value) =>
+    commands.changeAutoCapitalizeSetting(value as boolean),
+  subtitle_overlay: (value) =>
+    commands.changeSubtitleOverlaySetting(value as boolean),
 };
 
 export const useSettingsStore = create<SettingsStore>()(

@@ -466,7 +466,13 @@ impl TranscriptionManager {
                 is_loading = self.loading_condvar.wait(is_loading).unwrap();
             }
 
-            let engine_guard = self.lock_engine();
+            // Wait for the engine to be available if it's currently checked out for transcription
+            let mut engine_guard = self.engine.lock().unwrap();
+            while engine_guard.is_none() && self.current_model_id.lock().unwrap().is_some() {
+                debug!("Engine is busy; waiting for return...");
+                engine_guard = self.loading_condvar.wait(engine_guard).unwrap();
+            }
+
             if engine_guard.is_none() {
                 return Err(anyhow::anyhow!("Model is not loaded for transcription."));
             }

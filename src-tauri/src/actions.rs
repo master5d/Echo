@@ -346,6 +346,28 @@ pub(crate) struct ProcessedTranscription {
     pub post_process_prompt: Option<String>,
 }
 
+#[cfg(target_os = "windows")]
+fn get_active_window_title() -> Option<String> {
+    use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowTextW};
+    unsafe {
+        let hwnd = GetForegroundWindow();
+        if hwnd.0 == std::ptr::null_mut() {
+            return None;
+        }
+        let mut buffer = [0u16; 512];
+        let len = GetWindowTextW(hwnd, &mut buffer);
+        if len == 0 {
+            return None;
+        }
+        Some(String::from_utf16_lossy(&buffer[..len as usize]))
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn get_active_window_title() -> Option<String> {
+    None
+}
+
 pub(crate) async fn process_transcription_output(
     app: &AppHandle,
     transcription: &str,
@@ -363,6 +385,37 @@ pub(crate) async fn process_transcription_output(
         }
         if settings.auto_capitalize {
             final_text = h.auto_capitalize(&final_text);
+        }
+    }
+
+    // Context-Aware Formatting
+    if let Some(title) = get_active_window_title() {
+        let title_lower = title.to_lowercase();
+        debug!("Active window detected: {}", title);
+        
+        let is_code_editor = title_lower.contains("visual studio code") || 
+           title_lower.contains("cursor") || 
+           title_lower.contains("zed") ||
+           title_lower.contains("sublime") ||
+           title_lower.contains("intellij") ||
+           title_lower.contains("webstorm") ||
+           title_lower.contains("pycharm") ||
+           title_lower.contains("clion") ||
+           title_lower.contains("neovim") ||
+           title_lower.contains("visual studio");
+
+        if is_code_editor {
+            // Strip trailing punctuation for code editors
+            final_text = final_text.trim_end_matches(|c: char| c.is_ascii_punctuation()).to_string();
+            debug!("Applying 'Code Editor' formatting: stripped trailing punctuation");
+            
+            // Explicit CamelCase trigger: "camel case [text]"
+            let lower_final = final_text.to_lowercase();
+            if lower_final.starts_with("camel case ") {
+                let h = crate::heuristics::Heuristics::new();
+                final_text = h.to_camel_case(&final_text[11..]);
+                debug!("Applying 'CamelCase' formatting via trigger");
+            }
         }
     }
 
@@ -482,7 +535,7 @@ impl ShortcutAction for TranscribeAction {
                     let mut last_peek_time = Instant::now();
                     
                     while rm_clone.is_recording() {
-                        if last_peek_time.elapsed() >= Duration::from_millis(800) {
+                        if last_peek_time.elapsed() >= Duration::from_millis(200) {
                             if let Some(samples) = rm_clone.peek_recording() {
                                 if !samples.is_empty() {
                                     // Transcribe a slice of the audio for speed, or the whole thing

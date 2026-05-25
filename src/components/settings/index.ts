@@ -21,12 +21,16 @@ export { ShortcutInput } from "./ShortcutInput";
 export { TranslateToEnglish } from "./TranslateToEnglish";
 export { CustomWords } from "./CustomWords";
 export { PostProcessingToggle } from "./PostProcessingToggle";
-export { PostProcessingSettingsApi } from "./PostProcessingSettingsApi";
-export { PostProcessingSettingsPrompts } from "./PostProcessingSettingsPrompts";
+export {
+  PostProcessingSettingsApi,
+  PostProcessingSettingsPrompts,
+} from "./post-processing/PostProcessingSettings";
 export { AppDataDirectory } from "./AppDataDirectory";
 export { ModelUnloadTimeoutSetting } from "./ModelUnloadTimeout";
 export { StartHidden } from "./StartHidden";
 export { HistoryLimit } from "./HistoryLimit";
 export { RecordingRetentionPeriodSelector } from "./RecordingRetentionPeriod";
 export { AutostartToggle } from "./AutostartToggle";
+export { AutoPunctuate } from "./AutoPunctuate";
+export { AutoCapitalize } from "./AutoCapitalize";
 export { UpdateChecksToggle } from "./UpdateChecksToggle";

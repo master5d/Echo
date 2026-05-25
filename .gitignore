@@ -32,6 +32,9 @@ dist-ssr
 recording_*
 .crush/
 
+# Models
+src-tauri/resources/models/
+
 # Playwright
 playwright-report/
 test-results/

@@ -93,9 +93,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     .map(([id, config]) => ({ id: id as SidebarSection, ...config }));
 
   return (
-    <div className="flex flex-col w-40 h-full border-e border-mid-gray/20 items-center px-2">
-      <EchoTextLogo width={120} className="m-4" />
-      <div className="flex flex-col w-full items-center gap-1 pt-2 border-t border-mid-gray/20">
+    <div className="flex flex-col w-52 h-full border-e border-slate-800 items-center px-4 bg-slate-900/40 backdrop-blur-md">
+      <div className="py-8">
+        <EchoTextLogo width={160} />
+      </div>
+      <div className="flex flex-col w-full items-center gap-2 pt-6 border-t border-slate-800/50">
         {availableSections.map((section) => {
           const Icon = section.icon;
           const isActive = activeSection === section.id;
@@ -103,16 +105,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
           return (
             <div
               key={section.id}
-              className={`flex gap-2 items-center p-2 w-full rounded-lg cursor-pointer transition-colors ${
-                isActive
-                  ? "bg-logo-primary/80"
-                  : "hover:bg-mid-gray/20 hover:opacity-100 opacity-85"
-              }`}
+              className={`
+                flex flex-row items-center w-full px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 group
+                ${
+                  isActive
+                    ? "bg-indigo-600/90 text-white shadow-lg shadow-indigo-500/20 translate-x-1"
+                    : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+                }
+              `}
               onClick={() => onSectionChange(section.id)}
             >
-              <Icon width={24} height={24} className="shrink-0" />
+              <Icon 
+                width={20} 
+                height={20} 
+                className={`shrink-0 transition-colors duration-300 ${
+                  isActive ? "text-white" : "text-slate-500 group-hover:text-indigo-400"
+                }`} 
+              />
               <p
-                className="text-sm font-medium truncate"
+                className="text-[13px] font-bold tracking-tight ml-3 truncate"
                 title={t(section.labelKey)}
               >
                 {t(section.labelKey)}

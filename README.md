@@ -1,47 +1,44 @@
-# Handy
+# Echo
 
 [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/WVBeWsNXK4)
 
-**A free, open source, and extensible speech-to-text application that works completely offline.**
+**A high-performance, local-first dictation utility for elite bilingual users.**
 
-Handy is a cross-platform desktop application that provides simple, privacy-focused speech transcription. Press a shortcut, speak, and have your words appear in any text field. This happens on your own computer without sending any information to the cloud.
+**Echo** (formerly Handy) is a sovereign speech-to-text application designed for power users who demand ultra-low latency, privacy, and linguistic intelligence. Built with a Rust-based core (Tauri) and deep OS integration, Echo delivers a "stealth" transcription experience that works entirely offline.
 
-## Why Handy?
+## Why Echo?
 
-Handy was created to fill the gap for a truly open source, extensible speech-to-text tool. As stated on [handy.computer](https://handy.computer):
+Echo is the **Elite Edition** of local dictation. While other tools focus on simple transcription, Echo is built for professional workflows:
 
-- **Free**: Accessibility tooling belongs in everyone's hands, not behind a paywall
-- **Open Source**: Together we can build further. Extend Handy for yourself and contribute to something bigger
-- **Private**: Your voice stays on your computer. Get transcriptions without sending audio to the cloud
-- **Simple**: One tool, one job. Transcribe what you say and put it into a text box
+- **Sovereign**: Your voice, your data, your computer. No cloud, no telemetry.
+- **Bilingual Intelligence**: Optimized for RU/EN context-switching with smart auto-punctuation (e.g., handles "но", "который", "because" seamlessly).
+- **Developer First**: Integrated "CamelCase" dictation and context-aware formatting for IDEs like VS Code, Cursor, and IntelliJ.
+- **Stealth UX**: A non-focus-stealing floating pill that provides real-time feedback without interrupting your flow.
 
-Handy isn't trying to be the best speech-to-text app—it's trying to be the most forkable one.
+Echo isn't just an app—it's a high-fidelity interface for your thoughts.
 
 ## How It Works
 
-1. **Press** a configurable keyboard shortcut to start/stop recording (or use push-to-talk mode)
-2. **Speak** your words while the shortcut is active
-3. **Release** and Handy processes your speech using Whisper
-4. **Get** your transcribed text pasted directly into whatever app you're using
+1. **Press** a configurable keyboard shortcut (Tap for Lock, Hold for PTT)
+2. **Speak** your words; Echo streams high-contrast subtitles in real-time
+3. **Release** and Echo's linguistic engine refines the text using Whisper or Parakeet
+4. **Paste** directly into any app with context-aware formatting (e.g., stripping periods in code editors)
 
 The process is entirely local:
 
 - Silence is filtered using VAD (Voice Activity Detection) with Silero
-- Transcription uses your choice of models:
-  - **Whisper models** (Small/Medium/Turbo/Large) with GPU acceleration when available
-  - **Parakeet V3** - CPU-optimized model with excellent performance and automatic language detection
-- Works on Windows, macOS, and Linux
+- Transcription uses high-performance models:
+  - **Parakeet V3** - CPU-optimized with automatic language detection
+  - **Whisper models** - GPU acceleration (Metal/DirectML) for complex multilingual tasks
+- **Knowledge Mesh Ready**: Integrated with LiteLLM/NAUTILUS for advanced semantic smoothing.
 
 ## Quick Start
 
 ### Installation
 
-1. Download the latest release from the [releases page](https://github.com/cjpais/Handy/releases) or the [website](https://handy.computer)
-   - **macOS**: Also available via [Homebrew cask](https://formulae.brew.sh/cask/handy): `brew install --cask handy`
-   - **Windows**: Also available via [winget](https://github.com/microsoft/winget-pkgs): `winget install cjpais.Handy` \
-     **Note:** The Homebrew cask and winget package are not maintained by the Handy developers.
-2. Install the application
-3. Launch Handy and grant necessary system permissions (microphone, accessibility)
+1. Download the latest release from the [releases page](https://github.com/cjpais/Handy/releases)
+2. Install the application (**Note**: On Windows, it installs to `%LOCALAPPDATA%/echo`)
+3. Launch Echo and grant necessary system permissions (microphone, accessibility)
 4. Configure your preferred keyboard shortcuts in Settings
 5. Start transcribing!
 
@@ -49,27 +46,18 @@ The process is entirely local:
 
 For detailed build instructions including platform-specific requirements, see [BUILD.md](BUILD.md).
 
-## Integrations
-
-<a href="https://www.raycast.com/mattiacolombomc/handy" title="Install Handy Raycast Extension"><img src="https://www.raycast.com/mattiacolombomc/handy/install_button@2x.png?v=1.1" height="64" style="height: 64px;" alt="Install handy Raycast Extension" /></a>
-
-Control Handy from [Raycast](https://www.raycast.com) — start/stop recording, browse transcript history, manage dictionary, switch models and languages.
-
-[Source](https://github.com/mattiacolombomc/raycast-handy) · by [@mattiacolombomc](https://github.com/mattiacolombomc)
-
 ## Architecture
 
-Handy is built as a Tauri application combining:
+Echo is built as a high-performance Tauri application:
 
-- **Frontend**: React + TypeScript with Tailwind CSS for the settings UI
-- **Backend**: Rust for system integration, audio processing, and ML inference
+- **Frontend**: React 18 + TypeScript + Tailwind CSS (Optimized for 0.7s initial render)
+- **Backend**: Rust core with `Wait-and-Notify` concurrency management
 - **Core Libraries**:
-  - `whisper-rs`: Local speech recognition with Whisper models
-  - `transcribe-rs`: CPU-optimized speech recognition with Parakeet models
-  - `cpal`: Cross-platform audio I/O
-  - `vad-rs`: Voice Activity Detection
-  - `rdev`: Global keyboard shortcuts and system events
-  - `rubato`: Audio resampling
+  - `whisper-rs`: Local GPU-accelerated inference
+  - `transcribe-rs`: Parakeet V3 CPU-optimized engine
+  - `ort-directml`: ONNX acceleration for modern Windows hardware
+  - `vad-rs`: Deep-learning based Voice Activity Detection
+  - `windows-rs`: Low-level Win32 integration (HWND_TOPMOST, WS_EX_NOACTIVATE)
 
 ### Debug Mode
 
