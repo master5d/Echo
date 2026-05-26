@@ -449,7 +449,12 @@ pub fn default_auto_capitalize() -> bool {
 }
 
 pub fn default_subtitle_overlay() -> bool {
-    true
+    // Off by default: the streaming live-subtitle task re-transcribes the whole
+    // buffer every ~300ms with a blocking call. That's fine for sub-second
+    // engines (Parakeet/Moonshine) but on a slow engine (Whisper large on CPU)
+    // it floods the inference engine and makes the pipeline appear to hang for
+    // a very long time. Opt in only when running a fast model.
+    false
 }
 
 fn default_model() -> String {
