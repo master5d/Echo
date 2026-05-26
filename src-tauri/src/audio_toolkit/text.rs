@@ -3,6 +3,48 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use strsim::levenshtein;
 
+/// Known Whisper hallucination phrases emitted on silence / non-speech audio:
+/// YouTube-style subtitle credits and sign-offs (RU + EN). Whisper invents
+/// these when there's nothing to transcribe (e.g. "Субтитры создавал
+/// DimaTorzok", "Thanks for watching"). They never occur in real dictation,
+/// so any line containing one is dropped. Matched case-insensitively.
+static HALLUCINATION_PATTERNS: Lazy<Vec<Regex>> = Lazy::new(|| {
+    [
+        // Russian subtitle/credit hallucinations (name after the verb varies)
+        r"(?i)субтитр\w*\s+(создавал|создавала|делал|делала|сделал|подготовил|редактировал|перевод|и\s+перевод)",
+        r"(?i)редактор\s+субтитр",
+        r"(?i)корректор[\s:]",
+        r"(?i)спасибо\s+за\s+(просмотр|внимание)",
+        r"(?i)продолжение\s+следует",
+        r"(?i)(подписывайтесь|подпишитесь|подпишись|ставьте\s+лайк)",
+        // English subtitle/credit hallucinations
+        r"(?i)thank\s*you\s+for\s+watching",
+        r"(?i)thanks\s+for\s+watching",
+        r"(?i)subtitle[sd]?\s+by\b",
+        r"(?i)amara\.org",
+        r"(?i)please\s+subscribe",
+        r"(?i)transcription\s+by\b",
+    ]
+    .iter()
+    .map(|p| Regex::new(p).unwrap())
+    .collect()
+});
+
+/// Drops lines that consist of a known Whisper silence-hallucination phrase.
+/// For the common single-utterance case this turns a pure hallucination into
+/// an empty string (so nothing is pasted); mixed multi-line output keeps the
+/// real lines.
+fn strip_hallucinations(text: &str) -> String {
+    if HALLUCINATION_PATTERNS.iter().any(|p| p.is_match(text)) {
+        text.lines()
+            .filter(|line| !HALLUCINATION_PATTERNS.iter().any(|p| p.is_match(line)))
+            .collect::<Vec<_>>()
+            .join(" ")
+    } else {
+        text.to_string()
+    }
+}
+
 /// Builds an n-gram string by cleaning and concatenating words
 ///
 /// Strips punctuation from each word, lowercases, and joins without spaces.
@@ -290,7 +332,9 @@ pub fn filter_transcription_output(
     lang: &str,
     custom_filler_words: &Option<Vec<String>>,
 ) -> String {
-    let mut filtered = text.to_string();
+    // Drop known silence-hallucination credit phrases first ("Субтитры
+    // создавал ...", "Thanks for watching", etc.).
+    let mut filtered = strip_hallucinations(text);
 
     // Build filler patterns from custom list or language defaults
     let patterns: Vec<Regex> = match custom_filler_words {
@@ -408,6 +452,32 @@ mod tests {
         let text = "This is a completely normal sentence.";
         let result = filter_transcription_output(text, "en", &None);
         assert_eq!(result, "This is a completely normal sentence.");
+    }
+
+    #[test]
+    fn test_filter_drops_whisper_hallucinations() {
+        // Pure silence-hallucinations collapse to empty (nothing gets pasted).
+        assert_eq!(
+            filter_transcription_output("Субтитры создавал DimaTorzok", "ru", &None),
+            ""
+        );
+        assert_eq!(
+            filter_transcription_output("Редактор субтитров А.Синецкая", "ru", &None),
+            ""
+        );
+        assert_eq!(
+            filter_transcription_output("Thanks for watching!", "en", &None),
+            ""
+        );
+        assert_eq!(
+            filter_transcription_output("Subtitles by the Amara.org community", "en", &None),
+            ""
+        );
+        // Real speech is untouched.
+        assert_eq!(
+            filter_transcription_output("Давай закоммитим этот pull request.", "ru", &None),
+            "Давай закоммитим этот pull request."
+        );
     }
 
     #[test]

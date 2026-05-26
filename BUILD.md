@@ -76,6 +76,39 @@ npm run tauri build
 
 This compiles a release binary and generates platform-specific bundles (deb, rpm, AppImage on Linux; dmg on macOS; msi on Windows).
 
+## Windows: GPU Whisper (Vulkan)
+
+The Windows build uses the `whisper-vulkan` backend so Whisper runs on the GPU
+(any vendor — NVIDIA/AMD/Intel — auto-detected at runtime; pick the device in
+Settings → Advanced → Hardware Acceleration). CI installs the Vulkan SDK
+automatically. For a **local** build you need it too:
+
+1. Install the [Vulkan SDK](https://vulkan.lunarg.com/) (provides `glslc`).
+
+On a **stable** toolchain (VS 2022 + a 3.x CMake) `npm run tauri dev` just
+works once the Vulkan SDK is installed.
+
+On a **bleeding-edge** toolchain (VS preview + CMake 4.x), whisper.cpp's
+`ggml-vulkan` shader-gen subproject fails under the MSVC/msbuild generator
+(`vs_link_exe` manifest LNK1104, exceptions off). Build with LLVM + Ninja
+instead — from a PowerShell with the VS dev environment imported:
+
+```powershell
+# install once: scoop install ninja llvm   (LLVM gives clang-cl + lld-link)
+$env:CC = "clang-cl"; $env:CXX = "clang-cl"; $env:RC = "llvm-rc"
+$env:CMAKE_GENERATOR = "Ninja"
+$env:CMAKE_LINKER_TYPE = "LLD"            # lld-link dodges the MSVC manifest bug
+$env:CMAKE_POLICY_VERSION_MINIMUM = "3.5" # accept whisper.cpp's old CMake policies
+$env:CXXFLAGS = "/EHsc"; $env:CL = "/EHsc" # ggml omits /EHsc for non-MSVC compiler id
+$env:VULKAN_SDK = "C:\VulkanSDK\<version>"
+# clear VS instance/platform/toolset (Ninja rejects them):
+Remove-Item env:CMAKE_GENERATOR_INSTANCE,env:CMAKE_GENERATOR_PLATFORM,env:CMAKE_GENERATOR_TOOLSET -EA SilentlyContinue
+cargo tauri dev   # or: cargo run --manifest-path src-tauri/Cargo.toml
+```
+
+If you switch toolchains, `cargo clean -p whisper-rs-sys` first so CMake
+reconfigures from scratch (a stale cache keeps the old generator/instance).
+
 ## Linux Install (from source)
 
 The raw binary (`src-tauri/target/release/handy`) cannot run standalone — it needs Tauri resource files (tray icons, sounds, VAD model) to be co-located at the expected path.

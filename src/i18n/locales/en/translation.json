@@ -519,8 +519,8 @@
     },
     "about": {
       "title": "About",
-      "eliteEdition": "Echo 2.0: Sovern Elite Edition",
-      "nautilusIntegration": "Integrated with NAUTILUS Knowledge Mesh",
+      "eliteEdition": "Local-first bilingual dictation",
+      "nautilusIntegration": "",
       "version": {
         "title": "Version",
         "description": "Current version of Echo"

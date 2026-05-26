@@ -41,11 +41,8 @@ export const AboutSettings: React.FC = () => {
     <div className="max-w-3xl w-full mx-auto space-y-6">
       <div className="flex flex-col items-center gap-2 mb-6">
         <EchoTextLogo width={180} />
-        <p className="text-xs font-bold text-indigo-400 tracking-widest uppercase">
+        <p className="text-xs font-bold text-logo-primary tracking-widest uppercase">
           {t("settings.about.eliteEdition")}
-        </p>
-        <p className="text-[10px] text-white/40 italic">
-          {t("settings.about.nautilusIntegration")}
         </p>
       </div>
       <SettingsGroup title={t("settings.about.title")}>
