@@ -59,19 +59,19 @@ cd Handy
 ### 2. Install Dependencies
 
 ```bash
-bun install
+npm install
 ```
 
 ### 3. Start Dev Server
 
 ```bash
-bun tauri dev
+npm run tauri dev
 ```
 
 ### 4. Build for Production
 
 ```bash
-bun run tauri build
+npm run tauri build
 ```
 
 This compiles a release binary and generates platform-specific bundles (deb, rpm, AppImage on Linux; dmg on macOS; msi on Windows).
@@ -124,7 +124,7 @@ cd src-tauri/target/release/bundle/appimage
 **Workaround:** The binary, deb, and rpm bundles all build fine — only the AppImage step fails. To skip it:
 
 ```bash
-bun run tauri build -- --bundles deb
+npm run tauri build -- --bundles deb
 ```
 
 Then install using the deb extraction method above.

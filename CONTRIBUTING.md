@@ -44,10 +44,10 @@ Before you begin, ensure you have the following installed:
    git remote add upstream git@github.com:cjpais/Handy.git
    ```
 
-4. **Install dependencies**:
+4. **Install dependencies** (npm / pnpm / bun all work — npm shown):
 
    ```bash
-   bun install
+   npm install
    ```
 
 5. **Download required models**:
@@ -59,9 +59,9 @@ Before you begin, ensure you have the following installed:
 
 6. **Run in development mode**:
    ```bash
-   bun run tauri dev
+   npm run tauri dev
    # On macOS if you encounter cmake errors:
-   CMAKE_POLICY_VERSION_MINIMUM=3.5 bun run tauri dev
+   CMAKE_POLICY_VERSION_MINIMUM=3.5 npm run tauri dev
    ```
 
 For detailed platform-specific setup instructions, see [BUILD.md](BUILD.md).
@@ -267,7 +267,7 @@ In your PR description, please include:
 
 **Manual Testing:**
 
-- Run the app in development mode: `bun run tauri dev`
+- Run the app in development mode: `npm run tauri dev`
 - Test your changes with debug mode enabled
 - Verify on multiple platforms if possible
 - Test with different audio devices
@@ -276,7 +276,7 @@ In your PR description, please include:
 **Building for Production:**
 
 ```bash
-bun run tauri build
+npm run tauri build
 ```
 
 Test the production build to ensure it works as expected.

@@ -3,7 +3,7 @@
 **Environment Setup:**
 
 ```bash
-bun install                    # Install dependencies
+npm install                    # Install dependencies
 mkdir -p src-tauri/resources/models
 curl -o src-tauri/resources/models/silero_vad_v4.onnx https://blob.handy.computer/silero_vad_v4.onnx
 ```
@@ -11,18 +11,18 @@ curl -o src-tauri/resources/models/silero_vad_v4.onnx https://blob.handy.compute
 **Development:**
 
 ```bash
-bun run tauri dev              # Full app development
-CMAKE_POLICY_VERSION_MINIMUM=3.5 bun run tauri dev  # macOS with cmake fix
-bun run dev                     # Frontend only (Vite)
-bun run build                   # Build frontend
-bun run tauri build             # Production build
+npm run tauri dev              # Full app development
+CMAKE_POLICY_VERSION_MINIMUM=3.5 npm run tauri dev  # macOS with cmake fix
+npm run dev                     # Frontend only (Vite)
+npm run build                   # Build frontend
+npm run tauri build             # Production build
 ```
 
 **Type Check & Build:**
 
 ```bash
 bunx tsc --noEmit               # Type checking
-bun run build                   # Build and validate
+npm run build                   # Build and validate
 ```
 
 # Code Style Guidelines

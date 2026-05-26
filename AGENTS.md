@@ -7,30 +7,36 @@ This file provides guidance to AI coding assistants working with code in this re
 **Prerequisites:**
 
 - [Rust](https://rustup.rs/) (latest stable)
-- [Bun](https://bun.sh/) (canonical package manager — the Nix build and `postinstall` depend on `bun.lock`)
+- [Node.js](https://nodejs.org/) 20+ (ships with `npm`)
+
+**Package manager: any of npm / pnpm / bun works.** Scripts and the Tauri
+`beforeDevCommand`/`beforeBuildCommand` use `npm` (always present with Node),
+and `postinstall` is plain Node, so a fresh clone installs and runs without
+extra tooling. CI and the Nix build use **bun** and pin `bun.lock`; npm/pnpm
+developers resolve from `package.json` ranges. Substitute your PM below.
 
 **Core Development:**
 
 ```bash
 # Install dependencies
-bun install
+npm install
 
 # Run in development mode
-bun tauri dev
+npm run tauri dev
 
 # Build for production
-bun tauri build
+npm run tauri build
 
 # Frontend only development
-bun run dev        # Start Vite dev server
-bun run build      # Build frontend (TypeScript + Vite)
+npm run dev        # Start Vite dev server (127.0.0.1:1420)
+npm run build      # Build frontend (TypeScript + Vite)
 ```
 
 **Linting and Formatting (run before committing):**
 
 ```bash
-bun run lint              # ESLint for frontend (includes i18n checks)
-bun run format            # Prettier + cargo fmt
+npm run lint              # ESLint for frontend (includes i18n checks)
+npm run format            # Prettier + cargo fmt
 ```
 
 ## Architecture Overview
