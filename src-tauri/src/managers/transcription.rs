@@ -560,10 +560,14 @@ impl TranscriptionManager {
                                 ];
                                 let mut parts: Vec<String> = Vec::new();
                                 if STEER_LANGS.contains(&validated_language.as_str()) {
-                                    // Kept short/innocuous to minimize the chance
-                                    // of the prompt leaking into the transcript.
+                                    // A concrete code-switched exemplar: Whisper
+                                    // mimics the script convention of its prompt,
+                                    // so showing Russian in Cyrillic with English
+                                    // terms left in Latin biases it to KEEP English
+                                    // words in Latin instead of transliterating them
+                                    // to Cyrillic (the core RU/EN mixing use case).
                                     parts.push(
-                                        "Свободная двуязычная речь: русский вперемешку с English."
+                                        "Окей, нужно проверить этот pull request, потом merge в main branch и deploy."
                                             .to_string(),
                                     );
                                 }
