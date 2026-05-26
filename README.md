@@ -36,7 +36,7 @@ The process is entirely local:
 
 ### Installation
 
-1. Download the latest release from the [releases page](https://github.com/cjpais/Handy/releases)
+1. Download the latest release from the [releases page](https://github.com/master5d/Echo/releases)
 2. Install the application (**Note**: On Windows, it installs to `%LOCALAPPDATA%/echo`)
 3. Launch Echo and grant necessary system permissions (microphone, accessibility)
 4. Configure your preferred keyboard shortcuts in Settings
@@ -73,35 +73,35 @@ Handy supports command-line flags for controlling a running instance and customi
 **Remote control flags** (sent to an already-running instance via the single-instance plugin):
 
 ```bash
-handy --toggle-transcription    # Toggle recording on/off
-handy --toggle-post-process     # Toggle recording with post-processing on/off
-handy --cancel                  # Cancel the current operation
+echo --toggle-transcription    # Toggle recording on/off
+echo --toggle-post-process     # Toggle recording with post-processing on/off
+echo --cancel                  # Cancel the current operation
 ```
 
 **Startup flags:**
 
 ```bash
-handy --start-hidden            # Start without showing the main window
-handy --no-tray                 # Start without the system tray icon
-handy --debug                   # Enable debug mode with verbose logging
-handy --help                    # Show all available flags
+echo --start-hidden            # Start without showing the main window
+echo --no-tray                 # Start without the system tray icon
+echo --debug                   # Enable debug mode with verbose logging
+echo --help                    # Show all available flags
 ```
 
 Flags can be combined for autostart scenarios:
 
 ```bash
-handy --start-hidden --no-tray
+echo --start-hidden --no-tray
 ```
 
 > **macOS tip:** When Handy is installed as an app bundle, invoke the binary directly:
 >
 > ```bash
-> /Applications/Handy.app/Contents/MacOS/Handy --toggle-transcription
+> /Applications/Echo.app/Contents/MacOS/Echo --toggle-transcription
 > ```
 
 ## Known Issues & Current Limitations
 
-This project is actively being developed and has some [known issues](https://github.com/cjpais/Handy/issues). We believe in transparency about the current state:
+This project is actively being developed and has some [known issues](https://github.com/master5d/Echo/issues). We believe in transparency about the current state:
 
 ### Major Issues (Help Wanted)
 
@@ -156,7 +156,7 @@ Without these tools, Handy falls back to enigo which may have limited compatibil
   1. Open **Settings > Keyboard > Keyboard Shortcuts > Custom Shortcuts**
   2. Click the **+** button to add a new shortcut
   3. Set the **Name** to `Toggle Handy Transcription`
-  4. Set the **Command** to `handy --toggle-transcription`
+  4. Set the **Command** to `echo --toggle-transcription`
   5. Click **Set Shortcut** and press your desired key combination (e.g., `Super+O`)
 
   **KDE Plasma:**
@@ -164,14 +164,14 @@ Without these tools, Handy falls back to enigo which may have limited compatibil
   2. Click **Edit > New > Global Shortcut > Command/URL**
   3. Name it `Toggle Handy Transcription`
   4. In the **Trigger** tab, set your desired key combination
-  5. In the **Action** tab, set the command to `handy --toggle-transcription`
+  5. In the **Action** tab, set the command to `echo --toggle-transcription`
 
   **Sway / i3:**
 
   Add to your config file (`~/.config/sway/config` or `~/.config/i3/config`):
 
   ```ini
-  bindsym $mod+o exec handy --toggle-transcription
+  bindsym $mod+o exec echo --toggle-transcription
   ```
 
   **Hyprland:**
@@ -179,21 +179,21 @@ Without these tools, Handy falls back to enigo which may have limited compatibil
   Add to your config file (`~/.config/hypr/hyprland.conf`):
 
   ```ini
-  bind = $mainMod, O, exec, handy --toggle-transcription
+  bind = $mainMod, O, exec, echo --toggle-transcription
   ```
 
 - You can also manage global shortcuts outside of Handy via Unix signals, which lets Wayland window managers or other hotkey daemons keep ownership of keybindings:
 
   | Signal    | Action                                    | Example                |
   | --------- | ----------------------------------------- | ---------------------- |
-  | `SIGUSR2` | Toggle transcription                      | `pkill -USR2 -n handy` |
-  | `SIGUSR1` | Toggle transcription with post-processing | `pkill -USR1 -n handy` |
+  | `SIGUSR2` | Toggle transcription                      | `pkill -USR2 -n echo` |
+  | `SIGUSR1` | Toggle transcription with post-processing | `pkill -USR1 -n echo` |
 
   Example Sway config:
 
   ```ini
-  bindsym $mod+o exec pkill -USR2 -n handy
-  bindsym $mod+p exec pkill -USR1 -n handy
+  bindsym $mod+o exec pkill -USR2 -n echo
+  bindsym $mod+p exec pkill -USR1 -n echo
   ```
 
   `pkill` here simply delivers the signal—it does not terminate the process.
@@ -268,7 +268,7 @@ To verify a release manually, set `ARTIFACT` to the filename you downloaded, sav
 
 ```bash
 # Replace with the file you downloaded
-ARTIFACT="Handy_0.8.1_amd64.AppImage"
+ARTIFACT="Echo_1.0.0_amd64.AppImage"
 
 python3 - "$ARTIFACT" <<'PY'
 import base64, pathlib, sys
@@ -311,9 +311,9 @@ If you're behind a proxy, firewall, or in a restricted network environment where
 
 The typical paths are:
 
-- **macOS**: `~/Library/Application Support/com.pais.handy/`
-- **Windows**: `C:\Users\{username}\AppData\Roaming\com.pais.handy\`
-- **Linux**: `~/.config/com.pais.handy/`
+- **macOS**: `~/Library/Application Support/com.sovern.echo/`
+- **Windows**: `C:\Users\{username}\AppData\Roaming\com.sovern.echo\`
+- **Linux**: `~/.config/com.sovern.echo/`
 
 #### Step 2: Create Models Directory
 
@@ -321,10 +321,10 @@ Inside your app data directory, create a `models` folder if it doesn't already e
 
 ```bash
 # macOS/Linux
-mkdir -p ~/Library/Application\ Support/com.pais.handy/models
+mkdir -p ~/Library/Application\ Support/com.sovern.echo/models
 
 # Windows (PowerShell)
-New-Item -ItemType Directory -Force -Path "$env:APPDATA\com.pais.handy\models"
+New-Item -ItemType Directory -Force -Path "$env:APPDATA\com.sovern.echo\models"
 ```
 
 #### Step 3: Download Model Files
@@ -428,7 +428,7 @@ If it is already installed and you still see startup problems, try reinstalling 
 If installing the library does not help, you can skip `gtk-layer-shell` initialization entirely as a workaround. On some compositors (notably KDE Plasma under Wayland) it has been reported to interact poorly with the recording overlay. With this variable set, the overlay falls back to a regular always-on-top window:
 
 ```bash
-HANDY_NO_GTK_LAYER_SHELL=1 handy
+HANDY_NO_GTK_LAYER_SHELL=1 echo
 ```
 
 **3. Disable WebKit DMA-BUF renderer (`WEBKIT_DISABLE_DMABUF_RENDERER`)**
@@ -436,7 +436,7 @@ HANDY_NO_GTK_LAYER_SHELL=1 handy
 On some GPU/driver combinations the WebKitGTK DMA-BUF renderer can cause the window to fail to render or to crash. Try:
 
 ```bash
-WEBKIT_DISABLE_DMABUF_RENDERER=1 handy
+WEBKIT_DISABLE_DMABUF_RENDERER=1 echo
 ```
 
 **Making a workaround permanent**
@@ -444,14 +444,14 @@ WEBKIT_DISABLE_DMABUF_RENDERER=1 handy
 Once you've found a flag that helps, export it from your shell profile (`~/.bashrc`, `~/.zshenv`, …) or from the desktop autostart entry that launches Handy. If you launch Handy from a `.desktop` file, you can prefix the `Exec=` line, e.g.:
 
 ```ini
-Exec=env HANDY_NO_GTK_LAYER_SHELL=1 handy
+Exec=env HANDY_NO_GTK_LAYER_SHELL=1 echo
 ```
 
-If a workaround helps you, please [open an issue](https://github.com/cjpais/Handy/issues) describing your distro, desktop environment, and session type — that information helps us narrow down the underlying bug.
+If a workaround helps you, please [open an issue](https://github.com/master5d/Echo/issues) describing your distro, desktop environment, and session type — that information helps us narrow down the underlying bug.
 
 ### How to Contribute
 
-1. **Check existing issues** at [github.com/cjpais/Handy/issues](https://github.com/cjpais/Handy/issues)
+1. **Check existing issues** at [github.com/master5d/Echo/issues](https://github.com/master5d/Echo/issues)
 2. **Fork the repository** and create a feature branch
 3. **Test thoroughly** on your target platform
 4. **Submit a pull request** with clear description of changes
