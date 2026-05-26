@@ -65,7 +65,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJBQjcyMDk1MjA2NjAxRjkKUldUNUFXWWdsU0MzdXRRZi8zYzhqV2FaNUVDbDd2Rk5VM1IvWWowVXdmRFNKQ1BrMXF5RFFsLy8K",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDQ5NkJDQUNDQkMyQUYwNTAKUldSUThDcTh6TXByU1hDaTRhZ0Q0bExQUnVzL21icG5qbUNyR1FFWVJCaHpkSnBoRHNBVXlhTDMK",
       "endpoints": [
         "https://github.com/master5d/Echo/releases/latest/download/latest.json"
       ]

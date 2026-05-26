@@ -73,8 +73,12 @@ jobs:
       platform: ${{ matrix.platform }}
       target: ${{ matrix.target }}
       build-args: ${{ matrix.args }}
-      sign-binaries: true
-      asset-prefix: "handy"
+      # OS code-signing (Apple notarization / Windows Authenticode) requires
+      # paid certs as secrets. Off by default so a fork can ship working
+      # auto-updates (updater signing is handled separately in build.yml).
+      # Flip to true once APPLE_*/AZURE_* secrets are configured.
+      sign-binaries: false
+      asset-prefix: "echo"
       upload-artifacts: false
       release-id: ${{ needs.create-release.outputs.release-id }}
     secrets: inherit
