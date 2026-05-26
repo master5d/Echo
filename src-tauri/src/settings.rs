@@ -187,11 +187,13 @@ impl Default for ModelUnloadTimeout {
 
 impl Default for PasteMethod {
     fn default() -> Self {
-        // Default to CtrlV for macOS and Windows, Direct for Linux
-        #[cfg(target_os = "linux")]
-        return PasteMethod::Direct;
-        #[cfg(not(target_os = "linux"))]
-        return PasteMethod::CtrlV;
+        // Direct (native Unicode typing via enigo `text()` -> SendInput
+        // KEYEVENTF_UNICODE on Windows) is the default everywhere. For
+        // Russian-primary bilingual dictation this avoids clobbering the
+        // user's clipboard and the save/paste/restore round-trip race.
+        // Users who paste very long text or hit app-specific quirks can
+        // switch back to CtrlV in settings.
+        PasteMethod::Direct
     }
 }
 

@@ -303,7 +303,7 @@ impl ModelManager {
             ModelInfo {
                 id: "parakeet-tdt-0.6b-v3".to_string(),
                 name: "Parakeet V3".to_string(),
-                description: "Fast and accurate. Supports 25 European languages.".to_string(),
+                description: "Recommended for bilingual use. Russian-primary with the full Slavic family (uk, pl, cs, sk, sl, bg, hr) plus English — auto-detected across 25 European languages. Fast on CPU.".to_string(),
                 filename: "parakeet-tdt-0.6b-v3-int8".to_string(), // Directory name
                 url: Some("https://blob.handy.computer/parakeet-v3-int8.tar.gz".to_string()),
                 sha256: Some(
@@ -482,7 +482,7 @@ impl ModelManager {
             ModelInfo {
                 id: "gigaam-v3-e2e-ctc".to_string(),
                 name: "GigaAM v3".to_string(),
-                description: "Russian speech recognition. Fast and accurate.".to_string(),
+                description: "Pure-Russian specialist — the most accurate for Russian-only audio (beats Whisper Large by ~50%). No code-switching or other languages; for mixed Russian/English use Parakeet V3.".to_string(),
                 filename: "giga-am-v3-int8".to_string(),
                 url: Some("https://blob.handy.computer/giga-am-v3-int8.tar.gz".to_string()),
                 sha256: Some(

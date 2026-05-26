@@ -546,14 +546,44 @@ impl TranscriptionManager {
                                 Some(normalized)
                             };
 
+                            // Bilingual steering: Whisper detects a single
+                            // language from the opening audio, so a mixed-script
+                            // seed biases the decoder toward emitting both
+                            // Cyrillic and Latin tokens — improving RU/EN
+                            // intra-utterance code-switching. Applied only for
+                            // Slavic-family or auto selections, then combined
+                            // with the user's glossary (custom_words).
+                            let initial_prompt = {
+                                const STEER_LANGS: &[&str] = &[
+                                    "auto", "ru", "uk", "be", "bg", "sr", "mk",
+                                    "cs", "sk", "pl", "sl", "hr",
+                                ];
+                                let mut parts: Vec<String> = Vec::new();
+                                if STEER_LANGS.contains(&validated_language.as_str()) {
+                                    // Kept short/innocuous to minimize the chance
+                                    // of the prompt leaking into the transcript.
+                                    parts.push(
+                                        "Свободная двуязычная речь: русский вперемешку с English."
+                                            .to_string(),
+                                    );
+                                }
+                                if !settings.custom_words.is_empty() {
+                                    parts.push(settings.custom_words.join(", "));
+                                }
+                                if parts.is_empty() {
+                                    None
+                                } else {
+                                    Some(parts.join(" "))
+                                }
+                            };
+
                             let params = WhisperInferenceParams {
                                 language: whisper_language,
                                 translate: settings.translate_to_english,
-                                initial_prompt: if settings.custom_words.is_empty() {
-                                    None
-                                } else {
-                                    Some(settings.custom_words.join(", "))
-                                },
+                                initial_prompt,
+                                // Slightly more sensitive than the 0.2 default
+                                // (WhisperDesk-tuned) for quiet/low-energy speech.
+                                no_speech_thold: 0.15,
                                 ..Default::default()
                             };
 
