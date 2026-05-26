@@ -1,19 +1,45 @@
 @import "tailwindcss";
 
 @theme {
-  /* Echo Elite Design tokens */
-  --color-text: #F8FAFC;
-  --color-background: #0F172A; /* Obsidian */
-  --color-background-ui: #1E293B; /* Slightly lighter obsidian for cards */
-  --color-logo-primary: #6366F1; /* Electric Indigo */
-  --color-logo-stroke: #1E293B;
-  --color-text-stroke: #F8FAFC;
-  --color-mid-gray: #94A3B8;
+  /* Echo "Deep teal-ink" identity — warm-cool ground tinted toward teal
+     (hue ~195) with a single confident coral accent (hue ~30). Replaces the
+     generic slate-900 + indigo-500 AI default. Tailwind v4: redefining the
+     slate/indigo scales here remaps every existing utility class app-wide. */
+
+  /* Semantic tokens */
+  --color-text: oklch(93% 0.008 160);          /* off-white, faint teal cast */
+  --color-background: oklch(19% 0.02 195);       /* teal-ink ground */
+  --color-background-ui: oklch(26% 0.018 195);   /* raised surfaces */
+  --color-logo-primary: oklch(68% 0.16 30);      /* coral accent */
+  --color-logo-stroke: oklch(26% 0.018 195);
+  --color-text-stroke: oklch(93% 0.008 160);
+  --color-mid-gray: oklch(66% 0.025 185);
+
+  /* Neutral scale (was Tailwind slate) -> teal-tinted neutrals */
+  --color-slate-950: oklch(15% 0.015 197);
+  --color-slate-900: oklch(19% 0.02 195);
+  --color-slate-800: oklch(26% 0.018 195);
+  --color-slate-700: oklch(34% 0.018 193);
+  --color-slate-600: oklch(46% 0.02 190);
+  --color-slate-500: oklch(58% 0.024 188);
+  --color-slate-400: oklch(66% 0.025 185);
+  --color-slate-300: oklch(78% 0.018 175);
+  --color-slate-200: oklch(88% 0.012 165);
+
+  /* Accent scale (was Tailwind indigo) -> coral */
+  --color-indigo-200: oklch(86% 0.07 35);
+  --color-indigo-300: oklch(78% 0.11 32);
+  --color-indigo-400: oklch(72% 0.14 30);
+  --color-indigo-500: oklch(68% 0.16 30);
+  --color-indigo-600: oklch(62% 0.17 28);
 }
 
 :root {
   /* Typography */
-  font-family: "Inter", "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Leads with a Cyrillic-display face (bundle "Golos Text"/"Onest" as woff2
+     to activate); falls back to the native UI font, which renders Cyrillic
+     well on Win11/macOS. Intentionally avoids Inter/Roboto/Geist. */
+  font-family: "Golos Text", system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", sans-serif;
   font-size: 14px;
   line-height: 22px;
   font-weight: 400;
@@ -25,8 +51,8 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
-  --scrollbar-thumb: rgba(99, 102, 241, 0.3);
-  --scrollbar-thumb-hover: rgba(99, 102, 241, 0.5);
+  --scrollbar-thumb: oklch(68% 0.16 30 / 0.32);
+  --scrollbar-thumb-hover: oklch(68% 0.16 30 / 0.55);
 
   /* Apply colors */
   color: var(--color-text);
@@ -44,11 +70,11 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Colors - Dark Theme */
-    --color-text: #F8FAFC;
-    --color-background: #0F172A;
-    --color-logo-primary: #6366F1;
-    --color-logo-stroke: #1E293B;
+    /* Echo is dark-first; keep tokens consistent with the @theme defaults. */
+    --color-text: oklch(93% 0.008 160);
+    --color-background: oklch(19% 0.02 195);
+    --color-logo-primary: oklch(68% 0.16 30);
+    --color-logo-stroke: oklch(26% 0.018 195);
   }
 }
 
@@ -71,8 +97,6 @@
   background-color: var(--scrollbar-thumb);
   border-radius: 20px;
   border: 3px solid transparent;
-  border-right-width: 4px;
-  border-left-width: 3px;
   background-clip: content-box;
   min-height: 32px;
 }

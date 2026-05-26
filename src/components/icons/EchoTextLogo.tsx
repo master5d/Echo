@@ -11,10 +11,10 @@ const EchoTextLogo = ({
 }) => {
   return (
     <div className={`flex flex-col items-center justify-center ${className}`} style={{ width, height }}>
-      <h1 className="text-4xl font-bold tracking-tighter text-indigo-500" style={{ fontFamily: "Inter, sans-serif" }}>
+      <h1 className="text-4xl font-bold tracking-tighter text-logo-primary">
         ECHO
       </h1>
-      <div className="mt-1 h-1 w-12 bg-indigo-400 rounded-full"></div>
+      <div className="mt-1 h-1 w-12 bg-logo-primary rounded-full"></div>
     </div>
   );
 };
