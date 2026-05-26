@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { toast, Toaster } from "sonner";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { listen } from "@tauri-apps/api/event";
 import { platform } from "@tauri-apps/plugin-os";
 import {
@@ -19,7 +20,7 @@ import { getLanguageDirection, initializeRTL } from "@/lib/utils/rtl";
 
 type OnboardingStep = "accessibility" | "model" | "done";
 
-const renderSettingsContent = (section: SidebarSection) => {
+const renderSettingsContent = (section: SidebarSection, t: TFunction) => {
   const config = SECTIONS_CONFIG[section] || SECTIONS_CONFIG.general;
   const ActiveComponent = config.component;
 
@@ -298,7 +299,7 @@ function App() {
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             <div className="flex flex-col items-center p-4 gap-4">
               <AccessibilityPermissions />
-              {renderSettingsContent(currentSection)}
+              {renderSettingsContent(currentSection, t)}
             </div>
           </div>
         </div>

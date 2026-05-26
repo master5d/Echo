@@ -80,11 +80,11 @@
 
 .bar {
   width: 6px;
+  height: 20px;
   background: #ffe5ee;
-  max-height: 20px;
   border-radius: 2px;
-  transition: height 80ms linear;
-  min-height: 4px;
+  transform-origin: bottom;
+  transition: transform 80ms linear;
 }
 
 .recording-overlay.fade-in {
@@ -112,6 +112,8 @@
 .cancel-button {
   width: 24px;
   height: 24px;
+  border: none;
+  padding: 0;
   border-radius: 50%;
   background: transparent;
   display: flex;

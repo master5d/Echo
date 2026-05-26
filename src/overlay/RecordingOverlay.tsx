@@ -96,8 +96,10 @@ const RecordingOverlay: React.FC = () => {
                   key={i}
                   className="bar"
                   style={{
-                    height: `${Math.min(20, 4 + Math.pow(v, 0.7) * 16)}px`, // Cap at 20px max height
-                    transition: "height 60ms ease-out, opacity 120ms ease-out",
+                    // Animate transform (compositor-only) instead of height to
+                    // avoid layout thrash; bar is full-height, scaled from base.
+                    transform: `scaleY(${Math.min(20, 4 + Math.pow(v, 0.7) * 16) / 20})`,
+                    transition: "transform 60ms ease-out, opacity 120ms ease-out",
                     opacity: Math.max(0.2, v * 1.7), // Minimum opacity for visibility
                   }}
                 />
@@ -114,14 +116,16 @@ const RecordingOverlay: React.FC = () => {
 
         <div className="overlay-right">
           {state === "recording" && (
-            <div
+            <button
+              type="button"
+              aria-label={t("overlay.cancel")}
               className="cancel-button"
               onClick={() => {
                 commands.cancelOperation();
               }}
             >
               <CancelIcon />
-            </div>
+            </button>
           )}
         </div>
       </div>

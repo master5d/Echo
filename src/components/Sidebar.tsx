@@ -103,10 +103,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           const isActive = activeSection === section.id;
 
           return (
-            <div
+            <button
               key={section.id}
+              type="button"
+              aria-current={isActive ? "page" : undefined}
               className={`
-                flex flex-row items-center w-full px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 group
+                flex flex-row items-center w-full px-4 py-3 rounded-xl cursor-pointer transition-[colors,transform] duration-300 group text-left
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900
                 ${
                   isActive
                     ? "bg-indigo-600/90 text-white shadow-lg shadow-indigo-500/20 translate-x-1"
@@ -115,12 +118,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               `}
               onClick={() => onSectionChange(section.id)}
             >
-              <Icon 
-                width={20} 
-                height={20} 
+              <Icon
+                width={20}
+                height={20}
                 className={`shrink-0 transition-colors duration-300 ${
                   isActive ? "text-white" : "text-slate-500 group-hover:text-indigo-400"
-                }`} 
+                }`}
               />
               <p
                 className="text-[13px] font-bold tracking-tight ml-3 truncate"
@@ -128,7 +131,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               >
                 {t(section.labelKey)}
               </p>
-            </div>
+            </button>
           );
         })}
       </div>

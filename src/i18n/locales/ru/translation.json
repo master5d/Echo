@@ -611,10 +611,11 @@
   },
   "appLanguage": {
     "title": "Язык приложения",
-    "description": "Изменить язык интерфейса Handy"
+    "description": "Изменить язык интерфейса Echo"
   },
   "overlay": {
     "transcribing": "Расшифровка...",
-    "processing": "Обработка..."
+    "processing": "Обработка...",
+    "cancel": "Отменить запись"
   }
 }

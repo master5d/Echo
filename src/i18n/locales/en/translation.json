@@ -619,6 +619,7 @@
   },
   "overlay": {
     "transcribing": "Transcribing...",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "cancel": "Cancel recording"
   }
 }
