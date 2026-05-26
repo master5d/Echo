@@ -671,9 +671,16 @@ impl TranscriptionManager {
 
             match transcribe_result {
                 Ok(inner_result) => {
-                    // Success or normal error — put the engine back
+                    // Success or normal error — put the engine back and wake any
+                    // other transcribe() callers waiting on the engine condvar
+                    // (e.g. the streaming-subtitle task vs. the final transcribe).
+                    // Without this notify, a concurrent waiter parked in
+                    // loading_condvar.wait() sleeps forever -> the pipeline hangs
+                    // on "Transcribing..." and never pastes.
                     let mut engine_guard = self.lock_engine();
                     *engine_guard = Some(engine);
+                    drop(engine_guard);
+                    self.loading_condvar.notify_all();
                     inner_result?
                 }
                 Err(panic_payload) => {
@@ -709,6 +716,11 @@ impl TranscriptionManager {
                             error: Some(format!("Engine panicked: {}", panic_msg)),
                         },
                     );
+
+                    // Wake waiters: the engine is gone and model_id is cleared,
+                    // so they exit the wait loop and return a clean "not loaded"
+                    // error instead of sleeping forever.
+                    self.loading_condvar.notify_all();
 
                     return Err(anyhow::anyhow!(
                         "Transcription engine panicked: {}. The model has been unloaded and will reload on next attempt.",
