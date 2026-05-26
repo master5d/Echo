@@ -7,30 +7,30 @@ This file provides guidance to AI coding assistants working with code in this re
 **Prerequisites:**
 
 - [Rust](https://rustup.rs/) (latest stable)
-- [Node.js / pnpm](https://pnpm.io/) (Current standard package manager)
+- [Bun](https://bun.sh/) (canonical package manager — the Nix build and `postinstall` depend on `bun.lock`)
 
 **Core Development:**
 
 ```bash
 # Install dependencies
-pnpm install
+bun install
 
 # Run in development mode
-pnpm tauri dev
+bun tauri dev
 
 # Build for production
-pnpm tauri build
+bun tauri build
 
 # Frontend only development
-pnpm run dev        # Start Vite dev server
-pnpm run build      # Build frontend (TypeScript + Vite)
+bun run dev        # Start Vite dev server
+bun run build      # Build frontend (TypeScript + Vite)
 ```
 
 **Linting and Formatting (run before committing):**
 
 ```bash
-pnpm run lint              # ESLint for frontend (includes i18n checks)
-pnpm run format            # Prettier + cargo fmt
+bun run lint              # ESLint for frontend (includes i18n checks)
+bun run format            # Prettier + cargo fmt
 ```
 
 ## Architecture Overview

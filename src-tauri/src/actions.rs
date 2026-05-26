@@ -411,9 +411,12 @@ pub(crate) async fn process_transcription_output(
             
             // Explicit CamelCase trigger: "camel case [text]"
             let lower_final = final_text.to_lowercase();
-            if lower_final.starts_with("camel case ") {
+            if let Some(rest) = lower_final.strip_prefix("camel case ") {
+                // Feed the lowercased remainder: to_camel_case re-cases every
+                // word itself, so this is equivalent to slicing the original and
+                // avoids byte-index panics on multibyte input.
                 let h = crate::heuristics::Heuristics::new();
-                final_text = h.to_camel_case(&final_text[11..]);
+                final_text = h.to_camel_case(rest);
                 debug!("Applying 'CamelCase' formatting via trigger");
             }
         }

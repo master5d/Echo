@@ -10,6 +10,12 @@ pub struct Heuristics {
 }
 
 impl Heuristics {
+    // Best-effort, single-token punctuation heuristics. These are matched
+    // against individual whitespace-split tokens, so multi-word conjunctions
+    // (e.g. "так как", "прежде чем") cannot match here and are intentionally
+    // omitted — they would be silent dead entries otherwise. This is a coarse
+    // assist gated behind the auto_punctuate/auto_capitalize settings, not a
+    // grammar engine.
     pub fn new() -> Self {
         let question_words: HashSet<String> = [
             "who", "what", "where", "when", "why", "how",
@@ -18,17 +24,17 @@ impl Heuristics {
             "have", "has", "had", "may", "might",
             "кто", "что", "где", "когда", "почему", "как",
             "какой", "какая", "какие", "сколько", "зачем", "откуда",
-            "чей", "чья", "чьё", "чьи", "куда", "откуда", "доколе",
+            "чей", "чья", "чьё", "чьи", "куда", "доколе",
             "неужели", "разве", "ли"
         ].iter().map(|s| s.to_string()).collect();
 
         let comma_before_words: HashSet<String> = [
             "but", "however", "although", "though", "yet", "so",
             "which", "because", "while", "whereas",
-            "но", "а", "однако", "хотя", "потому", "поэтому", 
+            "но", "а", "однако", "хотя", "потому", "поэтому",
             "который", "которая", "которые", "которое",
-            "что", "чтобы", "если", "так как", "ибо", "словно", "будто",
-            "как будто", "нежели", "пока", "прежде чем"
+            "что", "чтобы", "если", "ибо", "словно", "будто",
+            "нежели", "пока"
         ].iter().map(|s| s.to_string()).collect();
 
         Self {

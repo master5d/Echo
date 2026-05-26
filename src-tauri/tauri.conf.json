@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "identifier": "com.sovern.echo",
   "build": {
-    "beforeDevCommand": "pnpm run dev",
+    "beforeDevCommand": "bun run dev",
     "devUrl": "http://127.0.0.1:1420",
-    "beforeBuildCommand": "pnpm run build",
+    "beforeBuildCommand": "bun run build",
     "frontendDist": "../dist"
   },
   "app": {
@@ -67,7 +67,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJBQjcyMDk1MjA2NjAxRjkKUldUNUFXWWdsU0MzdXRRZi8zYzhqV2FaNUVDbDd2Rk5VM1IvWWowVXdmRFNKQ1BrMXF5RFFsLy8K",
       "endpoints": [
-        "https://github.com/cjpais/Handy/releases/latest/download/latest.json"
+        "https://github.com/master5d/Echo/releases/latest/download/latest.json"
       ]
     }
   }
