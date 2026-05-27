@@ -9,39 +9,186 @@
   overflow: hidden;
 }
 
-.recording-overlay {
-  height: 36px;
-  width: 172px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+/* ── Orb ───────────────────────────────────────────────────────────────
+   A small circular indicator. Its halo ring breathes with the live mic
+   level while recording; a thin arc spins while the engine is busy. Replaces
+   the inherited horizontal capsule entirely. */
+.orb-overlay {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 6px;
-  background: oklch(19% 0.02 195 / 0.85); /* teal-ink ground */
-  border: 1px solid oklch(68% 0.16 30 / 0.3); /* coral, subtle */
-  border-radius: 18px;
+  gap: 8px;
   opacity: 0;
-  transition: opacity 300ms ease-out;
-  box-sizing: border-box;
-  pointer-events: auto;
-  backdrop-filter: blur(8px);
+  transition: opacity 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.orb-overlay.fade-in {
+  opacity: 1;
+}
+
+.orb {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: oklch(19% 0.02 195 / 0.82); /* teal-ink ground */
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px oklch(68% 0.16 30 / 0.28); /* coral hairline */
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    transform 120ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 200ms ease-out;
+  flex-shrink: 0;
+}
+
+.orb:hover {
+  transform: scale(1.06);
+}
+.orb:active {
+  transform: scale(0.96);
+}
+.orb:focus-visible {
+  outline: 2px solid oklch(68% 0.16 30 / 0.7);
+  outline-offset: 3px;
+}
+
+/* Core dot */
+.orb-core {
+  position: relative;
+  z-index: 2;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: oklch(68% 0.16 30); /* coral */
+  transition: background 200ms ease-out;
+}
+
+/* Audio-reactive halo: scale + opacity come from inline style (mic level). */
+.orb-ring {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    oklch(68% 0.16 30 / 0.55) 0%,
+    oklch(68% 0.16 30 / 0) 70%
+  );
+  transform-origin: center;
+  transition:
+    transform 70ms linear,
+    opacity 120ms ease-out;
+  pointer-events: none;
+}
+
+/* Indeterminate spinner arc for preparing / transcribing / processing. */
+.orb-spinner {
+  position: absolute;
+  inset: -3px;
+  z-index: 1;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: oklch(68% 0.16 30); /* coral */
+  border-right-color: oklch(68% 0.16 30 / 0.4);
+  animation: orb-spin 0.9s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes orb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Recording: gently breathe the core so the orb feels alive even in silence. */
+.state-recording .orb-core {
+  animation: orb-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes orb-breathe {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+/* Preparing: dim everything; the mic stream isn't live yet. */
+.state-preparing .orb {
+  opacity: 0.6;
+}
+.state-preparing .orb-core {
+  background: oklch(68% 0.16 30 / 0.5);
+}
+.state-preparing .orb-spinner {
+  animation-duration: 1.3s;
+  opacity: 0.7;
+}
+
+/* Working states: smaller, steady core behind the spinner. */
+.state-transcribing .orb-core,
+.state-processing .orb-core {
+  width: 10px;
+  height: 10px;
+  background: oklch(68% 0.16 30 / 0.75);
+}
+
+.orb-caption {
+  color: oklch(93% 0.008 160 / 0.9);
+  font-size: 11px;
+  font-family: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: oklch(19% 0.02 195 / 0.7);
+  backdrop-filter: blur(6px);
+  animation: orb-caption-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes orb-caption-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ── Live subtitles (below the orb) ─────────────────────────────────── */
 .subtitle-area {
-  margin-top: 12px;
+  margin-top: 4px;
   background: oklch(19% 0.02 195 / 0.8); /* teal-ink ground */
   color: oklch(93% 0.008 160);
   padding: 8px 16px;
   border-radius: 12px;
   max-width: 80%;
   text-align: center;
-  font-size: 16px;
-  font-family: "Golos Text", system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-size: var(--subtitle-font-size, 16px);
+  font-family: "Golos Text", system-ui, -apple-system, "Segoe UI Variable Text",
+    "Segoe UI", sans-serif;
   line-height: 1.4;
   backdrop-filter: blur(12px);
   pointer-events: none;
   opacity: 0;
-  transition: opacity 200ms ease-out, transform 200ms ease-out;
-  border: 1px solid oklch(68% 0.16 30 / 0.22); /* coral, full subtle border (no side-stripe) */
+  transition:
+    opacity 200ms ease-out,
+    transform 200ms ease-out;
+  border: 1px solid oklch(68% 0.16 30 / 0.22); /* coral, full subtle border */
   transform: translateY(10px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
@@ -49,147 +196,4 @@
 .subtitle-area.fade-in {
   opacity: 1;
   transform: translateY(0);
-}
-
-.overlay-left {
-  display: flex;
-  align-items: center;
-}
-
-.overlay-middle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.overlay-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.bars-container {
-  display: flex;
-  align-items: end;
-  justify-content: center;
-  gap: 3px;
-  padding-bottom: 0px;
-  height: 24px;
-  overflow: hidden;
-}
-
-.bar {
-  width: 6px;
-  height: 20px;
-  background: oklch(68% 0.16 30); /* coral accent */
-  border-radius: 2px;
-  transform-origin: bottom;
-  transition: transform 80ms linear;
-}
-
-.recording-overlay.fade-in {
-  opacity: 1;
-}
-
-.transcribing-text {
-  color: white;
-  font-size: 12px;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  animation: transcribing-pulse 1.5s infinite ease-in-out;
-}
-
-@keyframes transcribing-pulse {
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-/* "Preparing" state: mic stream is warming up, not yet capturing.
-   The pill shows this until the backend confirms the stream is live, so the
-   user waits for the cue instead of talking into a dead mic. */
-.preparing-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.preparing-text {
-  color: oklch(93% 0.008 160 / 0.85);
-  font-size: 12px;
-  font-family: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
-  white-space: nowrap;
-}
-
-.preparing-dots {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.preparing-dots span {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: oklch(68% 0.16 30); /* coral accent */
-  opacity: 0.3;
-  animation: preparing-pulse 1s infinite ease-out;
-}
-
-.preparing-dots span:nth-child(2) {
-  animation-delay: 0.16s;
-}
-
-.preparing-dots span:nth-child(3) {
-  animation-delay: 0.32s;
-}
-
-@keyframes preparing-pulse {
-  0%,
-  80%,
-  100% {
-    opacity: 0.3;
-    transform: scale(0.85);
-  }
-  40% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Dim + breathe the mic icon while preparing, so it visibly "comes alive"
-   when the pill flips to the recording state. */
-.recording-overlay.state-preparing .overlay-left {
-  opacity: 0.55;
-  animation: preparing-pulse 1s infinite ease-out;
-}
-
-.cancel-button {
-  width: 24px;
-  height: 24px;
-  border: none;
-  padding: 0;
-  border-radius: 50%;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition:
-    background-color 150ms ease-out,
-    transform 100ms ease-out;
-  flex-shrink: 0;
-}
-
-.cancel-button:hover {
-  background: oklch(68% 0.16 30 / 0.2);
-  transform: scale(1.05);
-}
-
-.cancel-button:active {
-  transform: scale(0.95);
 }
