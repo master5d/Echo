@@ -571,8 +571,9 @@ impl TranscriptionManager {
                                             .to_string(),
                                     );
                                 }
-                                if !settings.custom_words.is_empty() {
-                                    parts.push(settings.custom_words.join(", "));
+                                let glossary = settings.effective_custom_words();
+                                if !glossary.is_empty() {
+                                    parts.push(glossary.join(", "));
                                 }
                                 if parts.is_empty() {
                                     None
@@ -742,12 +743,9 @@ impl TranscriptionManager {
             .map(|info| matches!(info.engine_type, EngineType::Whisper))
             .unwrap_or(false);
 
-        let corrected_result = if !settings.custom_words.is_empty() && !is_whisper {
-            apply_custom_words(
-                &result.text,
-                &settings.custom_words,
-                settings.word_correction_threshold,
-            )
+        let glossary = settings.effective_custom_words();
+        let corrected_result = if !glossary.is_empty() && !is_whisper {
+            apply_custom_words(&result.text, &glossary, settings.word_correction_threshold)
         } else {
             result.text
         };

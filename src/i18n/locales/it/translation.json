@@ -246,7 +246,8 @@
         "transcription": "Trascrizione",
         "history": "Cronologia",
         "experimental": "Sperimentale",
-        "subtitles": "Sottotitoli"
+        "subtitles": "Sottotitoli",
+        "voiceCommands": "Comandi vocali"
       },
       "experimentalToggle": {
         "label": "Funzionalità Sperimentali",
@@ -388,6 +389,31 @@
           "label": "Intervallo di aggiornamento",
           "description": "Con quale frequenza i sottotitoli in tempo reale si aggiornano mentre parli."
         }
+      },
+      "commandMode": {
+        "label": "Modalità comandi",
+        "description": "Inizia la dettatura con un'istruzione (\"traduci in inglese\", \"accorcia\") per trasformare il testo, o termina con \"premi invio\" per inviare. I comandi di trasformazione richiedono un provider di post-elaborazione."
+      },
+      "selfCorrection": {
+        "label": "Autocorrezione",
+        "description": "Quando ti correggi (\"alle 2, no, alle 3\"), viene mantenuta solo la versione corretta."
+      },
+      "spokenLists": {
+        "label": "Elenchi vocali",
+        "description": "Trasforma le enumerazioni dettate (\"primo… secondo… terzo…\") in un elenco numerato."
+      },
+      "devDictionary": {
+        "label": "Dizionario sviluppatore",
+        "description": "Orienta la trascrizione verso la corretta ortografia di strumenti e gergo di sviluppo (GitHub, Vercel, TypeScript…)."
+      },
+      "snippets": {
+        "title": "Snippet",
+        "description": "Frasi vocali di attivazione che si espandono in testo predefinito (firme, link).",
+        "triggerPlaceholder": "Frase di attivazione",
+        "textPlaceholder": "Si espande in…",
+        "add": "Aggiungi",
+        "duplicate": "Lo snippet \"{{trigger}}\" esiste già",
+        "remove": "Rimuovi snippet {{trigger}}"
       }
     },
     "postProcessing": {

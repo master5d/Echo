@@ -246,7 +246,8 @@
         "transcription": "Transkrypcja",
         "history": "Historia",
         "experimental": "Eksperymentalne",
-        "subtitles": "Napisy"
+        "subtitles": "Napisy",
+        "voiceCommands": "Polecenia głosowe"
       },
       "experimentalToggle": {
         "label": "Funkcje Eksperymentalne",
@@ -388,6 +389,31 @@
           "label": "Częstotliwość odświeżania",
           "description": "Jak często napisy na żywo są aktualizowane podczas mówienia."
         }
+      },
+      "commandMode": {
+        "label": "Tryb poleceń",
+        "description": "Rozpocznij dyktowanie od polecenia („przetłumacz na angielski\", „skróć\"), aby przekształcić tekst, lub zakończ słowami „naciśnij enter\", aby wysłać. Polecenia przekształcające wymagają dostawcy postprzetwarzania."
+      },
+      "selfCorrection": {
+        "label": "Autokorekta",
+        "description": "Gdy się poprawiasz („o 2, nie, o 3\"), zachowywana jest tylko poprawiona wersja."
+      },
+      "spokenLists": {
+        "label": "Listy głosowe",
+        "description": "Zamienia dyktowane wyliczenia („po pierwsze… po drugie…\") w listę numerowaną."
+      },
+      "devDictionary": {
+        "label": "Słownik programisty",
+        "description": "Ukierunkowuje transkrypcję na poprawną pisownię popularnych narzędzi i żargonu programistycznego (GitHub, Vercel, TypeScript…)."
+      },
+      "snippets": {
+        "title": "Fragmenty",
+        "description": "Mówione frazy wyzwalające, które rozwijają się w gotowy tekst (podpisy, linki).",
+        "triggerPlaceholder": "Fraza wyzwalająca",
+        "textPlaceholder": "Rozwija się w…",
+        "add": "Dodaj",
+        "duplicate": "Fragment „{{trigger}}\" już istnieje",
+        "remove": "Usuń fragment {{trigger}}"
       }
     },
     "postProcessing": {

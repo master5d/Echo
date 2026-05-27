@@ -246,7 +246,8 @@
         "transcription": "Transcrição",
         "history": "Histórico",
         "experimental": "Experimental",
-        "subtitles": "Legendas"
+        "subtitles": "Legendas",
+        "voiceCommands": "Comandos de voz"
       },
       "experimentalToggle": {
         "label": "Recursos Experimentais",
@@ -388,6 +389,31 @@
           "label": "Intervalo de atualização",
           "description": "Com que frequência as legendas ao vivo são atualizadas enquanto você fala."
         }
+      },
+      "commandMode": {
+        "label": "Modo de comandos",
+        "description": "Comece o ditado com uma instrução (\"traduzir para inglês\", \"encurtar\") para transformar o texto, ou termine com \"pressionar enter\" para enviar. Comandos de transformação exigem um provedor de pós-processamento."
+      },
+      "selfCorrection": {
+        "label": "Autocorreção",
+        "description": "Quando você se corrige (\"às 2, não, às 3\"), mantém-se apenas a versão corrigida."
+      },
+      "spokenLists": {
+        "label": "Listas faladas",
+        "description": "Transforma enumerações ditadas (\"primeiro… segundo… terceiro…\") em uma lista numerada."
+      },
+      "devDictionary": {
+        "label": "Dicionário de desenvolvedor",
+        "description": "Orienta a transcrição para a grafia correta de ferramentas e jargões de desenvolvimento (GitHub, Vercel, TypeScript…)."
+      },
+      "snippets": {
+        "title": "Trechos",
+        "description": "Frases de gatilho faladas que se expandem em texto predefinido (assinaturas, links).",
+        "triggerPlaceholder": "Frase de gatilho",
+        "textPlaceholder": "Expande para…",
+        "add": "Adicionar",
+        "duplicate": "O trecho \"{{trigger}}\" já existe",
+        "remove": "Remover trecho {{trigger}}"
       }
     },
     "postProcessing": {

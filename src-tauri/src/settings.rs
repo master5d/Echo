@@ -93,6 +93,13 @@ pub struct LLMPrompt {
     pub prompt: String,
 }
 
+/// A spoken-trigger text expansion: saying `trigger` inserts `text`.
+#[derive(Serialize, Deserialize, Debug, Clone, Type, PartialEq, Eq)]
+pub struct Snippet {
+    pub trigger: String,
+    pub text: String,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, Type)]
 pub struct PostProcessProvider {
     pub id: String,
@@ -454,6 +461,20 @@ pub struct AppSettings {
     pub subtitle_max_chars: u32,
     #[serde(default = "default_subtitle_refresh_ms")]
     pub subtitle_refresh_ms: u32,
+    #[serde(default)]
+    pub command_mode_enabled: bool,
+    #[serde(default)]
+    pub snippets: Vec<Snippet>,
+    #[serde(default)]
+    pub self_correction_enabled: bool,
+    #[serde(default = "default_spoken_lists_enabled")]
+    pub spoken_lists_enabled: bool,
+    #[serde(default)]
+    pub dev_dictionary_enabled: bool,
+}
+
+pub fn default_spoken_lists_enabled() -> bool {
+    true
 }
 
 pub fn default_auto_punctuate() -> bool {
@@ -906,10 +927,31 @@ pub fn get_default_settings() -> AppSettings {
         subtitle_font_size: default_subtitle_font_size(),
         subtitle_max_chars: default_subtitle_max_chars(),
         subtitle_refresh_ms: default_subtitle_refresh_ms(),
+        command_mode_enabled: false,
+        snippets: Vec::new(),
+        self_correction_enabled: false,
+        spoken_lists_enabled: default_spoken_lists_enabled(),
+        dev_dictionary_enabled: false,
     }
 }
 
 impl AppSettings {
+    /// The glossary used to steer/correct transcription: the user's custom words
+    /// plus the built-in developer dictionary when `dev_dictionary_enabled`.
+    pub fn effective_custom_words(&self) -> Vec<String> {
+        if self.dev_dictionary_enabled {
+            let mut words = self.custom_words.clone();
+            words.extend(
+                crate::voice_commands::DEV_DICTIONARY
+                    .iter()
+                    .map(|w| w.to_string()),
+            );
+            words
+        } else {
+            self.custom_words.clone()
+        }
+    }
+
     pub fn active_post_process_provider(&self) -> Option<&PostProcessProvider> {
         self.post_process_providers
             .iter()

@@ -27,24 +27,70 @@ mixing English into Russian speech.
 Press a hotkey, talk, release — the text appears in your editor, terminal, chat,
 or browser. Everything runs offline.
 
-## Highlights
+## Key capabilities
+
+### Smart dictation
 
 - 🗣️ **Bilingual code‑switching.** Say *"давай закоммитим этот pull request в
   main"* and English terms stay in Latin script while Russian stays Cyrillic —
   no transliteration to «бамп».
 - 🌍 **Slavic family + English.** Auto‑detects Russian, Ukrainian, Polish,
   Czech, Slovak, Slovenian, Bulgarian, Croatian and 25 European languages.
-- ⚡ **GPU accelerated.** Whisper runs on the GPU (Vulkan — NVIDIA / AMD / Intel,
-  auto‑detected) or Parakeet on CPU/DirectML. Pick the device in Settings.
-- 🔒 **Truly local.** Your audio never leaves the machine. No cloud calls, no
-  telemetry, no account.
-- 🫥 **Stealth UX.** A floating pill shows recording / transcribing state without
-  ever stealing focus from the app you're typing into.
+- ✏️ **Auto‑punctuation & capitalization.** Bilingual heuristics add commas,
+  sentence case, and question marks from intonation cues — toggleable.
+- 🔁 **Self‑correction.** Restate yourself mid‑sentence (*"встречаемся в 2, нет,
+  в 3 часа"*) and Echo keeps only the corrected version.
+- 🔢 **Spoken lists.** Dictated enumerations (*"first… second… third…"* /
+  *"первое… второе…"*) become a clean numbered list.
 - 🧠 **Clean output.** Voice‑activity detection trims silence, and known Whisper
   "silence hallucinations" (subtitle credits, "thanks for watching", …) are
   filtered out so they never land in your text.
-- ⌨️ **Developer‑friendly.** Context‑aware formatting for code editors and an
-  optional `camel case …` trigger.
+
+### Command Mode
+
+Begin an utterance with a spoken instruction and Echo transforms the text in a
+single step — no app switching:
+
+- *"translate to English …"* / *"переведи на английский …"* → inserts the
+  translation.
+- *"make shorter …"* / *"сделай короче …"* → condenses the phrasing.
+- *"make formal …"* / *"ответь формально …"* → rewrites in a professional tone.
+- End with *"press enter"* / *"нажми ввод"* to submit after pasting.
+
+Transform commands run through your configured post‑processing provider (a local
+LLM via Ollama/llama.cpp, or any OpenAI‑compatible endpoint). Detection itself is
+local; opt in under **Settings → Advanced → Voice commands**.
+
+### Personalization
+
+- 📓 **Custom dictionary.** Teach Echo unusual names, terms, and acronyms.
+- ✂️ **Snippets.** Spoken trigger phrases expand into canned text — signatures,
+  calendar links, boilerplate replies.
+- 💬 **Live subtitles.** An optional caption under the recording orb streams the
+  transcript as you speak, with adjustable size, length, and refresh rate.
+- 🌐 **Interface language.** The UI itself ships in 20 languages.
+
+### Developer features
+
+- ⌨️ **Context‑aware formatting.** Echo detects code editors (VS Code, Cursor,
+  Zed, JetBrains, …) and strips trailing punctuation automatically.
+- 🐫 **camelCase trigger.** Say *"camel case my variable name"* to get
+  `myVariableName`.
+- 🧰 **Developer dictionary.** An opt‑in built‑in glossary steers transcription
+  toward the correct spelling of common tooling (GitHub, Vercel, TypeScript,
+  Kubernetes, …).
+
+### Privacy & performance
+
+- 🔒 **Truly local.** Your audio never leaves the machine. No cloud calls, no
+  telemetry, no account, no word limits — free and open‑source (MIT).
+- ⚡ **GPU accelerated.** Whisper runs on the GPU (Vulkan — NVIDIA / AMD / Intel,
+  auto‑detected) or Parakeet on CPU/DirectML. Pick the device in Settings.
+- 🫥 **Stealth UX.** A floating orb shows recording / preparing / transcribing
+  state without ever stealing focus from the app you're typing into.
+- 🪶 **Quiet at rest.** The model unloads after an idle timeout and the overlay
+  only receives live data while visible, so Echo stays out of the way when not
+  in use.
 
 ## Choosing a model
 
@@ -67,6 +113,34 @@ Pick and download models in **Settings → Models**.
 4. **Paste.** Text is typed into the focused app (native Unicode input — works
    with Cyrillic regardless of keyboard layout), with code‑editor‑aware
    formatting.
+
+## Practical scenarios
+
+- **Bilingual code review.** In Cursor, dictate a comment mixing Russian prose
+  with English identifiers — `pull request`, `main`, `useEffect` stay in Latin,
+  trailing punctuation is stripped for the editor.
+- **Instant translation.** Reply to a foreign colleague: Command Mode
+  *"переведи на английский …"*, speak in Russian, the English text lands in the
+  chat box.
+- **Quick meeting notes.** Dictate *"first decisions, second action items,
+  third owners"* and get a formatted numbered list in Notion.
+- **Templated support reply.** A snippet `calendar link` expands to your full
+  booking URL as you speak the trigger phrase.
+- **Fast send.** End any dictation with *"press enter"* to fire the message
+  without touching the keyboard.
+
+## Limitations
+
+- **Transform commands need an LLM provider.** Translate / shorten / formal run
+  through a post‑processing provider; configure a local model (Ollama /
+  llama.cpp) or an OpenAI‑compatible endpoint in **Settings → Advanced**. Plain
+  dictation, snippets, self‑correction, lists, and the developer dictionary are
+  fully offline.
+- **Self‑correction is heuristic.** It collapses comma‑delimited restatements
+  (*"…, no, …"*) and is off by default; complex corrections may pass through.
+- **Live subtitles cost compute.** The streaming caption re‑transcribes the
+  buffer periodically, so it's best paired with a fast engine (Parakeet /
+  Whisper on GPU); it's off by default.
 
 ## Quick start
 
@@ -205,6 +279,14 @@ lives in [`src-tauri/tauri.conf.json`](src-tauri/tauri.conf.json) under
 `plugins.updater.pubkey`. Decode that key and the artifact's `.sig` from base64
 and verify with `minisign` (not `gpg`). Releasing is documented in
 [RELEASING.md](RELEASING.md).
+
+## Links
+
+- [Releases](https://github.com/master5d/Echo/releases) — download builds
+- [Build from source](BUILD.md) — incl. the Windows GPU‑Whisper (Vulkan) toolchain
+- [Contributing](CONTRIBUTING.md) · [Translations](CONTRIBUTING_TRANSLATIONS.md)
+- [Releasing](RELEASING.md) — signing & publishing
+- [Upstream: cjpais/Handy](https://github.com/cjpais/Handy) — the project Echo forks
 
 ## Contributing
 

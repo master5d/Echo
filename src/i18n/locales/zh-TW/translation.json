@@ -246,7 +246,8 @@
         "transcription": "轉錄",
         "history": "歷史",
         "experimental": "實驗性",
-        "subtitles": "字幕"
+        "subtitles": "字幕",
+        "voiceCommands": "語音命令"
       },
       "experimentalToggle": {
         "label": "實驗性功能",
@@ -388,6 +389,31 @@
           "label": "重新整理間隔",
           "description": "說話時即時字幕的更新頻率。"
         }
+      },
+      "commandMode": {
+        "label": "命令模式",
+        "description": "以指令（「翻譯成英文」「縮短」）開始口述可轉換文字，或以「按 Enter」結束以送出。轉換命令需要後處理提供者。"
+      },
+      "selfCorrection": {
+        "label": "自我更正",
+        "description": "當你更正自己（「2 點，不，3 點」）時，只保留更正後的版本。"
+      },
+      "spokenLists": {
+        "label": "語音清單",
+        "description": "將口述的列舉（「第一…第二…第三…」）轉換為編號清單。"
+      },
+      "devDictionary": {
+        "label": "開發者字典",
+        "description": "引導轉錄使用常見開發工具和術語的正確拼寫（GitHub、Vercel、TypeScript…）。"
+      },
+      "snippets": {
+        "title": "片段",
+        "description": "可展開為預設文字（簽名、連結）的語音觸發片語。",
+        "triggerPlaceholder": "觸發片語",
+        "textPlaceholder": "展開為…",
+        "add": "新增",
+        "duplicate": "片段「{{trigger}}」已存在",
+        "remove": "移除片段 {{trigger}}"
       }
     },
     "postProcessing": {

@@ -16,6 +16,7 @@ mod settings;
 mod shortcut;
 mod transcription_coordinator;
 mod utils;
+mod voice_commands;
 
 pub use cli::CliArgs;
 #[cfg(debug_assertions)]
@@ -384,6 +385,11 @@ pub fn run(cli_args: CliArgs) {
             shortcut::change_subtitle_font_size_setting,
             shortcut::change_subtitle_max_chars_setting,
             shortcut::change_subtitle_refresh_ms_setting,
+            shortcut::change_command_mode_setting,
+            shortcut::change_self_correction_setting,
+            shortcut::change_spoken_lists_setting,
+            shortcut::change_dev_dictionary_setting,
+            shortcut::update_snippets,
             shortcut::handy_keys::start_handy_keys_recording,
             shortcut::handy_keys::stop_handy_keys_recording,
             trigger_update_check,

@@ -24,8 +24,8 @@ use crate::platform::tray;
 use crate::settings::APPLE_INTELLIGENCE_DEFAULT_MODEL_ID;
 use crate::settings::{
     self, get_settings, AutoSubmitKey, ClipboardHandling, KeyboardImplementation, LLMPrompt,
-    OverlayPosition, PasteMethod, ShortcutBinding, SoundTheme, SubtitleFontSize, TypingTool,
-    APPLE_INTELLIGENCE_PROVIDER_ID,
+    OverlayPosition, PasteMethod, ShortcutBinding, Snippet, SoundTheme, SubtitleFontSize,
+    TypingTool, APPLE_INTELLIGENCE_PROVIDER_ID,
 };
 
 // Note: Commands are accessed via shortcut::handy_keys:: in lib.rs
@@ -1209,6 +1209,51 @@ pub fn change_subtitle_max_chars_setting(app: AppHandle, max_chars: u32) -> Resu
 pub fn change_subtitle_refresh_ms_setting(app: AppHandle, refresh_ms: u32) -> Result<(), String> {
     let mut settings = settings::get_settings(&app);
     settings.subtitle_refresh_ms = refresh_ms;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_command_mode_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.command_mode_enabled = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_self_correction_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.self_correction_enabled = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_spoken_lists_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.spoken_lists_enabled = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_dev_dictionary_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.dev_dictionary_enabled = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn update_snippets(app: AppHandle, snippets: Vec<Snippet>) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.snippets = snippets;
     settings::write_settings(&app, settings);
     Ok(())
 }

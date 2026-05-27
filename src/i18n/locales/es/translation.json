@@ -246,7 +246,8 @@
         "transcription": "Transcripción",
         "history": "Historial",
         "experimental": "Experimental",
-        "subtitles": "Subtítulos"
+        "subtitles": "Subtítulos",
+        "voiceCommands": "Comandos de voz"
       },
       "experimentalToggle": {
         "label": "Funciones Experimentales",
@@ -388,6 +389,31 @@
           "label": "Intervalo de actualización",
           "description": "Con qué frecuencia se actualizan los subtítulos en vivo mientras hablas."
         }
+      },
+      "commandMode": {
+        "label": "Modo de comandos",
+        "description": "Empieza el dictado con una instrucción (\"traducir al inglés\", \"hazlo más corto\") para transformar el texto, o termina con \"pulsa enter\" para enviar. Los comandos de transformación requieren un proveedor de posprocesamiento."
+      },
+      "selfCorrection": {
+        "label": "Autocorrección",
+        "description": "Cuando te corriges (\"a las 2, no, a las 3\"), se conserva solo la versión corregida."
+      },
+      "spokenLists": {
+        "label": "Listas habladas",
+        "description": "Convierte enumeraciones dictadas (\"primero… segundo… tercero…\") en una lista numerada."
+      },
+      "devDictionary": {
+        "label": "Diccionario de desarrollador",
+        "description": "Orienta la transcripción hacia la escritura correcta de herramientas y jerga de desarrollo (GitHub, Vercel, TypeScript…)."
+      },
+      "snippets": {
+        "title": "Fragmentos",
+        "description": "Frases de activación habladas que se expanden en texto predefinido (firmas, enlaces).",
+        "triggerPlaceholder": "Frase de activación",
+        "textPlaceholder": "Se expande a…",
+        "add": "Añadir",
+        "duplicate": "El fragmento \"{{trigger}}\" ya existe",
+        "remove": "Eliminar fragmento {{trigger}}"
       }
     },
     "postProcessing": {

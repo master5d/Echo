@@ -246,7 +246,8 @@
         "transcription": "Chuyển đổi",
         "history": "Lịch sử",
         "experimental": "Thử nghiệm",
-        "subtitles": "Phụ đề"
+        "subtitles": "Phụ đề",
+        "voiceCommands": "Lệnh thoại"
       },
       "experimentalToggle": {
         "label": "Tính năng thử nghiệm",
@@ -388,6 +389,31 @@
           "label": "Khoảng làm mới",
           "description": "Tần suất cập nhật phụ đề trực tiếp khi bạn nói."
         }
+      },
+      "commandMode": {
+        "label": "Chế độ lệnh",
+        "description": "Bắt đầu đọc bằng một lệnh (\"dịch sang tiếng Anh\", \"rút ngắn\") để biến đổi văn bản, hoặc kết thúc bằng \"nhấn enter\" để gửi. Các lệnh biến đổi cần nhà cung cấp hậu xử lý."
+      },
+      "selfCorrection": {
+        "label": "Tự sửa lỗi",
+        "description": "Khi bạn nói lại (\"lúc 2 giờ, không, lúc 3 giờ\"), chỉ giữ lại phiên bản đã sửa."
+      },
+      "spokenLists": {
+        "label": "Danh sách bằng giọng nói",
+        "description": "Biến các liệt kê được đọc (\"thứ nhất… thứ hai… thứ ba…\") thành danh sách đánh số."
+      },
+      "devDictionary": {
+        "label": "Từ điển lập trình viên",
+        "description": "Định hướng phiên âm theo cách viết đúng của các công cụ và thuật ngữ lập trình phổ biến (GitHub, Vercel, TypeScript…)."
+      },
+      "snippets": {
+        "title": "Đoạn mẫu",
+        "description": "Các cụm từ kích hoạt bằng giọng nói mở rộng thành văn bản soạn sẵn (chữ ký, liên kết).",
+        "triggerPlaceholder": "Cụm từ kích hoạt",
+        "textPlaceholder": "Mở rộng thành…",
+        "add": "Thêm",
+        "duplicate": "Đoạn mẫu \"{{trigger}}\" đã tồn tại",
+        "remove": "Xóa đoạn mẫu {{trigger}}"
       }
     },
     "postProcessing": {

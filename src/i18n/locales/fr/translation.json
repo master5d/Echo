@@ -246,7 +246,8 @@
         "transcription": "Transcription",
         "history": "Historique",
         "experimental": "Expérimental",
-        "subtitles": "Sous-titres"
+        "subtitles": "Sous-titres",
+        "voiceCommands": "Commandes vocales"
       },
       "experimentalToggle": {
         "label": "Fonctionnalités Expérimentales",
@@ -388,6 +389,31 @@
           "label": "Intervalle de rafraîchissement",
           "description": "Fréquence de mise à jour des sous-titres en direct pendant que vous parlez."
         }
+      },
+      "commandMode": {
+        "label": "Mode commande",
+        "description": "Commencez la dictée par une instruction (« traduire en anglais », « raccourcir ») pour transformer le texte, ou terminez par « appuyer sur entrée » pour valider. Les commandes de transformation nécessitent un fournisseur de post-traitement."
+      },
+      "selfCorrection": {
+        "label": "Autocorrection",
+        "description": "Quand vous vous reprenez (« à 2, non, à 3 »), seule la version corrigée est conservée."
+      },
+      "spokenLists": {
+        "label": "Listes dictées",
+        "description": "Transforme les énumérations dictées (« premièrement… deuxièmement… ») en liste numérotée."
+      },
+      "devDictionary": {
+        "label": "Dictionnaire développeur",
+        "description": "Oriente la transcription vers l'orthographe correcte des outils et du jargon de développement (GitHub, Vercel, TypeScript…)."
+      },
+      "snippets": {
+        "title": "Extraits",
+        "description": "Phrases déclencheurs vocales qui se développent en texte prédéfini (signatures, liens).",
+        "triggerPlaceholder": "Phrase déclencheur",
+        "textPlaceholder": "Se développe en…",
+        "add": "Ajouter",
+        "duplicate": "L'extrait « {{trigger}} » existe déjà",
+        "remove": "Supprimer l'extrait {{trigger}}"
       }
     },
     "postProcessing": {

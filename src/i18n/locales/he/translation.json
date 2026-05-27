@@ -246,7 +246,8 @@
         "transcription": "תמלול",
         "history": "היסטוריה",
         "experimental": "ניסיוני",
-        "subtitles": "כתוביות"
+        "subtitles": "כתוביות",
+        "voiceCommands": "פקודות קוליות"
       },
       "experimentalToggle": {
         "label": "תכונות ניסיוניות",
@@ -388,6 +389,31 @@
           "label": "מרווח רענון",
           "description": "באיזו תדירות הכתוביות החיות מתעדכנות בזמן הדיבור."
         }
+      },
+      "commandMode": {
+        "label": "מצב פקודות",
+        "description": "התחל הכתבה בהוראה (\"תרגם לאנגלית\", \"קצר\") כדי להמיר את הטקסט, או סיים ב\"לחץ אנטר\" לשליחה. פקודות המרה דורשות ספק עיבוד-לאחר."
+      },
+      "selfCorrection": {
+        "label": "תיקון עצמי",
+        "description": "כשאתה מתקן את עצמך (\"ב-2, לא, ב-3\"), נשמרת רק הגרסה המתוקנת."
+      },
+      "spokenLists": {
+        "label": "רשימות מדוברות",
+        "description": "הופך מנייה מוכתבת (\"ראשית… שנית… שלישית…\") לרשימה ממוספרת."
+      },
+      "devDictionary": {
+        "label": "מילון מפתחים",
+        "description": "מכוון את התמלול לאיות הנכון של כלים ומונחי פיתוח נפוצים (GitHub, Vercel, TypeScript…)."
+      },
+      "snippets": {
+        "title": "קטעים",
+        "description": "ביטויי הפעלה מדוברים שמתרחבים לטקסט מוכן (חתימות, קישורים).",
+        "triggerPlaceholder": "ביטוי הפעלה",
+        "textPlaceholder": "מתרחב ל…",
+        "add": "הוסף",
+        "duplicate": "הקטע \"{{trigger}}\" כבר קיים",
+        "remove": "הסר את הקטע {{trigger}}"
       }
     },
     "postProcessing": {

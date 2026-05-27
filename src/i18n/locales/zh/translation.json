@@ -246,7 +246,8 @@
         "transcription": "转录",
         "history": "历史",
         "experimental": "实验性",
-        "subtitles": "字幕"
+        "subtitles": "字幕",
+        "voiceCommands": "语音命令"
       },
       "experimentalToggle": {
         "label": "实验性功能",
@@ -388,6 +389,31 @@
           "label": "刷新间隔",
           "description": "说话时实时字幕的更新频率。"
         }
+      },
+      "commandMode": {
+        "label": "命令模式",
+        "description": "以指令（“翻译成英文”“缩短”）开始口述可转换文本，或以“按回车”结束以提交。转换命令需要后处理提供方。"
+      },
+      "selfCorrection": {
+        "label": "自我更正",
+        "description": "当你纠正自己（“2点，不，3点”）时，只保留更正后的版本。"
+      },
+      "spokenLists": {
+        "label": "语音列表",
+        "description": "将口述的枚举（“第一…第二…第三…”）转换为编号列表。"
+      },
+      "devDictionary": {
+        "label": "开发者词典",
+        "description": "引导转录使用常见开发工具和术语的正确拼写（GitHub、Vercel、TypeScript…）。"
+      },
+      "snippets": {
+        "title": "片段",
+        "description": "可展开为预设文本（签名、链接）的语音触发短语。",
+        "triggerPlaceholder": "触发短语",
+        "textPlaceholder": "展开为…",
+        "add": "添加",
+        "duplicate": "片段“{{trigger}}”已存在",
+        "remove": "移除片段 {{trigger}}"
       }
     },
     "postProcessing": {

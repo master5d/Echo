@@ -52,8 +52,14 @@ npm run format            # Prettier + cargo fmt
 - `heuristics.rs` - Linguistic intelligence:
   - `to_camel_case()` - Developer-centric text transformation.
   - `auto_punctuate()` - Bilingual punctuation rules (comma before "но", "которой", etc.).
-- `actions.rs` - Global shortcut handlers and context-aware formatting logic.
-- `overlay.rs` - Stealth UX management (`WS_EX_NOACTIVATE`).
+- `actions.rs` - Global shortcut handlers, the `process_transcription_output`
+  pipeline, and context-aware formatting logic.
+- `voice_commands.rs` - Wispr-inspired transforms: Command Mode detection
+  (`detect_prefix_command`, `strip_submit_command`), snippet expansion,
+  self-correction, spoken-list formatting, and the built-in developer dictionary.
+- `platform/` - OS/UX peripherals grouped by module: `overlay.rs` (stealth UX,
+  `WS_EX_NOACTIVATE`), `clipboard.rs` (paste + auto-submit), `input.rs`,
+  `tray.rs`, `signal_handle.rs`, `audio_feedback.rs`.
 
 ### Key Architecture Patterns
 

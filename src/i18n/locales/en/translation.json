@@ -246,7 +246,8 @@
         "transcription": "Transcription",
         "history": "History",
         "experimental": "Experimental",
-        "subtitles": "Subtitles"
+        "subtitles": "Subtitles",
+        "voiceCommands": "Voice commands"
       },
       "experimentalToggle": {
         "label": "Experimental Features",
@@ -388,6 +389,31 @@
           "label": "Refresh interval",
           "description": "How often the live subtitles update while you speak."
         }
+      },
+      "commandMode": {
+        "label": "Command Mode",
+        "description": "Start dictation with a spoken instruction (\"translate to English\", \"make shorter\") to transform the text, or end with \"press enter\" to submit. Transform commands need a post-processing provider."
+      },
+      "selfCorrection": {
+        "label": "Self-correction",
+        "description": "When you restate yourself (\"at 2, no, at 3\"), keep only the corrected version."
+      },
+      "spokenLists": {
+        "label": "Spoken lists",
+        "description": "Turn dictated enumerations (\"first… second… third…\") into a numbered list."
+      },
+      "devDictionary": {
+        "label": "Developer dictionary",
+        "description": "Bias transcription toward the correct spelling of common dev tools and jargon (GitHub, Vercel, TypeScript…)."
+      },
+      "snippets": {
+        "title": "Snippets",
+        "description": "Spoken trigger phrases that expand into canned text (signatures, links).",
+        "triggerPlaceholder": "Trigger phrase",
+        "textPlaceholder": "Expands to…",
+        "add": "Add",
+        "duplicate": "Snippet \"{{trigger}}\" already exists",
+        "remove": "Remove snippet {{trigger}}"
       }
     },
     "postProcessing": {

@@ -26,6 +26,11 @@ import { SubtitleOverlayToggle } from "./SubtitleOverlayToggle";
 import { SubtitleFontSizeSetting } from "./SubtitleFontSize";
 import { SubtitleMaxChars } from "./SubtitleMaxChars";
 import { SubtitleRefreshMs } from "./SubtitleRefreshMs";
+import { CommandMode } from "./CommandMode";
+import { Snippets } from "./Snippets";
+import { SelfCorrection } from "./SelfCorrection";
+import { SpokenLists } from "./SpokenLists";
+import { DevDictionary } from "./DevDictionary";
 
 export const AdvancedSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -53,9 +58,17 @@ export const AdvancedSettings: React.FC = () => {
 
       <SettingsGroup title={t("settings.advanced.groups.transcription")}>
         <CustomWords descriptionMode="tooltip" grouped />
+        <DevDictionary descriptionMode="tooltip" grouped={true} />
         <AutoPunctuate descriptionMode="tooltip" grouped={true} />
         <AutoCapitalize descriptionMode="tooltip" grouped={true} />
+        <SelfCorrection descriptionMode="tooltip" grouped={true} />
+        <SpokenLists descriptionMode="tooltip" grouped={true} />
         <AppendTrailingSpace descriptionMode="tooltip" grouped={true} />
+      </SettingsGroup>
+
+      <SettingsGroup title={t("settings.advanced.groups.voiceCommands")}>
+        <CommandMode descriptionMode="tooltip" grouped={true} />
+        <Snippets descriptionMode="tooltip" grouped={true} />
       </SettingsGroup>
 
       <SettingsGroup title={t("settings.advanced.groups.subtitles")}>

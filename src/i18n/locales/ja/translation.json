@@ -246,7 +246,8 @@
         "transcription": "文字起こし",
         "history": "履歴",
         "experimental": "実験的",
-        "subtitles": "字幕"
+        "subtitles": "字幕",
+        "voiceCommands": "音声コマンド"
       },
       "experimentalToggle": {
         "label": "実験的機能",
@@ -388,6 +389,31 @@
           "label": "更新間隔",
           "description": "話している間にライブ字幕を更新する頻度。"
         }
+      },
+      "commandMode": {
+        "label": "コマンドモード",
+        "description": "ディクテーションを指示（「英語に翻訳」「短くして」）で始めるとテキストを変換し、「エンターを押して」で終えると送信します。変換コマンドには後処理プロバイダーが必要です。"
+      },
+      "selfCorrection": {
+        "label": "自己修正",
+        "description": "言い直したとき（「2時、いや、3時」）、修正後のみを残します。"
+      },
+      "spokenLists": {
+        "label": "音声リスト",
+        "description": "口述した列挙（「1つ目…2つ目…3つ目…」）を番号付きリストに変換します。"
+      },
+      "devDictionary": {
+        "label": "開発者辞書",
+        "description": "一般的な開発ツールや専門用語（GitHub、Vercel、TypeScript…）の正しい表記へ文字起こしを誘導します。"
+      },
+      "snippets": {
+        "title": "スニペット",
+        "description": "定型文（署名、リンク）に展開される音声トリガーフレーズ。",
+        "triggerPlaceholder": "トリガーフレーズ",
+        "textPlaceholder": "展開先…",
+        "add": "追加",
+        "duplicate": "スニペット「{{trigger}}」は既に存在します",
+        "remove": "スニペット {{trigger}} を削除"
       }
     },
     "postProcessing": {

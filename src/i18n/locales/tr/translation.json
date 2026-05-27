@@ -246,7 +246,8 @@
         "transcription": "Transkripsiyon",
         "history": "Geçmiş",
         "experimental": "Deneysel",
-        "subtitles": "Altyazılar"
+        "subtitles": "Altyazılar",
+        "voiceCommands": "Sesli komutlar"
       },
       "experimentalToggle": {
         "label": "Deneysel Özellikler",
@@ -388,6 +389,31 @@
           "label": "Yenileme aralığı",
           "description": "Konuşurken canlı altyazıların ne sıklıkta güncellendiği."
         }
+      },
+      "commandMode": {
+        "label": "Komut modu",
+        "description": "Metni dönüştürmek için dikteye bir talimatla başlayın (\"İngilizceye çevir\", \"kısalt\") veya göndermek için \"enter'a bas\" ile bitirin. Dönüştürme komutları bir son işleme sağlayıcısı gerektirir."
+      },
+      "selfCorrection": {
+        "label": "Kendini düzeltme",
+        "description": "Kendinizi düzelttiğinizde (\"saat 2'de, hayır, 3'te\") yalnızca düzeltilmiş sürüm tutulur."
+      },
+      "spokenLists": {
+        "label": "Sesli listeler",
+        "description": "Dikte edilen sıralamaları (\"birinci… ikinci… üçüncü…\") numaralı listeye dönüştürür."
+      },
+      "devDictionary": {
+        "label": "Geliştirici sözlüğü",
+        "description": "Transkripsiyonu yaygın geliştirici araçlarının ve terimlerinin doğru yazımına yönlendirir (GitHub, Vercel, TypeScript…)."
+      },
+      "snippets": {
+        "title": "Parçacıklar",
+        "description": "Hazır metne (imzalar, bağlantılar) genişleyen sesli tetikleyici ifadeler.",
+        "triggerPlaceholder": "Tetikleyici ifade",
+        "textPlaceholder": "Şuna genişler…",
+        "add": "Ekle",
+        "duplicate": "\"{{trigger}}\" parçacığı zaten var",
+        "remove": "{{trigger}} parçacığını kaldır"
       }
     },
     "postProcessing": {

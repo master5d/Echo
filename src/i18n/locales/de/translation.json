@@ -246,7 +246,8 @@
         "transcription": "Transkription",
         "history": "Verlauf",
         "experimental": "Experimentell",
-        "subtitles": "Untertitel"
+        "subtitles": "Untertitel",
+        "voiceCommands": "Sprachbefehle"
       },
       "experimentalToggle": {
         "label": "Experimentelle Funktionen",
@@ -388,6 +389,31 @@
           "label": "Aktualisierungsintervall",
           "description": "Wie oft die Live-Untertitel beim Sprechen aktualisiert werden."
         }
+      },
+      "commandMode": {
+        "label": "Befehlsmodus",
+        "description": "Beginnen Sie das Diktat mit einer Anweisung (\"ins Englische übersetzen\", \"kürzer machen\"), um den Text umzuwandeln, oder beenden Sie mit \"Enter drücken\" zum Absenden. Umwandlungsbefehle benötigen einen Nachbearbeitungs-Anbieter."
+      },
+      "selfCorrection": {
+        "label": "Selbstkorrektur",
+        "description": "Wenn Sie sich korrigieren (\"um 2, nein, um 3\"), wird nur die korrigierte Version behalten."
+      },
+      "spokenLists": {
+        "label": "Gesprochene Listen",
+        "description": "Wandelt diktierte Aufzählungen (\"erstens… zweitens… drittens…\") in eine nummerierte Liste um."
+      },
+      "devDictionary": {
+        "label": "Entwicklerwörterbuch",
+        "description": "Lenkt die Transkription zur korrekten Schreibweise gängiger Entwicklertools und Fachbegriffe (GitHub, Vercel, TypeScript…)."
+      },
+      "snippets": {
+        "title": "Textbausteine",
+        "description": "Gesprochene Auslösephrasen, die zu vorgefertigtem Text werden (Signaturen, Links).",
+        "triggerPlaceholder": "Auslösephrase",
+        "textPlaceholder": "Wird zu…",
+        "add": "Hinzufügen",
+        "duplicate": "Textbaustein \"{{trigger}}\" existiert bereits",
+        "remove": "Textbaustein {{trigger}} entfernen"
       }
     },
     "postProcessing": {

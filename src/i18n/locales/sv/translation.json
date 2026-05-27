@@ -246,7 +246,8 @@
         "transcription": "Transkription",
         "history": "Historik",
         "experimental": "Experimentellt",
-        "subtitles": "Undertexter"
+        "subtitles": "Undertexter",
+        "voiceCommands": "Röstkommandon"
       },
       "experimentalToggle": {
         "label": "Experimentella funktioner",
@@ -388,6 +389,31 @@
           "label": "Uppdateringsintervall",
           "description": "Hur ofta live-undertexterna uppdateras medan du talar."
         }
+      },
+      "commandMode": {
+        "label": "Kommandoläge",
+        "description": "Inled diktering med en instruktion (\"översätt till engelska\", \"gör kortare\") för att omvandla texten, eller avsluta med \"tryck enter\" för att skicka. Omvandlingskommandon kräver en efterbehandlingsleverantör."
+      },
+      "selfCorrection": {
+        "label": "Självkorrigering",
+        "description": "När du rättar dig själv (\"klockan 2, nej, klockan 3\") behålls bara den korrigerade versionen."
+      },
+      "spokenLists": {
+        "label": "Talade listor",
+        "description": "Gör dikterade uppräkningar (\"för det första… för det andra…\") till en numrerad lista."
+      },
+      "devDictionary": {
+        "label": "Utvecklarordlista",
+        "description": "Styr transkriberingen mot korrekt stavning av vanliga utvecklarverktyg och jargong (GitHub, Vercel, TypeScript…)."
+      },
+      "snippets": {
+        "title": "Textsnuttar",
+        "description": "Talade utlösarfraser som expanderar till färdig text (signaturer, länkar).",
+        "triggerPlaceholder": "Utlösarfras",
+        "textPlaceholder": "Expanderar till…",
+        "add": "Lägg till",
+        "duplicate": "Textsnutten \"{{trigger}}\" finns redan",
+        "remove": "Ta bort textsnutt {{trigger}}"
       }
     },
     "postProcessing": {

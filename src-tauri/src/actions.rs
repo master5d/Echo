@@ -78,28 +78,6 @@ fn build_system_prompt(prompt_template: &str) -> String {
 }
 
 async fn post_process_transcription(settings: &AppSettings, transcription: &str) -> Option<String> {
-    let provider = match settings.active_post_process_provider().cloned() {
-        Some(provider) => provider,
-        None => {
-            debug!("Post-processing enabled but no provider is selected");
-            return None;
-        }
-    };
-
-    let model = settings
-        .post_process_models
-        .get(&provider.id)
-        .cloned()
-        .unwrap_or_default();
-
-    if model.trim().is_empty() {
-        debug!(
-            "Post-processing skipped because provider '{}' has no model configured",
-            provider.id
-        );
-        return None;
-    }
-
     let selected_prompt_id = match &settings.post_process_selected_prompt_id {
         Some(id) => id.clone(),
         None => {
@@ -128,8 +106,41 @@ async fn post_process_transcription(settings: &AppSettings, transcription: &str)
         return None;
     }
 
+    run_llm_prompt(settings, &prompt, transcription).await
+}
+
+/// Run an arbitrary instruction `prompt` over `transcription` using the
+/// configured post-processing provider/model. Shared by selected-prompt
+/// post-processing and Command Mode (translate / shorten / formal).
+async fn run_llm_prompt(
+    settings: &AppSettings,
+    prompt: &str,
+    transcription: &str,
+) -> Option<String> {
+    let provider = match settings.active_post_process_provider().cloned() {
+        Some(provider) => provider,
+        None => {
+            debug!("LLM step enabled but no provider is selected");
+            return None;
+        }
+    };
+
+    let model = settings
+        .post_process_models
+        .get(&provider.id)
+        .cloned()
+        .unwrap_or_default();
+
+    if model.trim().is_empty() {
+        debug!(
+            "LLM step skipped because provider '{}' has no model configured",
+            provider.id
+        );
+        return None;
+    }
+
     debug!(
-        "Starting LLM post-processing with provider '{}' (model: {})",
+        "Starting LLM step with provider '{}' (model: {})",
         provider.id, model
     );
 
@@ -158,7 +169,7 @@ async fn post_process_transcription(settings: &AppSettings, transcription: &str)
     if provider.supports_structured_output {
         debug!("Using structured outputs for provider '{}'", provider.id);
 
-        let system_prompt = build_system_prompt(&prompt);
+        let system_prompt = build_system_prompt(prompt);
         let user_content = transcription.to_string();
 
         // Handle Apple Intelligence separately since it uses native Swift APIs
@@ -358,6 +369,9 @@ pub(crate) struct ProcessedTranscription {
     pub final_text: String,
     pub post_processed_text: Option<String>,
     pub post_process_prompt: Option<String>,
+    /// Set by the Command Mode "press enter" suffix — submit after pasting even
+    /// if the global auto-submit setting is off.
+    pub force_submit: bool,
 }
 
 #[cfg(target_os = "windows")]
@@ -387,19 +401,65 @@ pub(crate) async fn process_transcription_output(
     transcription: &str,
     post_process: bool,
 ) -> ProcessedTranscription {
+    use crate::voice_commands::{
+        apply_self_correction, detect_prefix_command, expand_snippets, format_spoken_list,
+        strip_submit_command,
+    };
+
     let settings = get_settings(app);
     let mut final_text = transcription.to_string();
     let mut post_processed_text: Option<String> = None;
     let mut post_process_prompt: Option<String> = None;
+    let mut force_submit = false;
+
+    // ── Command Mode ────────────────────────────────────────────────────────
+    // A trailing "press enter" submits after paste; a leading instruction
+    // ("translate to english", "make shorter", ...) routes the remainder
+    // through the LLM and replaces the dictated text with the result.
+    if settings.command_mode_enabled {
+        let (stripped, submit) = strip_submit_command(&final_text);
+        force_submit = submit;
+        final_text = stripped;
+
+        if let Some(detected) = detect_prefix_command(&final_text) {
+            let instruction = detected.command.instruction();
+            debug!("Command Mode: detected {:?}", detected.command);
+            if let Some(result) = run_llm_prompt(&settings, &instruction, &detected.remainder).await
+            {
+                return ProcessedTranscription {
+                    post_processed_text: Some(result.clone()),
+                    post_process_prompt: Some(instruction),
+                    final_text: result,
+                    force_submit,
+                };
+            }
+            // LLM unavailable/failed: fall back to the dictated payload sans the
+            // command prefix, and continue the normal pipeline below.
+            warn!("Command Mode LLM step failed; using dictated payload verbatim");
+            final_text = detected.remainder;
+        }
+    }
 
     if settings.auto_punctuate || settings.auto_capitalize {
         let h = crate::heuristics::Heuristics::new();
         if settings.auto_punctuate {
             final_text = h.auto_punctuate(&final_text);
         }
+        // Self-correction runs between punctuation and capitalization: it relies
+        // on the comma the auto-punctuator inserts before the correction cue,
+        // and leaves a clean string for the capitalizer to finish.
+        if settings.self_correction_enabled {
+            final_text = apply_self_correction(&final_text);
+        }
         if settings.auto_capitalize {
             final_text = h.auto_capitalize(&final_text);
         }
+    } else if settings.self_correction_enabled {
+        final_text = apply_self_correction(&final_text);
+    }
+
+    if settings.spoken_lists_enabled {
+        final_text = format_spoken_list(&final_text);
     }
 
     // Context-Aware Formatting
@@ -457,7 +517,16 @@ pub(crate) async fn process_transcription_output(
                 }
             }
         }
-    } else if final_text != transcription {
+    }
+
+    // Snippet expansion is the final transform so canned text (URLs, signatures)
+    // is inserted verbatim and never reflowed by the LLM or the capitalizer.
+    if !settings.snippets.is_empty() {
+        final_text = expand_snippets(&final_text, &settings.snippets);
+    }
+
+    // Record the processed text whenever the pipeline changed the raw output.
+    if post_processed_text.is_none() && final_text != transcription {
         post_processed_text = Some(final_text.clone());
     }
 
@@ -465,6 +534,7 @@ pub(crate) async fn process_transcription_output(
         final_text,
         post_processed_text,
         post_process_prompt,
+        force_submit,
     }
 }
 
@@ -742,8 +812,9 @@ impl ShortcutAction for TranscribeAction {
                                 let ah_clone = ah.clone();
                                 let paste_time = Instant::now();
                                 let final_text = processed.final_text;
+                                let force_submit = processed.force_submit;
                                 ah.run_on_main_thread(move || {
-                                    match utils::paste(final_text, ah_clone.clone()) {
+                                    match utils::paste(final_text, ah_clone.clone(), force_submit) {
                                         Ok(()) => debug!(
                                             "Text pasted successfully in {:?}",
                                             paste_time.elapsed()

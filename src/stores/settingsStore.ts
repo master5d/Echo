@@ -7,6 +7,7 @@ import type {
   WhisperAcceleratorSetting,
   OrtAcceleratorSetting,
   SubtitleFontSize,
+  Snippet,
 } from "@/bindings";
 import { commands } from "@/bindings";
 
@@ -168,6 +169,15 @@ const settingUpdaters: {
     commands.changeSubtitleMaxCharsSetting(value as number),
   subtitle_refresh_ms: (value) =>
     commands.changeSubtitleRefreshMsSetting(value as number),
+  command_mode_enabled: (value) =>
+    commands.changeCommandModeSetting(value as boolean),
+  self_correction_enabled: (value) =>
+    commands.changeSelfCorrectionSetting(value as boolean),
+  spoken_lists_enabled: (value) =>
+    commands.changeSpokenListsSetting(value as boolean),
+  dev_dictionary_enabled: (value) =>
+    commands.changeDevDictionarySetting(value as boolean),
+  snippets: (value) => commands.updateSnippets(value as Snippet[]),
 };
 
 export const useSettingsStore = create<SettingsStore>()(

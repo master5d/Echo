@@ -246,7 +246,8 @@
         "transcription": "Přepis",
         "history": "Historie",
         "experimental": "Experimentální",
-        "subtitles": "Titulky"
+        "subtitles": "Titulky",
+        "voiceCommands": "Hlasové příkazy"
       },
       "experimentalToggle": {
         "label": "Experimentální funkce",
@@ -388,6 +389,31 @@
           "label": "Interval obnovení",
           "description": "Jak často se živé titulky aktualizují, když mluvíte."
         }
+      },
+      "commandMode": {
+        "label": "Režim příkazů",
+        "description": "Začněte diktování pokynem („přelož do angličtiny\", „zkrať\"), abyste text přeměnili, nebo zakončete slovy „stiskni enter\" pro odeslání. Přeměňovací příkazy vyžadují poskytovatele dodatečného zpracování."
+      },
+      "selfCorrection": {
+        "label": "Samoopravy",
+        "description": "Když se opravíte („ve 2, ne, ve 3\"), zůstane jen opravená verze."
+      },
+      "spokenLists": {
+        "label": "Mluvené seznamy",
+        "description": "Převede diktované výčty („zaprvé… zadruhé… zatřetí…\") na číslovaný seznam."
+      },
+      "devDictionary": {
+        "label": "Vývojářský slovník",
+        "description": "Směruje přepis ke správnému pravopisu běžných vývojářských nástrojů a žargonu (GitHub, Vercel, TypeScript…)."
+      },
+      "snippets": {
+        "title": "Úryvky",
+        "description": "Mluvené spouštěcí fráze, které se rozvinou do připraveného textu (podpisy, odkazy).",
+        "triggerPlaceholder": "Spouštěcí fráze",
+        "textPlaceholder": "Rozvine se na…",
+        "add": "Přidat",
+        "duplicate": "Úryvek „{{trigger}}\" už existuje",
+        "remove": "Odebrat úryvek {{trigger}}"
       }
     },
     "postProcessing": {
