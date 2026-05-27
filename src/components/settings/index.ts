@@ -8,29 +8,29 @@ export { PostProcessingSettings } from "./post-processing/PostProcessingSettings
 export { ModelsSettings } from "./models/ModelsSettings";
 
 // Individual setting components
-export { MicrophoneSelector } from "./MicrophoneSelector";
-export { ClamshellMicrophoneSelector } from "./ClamshellMicrophoneSelector";
-export { OutputDeviceSelector } from "./OutputDeviceSelector";
-export { AlwaysOnMicrophone } from "./AlwaysOnMicrophone";
-export { PushToTalk } from "./PushToTalk";
-export { AudioFeedback } from "./AudioFeedback";
-export { ShowOverlay } from "./ShowOverlay";
-export { GlobalShortcutInput } from "./GlobalShortcutInput";
-export { HandyKeysShortcutInput } from "./HandyKeysShortcutInput";
-export { ShortcutInput } from "./ShortcutInput";
-export { TranslateToEnglish } from "./TranslateToEnglish";
-export { CustomWords } from "./CustomWords";
-export { PostProcessingToggle } from "./PostProcessingToggle";
+export { MicrophoneSelector } from "./sound/MicrophoneSelector";
+export { ClamshellMicrophoneSelector } from "./sound/ClamshellMicrophoneSelector";
+export { OutputDeviceSelector } from "./sound/OutputDeviceSelector";
+export { AlwaysOnMicrophone } from "./sound/AlwaysOnMicrophone";
+export { PushToTalk } from "./shortcuts/PushToTalk";
+export { AudioFeedback } from "./sound/AudioFeedback";
+export { ShowOverlay } from "./advanced/ShowOverlay";
+export { GlobalShortcutInput } from "./shortcuts/GlobalShortcutInput";
+export { HandyKeysShortcutInput } from "./shortcuts/HandyKeysShortcutInput";
+export { ShortcutInput } from "./shortcuts/ShortcutInput";
+export { TranslateToEnglish } from "./advanced/TranslateToEnglish";
+export { CustomWords } from "./advanced/CustomWords";
+export { PostProcessingToggle } from "./post-processing/PostProcessingToggle";
 export {
   PostProcessingSettingsApi,
   PostProcessingSettingsPrompts,
 } from "./post-processing/PostProcessingSettings";
-export { AppDataDirectory } from "./AppDataDirectory";
-export { ModelUnloadTimeoutSetting } from "./ModelUnloadTimeout";
-export { StartHidden } from "./StartHidden";
-export { HistoryLimit } from "./HistoryLimit";
-export { RecordingRetentionPeriodSelector } from "./RecordingRetentionPeriod";
-export { AutostartToggle } from "./AutostartToggle";
-export { AutoPunctuate } from "./AutoPunctuate";
-export { AutoCapitalize } from "./AutoCapitalize";
-export { UpdateChecksToggle } from "./UpdateChecksToggle";
+export { AppDataDirectory } from "./about/AppDataDirectory";
+export { ModelUnloadTimeoutSetting } from "./advanced/ModelUnloadTimeout";
+export { StartHidden } from "./general/StartHidden";
+export { HistoryLimit } from "./history/HistoryLimit";
+export { RecordingRetentionPeriodSelector } from "./history/RecordingRetentionPeriod";
+export { AutostartToggle } from "./general/AutostartToggle";
+export { AutoPunctuate } from "./advanced/AutoPunctuate";
+export { AutoCapitalize } from "./advanced/AutoCapitalize";
+export { UpdateChecksToggle } from "./general/UpdateChecksToggle";

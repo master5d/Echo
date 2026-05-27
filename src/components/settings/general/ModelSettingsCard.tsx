@@ -1,8 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { SettingsGroup } from "../../ui/SettingsGroup";
-import { LanguageSelector } from "../LanguageSelector";
-import { TranslateToEnglish } from "../TranslateToEnglish";
+import { LanguageSelector } from "./LanguageSelector";
+import { TranslateToEnglish } from "../advanced/TranslateToEnglish";
 import { useModelStore } from "../../../stores/modelStore";
 import type { ModelInfo } from "@/bindings";
 

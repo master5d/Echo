@@ -5,10 +5,10 @@ import { LogLevelSelector } from "./LogLevelSelector";
 import { PasteDelay } from "./PasteDelay";
 import { RecordingBuffer } from "./RecordingBuffer";
 import { SettingsGroup } from "../../ui/SettingsGroup";
-import { AlwaysOnMicrophone } from "../AlwaysOnMicrophone";
-import { SoundPicker } from "../SoundPicker";
-import { ClamshellMicrophoneSelector } from "../ClamshellMicrophoneSelector";
-import { UpdateChecksToggle } from "../UpdateChecksToggle";
+import { AlwaysOnMicrophone } from "../sound/AlwaysOnMicrophone";
+import { SoundPicker } from "../sound/SoundPicker";
+import { ClamshellMicrophoneSelector } from "../sound/ClamshellMicrophoneSelector";
+import { UpdateChecksToggle } from "../general/UpdateChecksToggle";
 
 export const DebugSettings: React.FC = () => {
   const { t } = useTranslation();
