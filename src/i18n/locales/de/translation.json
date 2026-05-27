@@ -245,7 +245,8 @@
         "output": "Ausgabe",
         "transcription": "Transkription",
         "history": "Verlauf",
-        "experimental": "Experimentell"
+        "experimental": "Experimentell",
+        "subtitles": "Untertitel"
       },
       "experimentalToggle": {
         "label": "Experimentelle Funktionen",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "Automatische Großschreibung",
         "description": "Schreibt den ersten Buchstaben von Sätzen automatisch groß."
+      },
+      "subtitles": {
+        "enable": {
+          "label": "Live-Untertitel",
+          "description": "Transkribierten Text in Echtzeit unter dem Aufnahme-Orb anzeigen."
+        },
+        "fontSize": {
+          "label": "Untertitelgröße",
+          "description": "Textgröße der eingeblendeten Untertitel.",
+          "options": {
+            "small": "Klein",
+            "medium": "Mittel",
+            "large": "Groß"
+          }
+        },
+        "maxChars": {
+          "label": "Untertitellänge",
+          "description": "Maximale Anzahl der auf dem Bildschirm angezeigten Zeichen."
+        },
+        "refreshMs": {
+          "label": "Aktualisierungsintervall",
+          "description": "Wie oft die Live-Untertitel beim Sprechen aktualisiert werden."
+        }
       }
     },
     "postProcessing": {

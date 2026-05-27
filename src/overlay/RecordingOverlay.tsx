@@ -8,6 +8,12 @@ import { getLanguageDirection } from "@/lib/utils/rtl";
 
 type OverlayState = "preparing" | "recording" | "transcribing" | "processing";
 
+const SUBTITLE_FONT_PX: Record<string, number> = {
+  small: 14,
+  medium: 18,
+  large: 24,
+};
+
 const RecordingOverlay: React.FC = () => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
@@ -21,6 +27,23 @@ const RecordingOverlay: React.FC = () => {
     const setup = async () => {
       const unlistenShow = await listen("show-overlay", async (event) => {
         await syncLanguageFromSettings();
+        // Apply the user's subtitle font size to the CSS var driving the
+        // subtitle area. Read fresh on each show so changes take effect
+        // without restarting the overlay window.
+        try {
+          const result = await commands.getAppSettings();
+          if (result.status === "ok") {
+            const px =
+              SUBTITLE_FONT_PX[result.data.subtitle_font_size ?? "medium"] ??
+              18;
+            document.documentElement.style.setProperty(
+              "--subtitle-font-size",
+              `${px}px`,
+            );
+          }
+        } catch {
+          /* keep CSS fallback */
+        }
         const overlayState = event.payload as OverlayState;
         setState(overlayState);
         setIsVisible(true);
@@ -67,7 +90,9 @@ const RecordingOverlay: React.FC = () => {
 
   // Map mic amplitude to a ring scale (1 → 1.9) and glow opacity.
   const ringScale = 1 + Math.min(1, Math.pow(level, 0.7)) * 0.9;
-  const ringOpacity = isRecording ? Math.max(0.15, Math.min(0.7, level * 1.6)) : 0;
+  const ringOpacity = isRecording
+    ? Math.max(0.15, Math.min(0.7, level * 1.6))
+    : 0;
 
   const caption = isPreparing
     ? t("overlay.preparing")

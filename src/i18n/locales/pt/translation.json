@@ -245,7 +245,8 @@
         "output": "Saída",
         "transcription": "Transcrição",
         "history": "Histórico",
-        "experimental": "Experimental"
+        "experimental": "Experimental",
+        "subtitles": "Legendas"
       },
       "experimentalToggle": {
         "label": "Recursos Experimentais",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "Maiúsculas automáticas",
         "description": "Coloca automaticamente em maiúscula a primeira letra das frases."
+      },
+      "subtitles": {
+        "enable": {
+          "label": "Legendas ao vivo",
+          "description": "Mostrar o texto transcrito em tempo real abaixo do orbe de gravação."
+        },
+        "fontSize": {
+          "label": "Tamanho das legendas",
+          "description": "Tamanho do texto das legendas na tela.",
+          "options": {
+            "small": "Pequeno",
+            "medium": "Médio",
+            "large": "Grande"
+          }
+        },
+        "maxChars": {
+          "label": "Comprimento das legendas",
+          "description": "Número máximo de caracteres mantidos na tela."
+        },
+        "refreshMs": {
+          "label": "Intervalo de atualização",
+          "description": "Com que frequência as legendas ao vivo são atualizadas enquanto você fala."
+        }
       }
     },
     "postProcessing": {

@@ -245,7 +245,8 @@
         "output": "Utmatning",
         "transcription": "Transkription",
         "history": "Historik",
-        "experimental": "Experimentellt"
+        "experimental": "Experimentellt",
+        "subtitles": "Undertexter"
       },
       "experimentalToggle": {
         "label": "Experimentella funktioner",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "Automatisk versalisering",
         "description": "Gör automatiskt första bokstaven i meningar till versal."
+      },
+      "subtitles": {
+        "enable": {
+          "label": "Live-undertexter",
+          "description": "Visa transkriberad text i realtid under inspelningsklotet."
+        },
+        "fontSize": {
+          "label": "Storlek på undertexter",
+          "description": "Textstorlek för undertexterna på skärmen.",
+          "options": {
+            "small": "Liten",
+            "medium": "Mellan",
+            "large": "Stor"
+          }
+        },
+        "maxChars": {
+          "label": "Undertextlängd",
+          "description": "Maximalt antal tecken som behålls på skärmen."
+        },
+        "refreshMs": {
+          "label": "Uppdateringsintervall",
+          "description": "Hur ofta live-undertexterna uppdateras medan du talar."
+        }
       }
     },
     "postProcessing": {

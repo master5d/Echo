@@ -245,7 +245,8 @@
         "output": "Đầu ra",
         "transcription": "Chuyển đổi",
         "history": "Lịch sử",
-        "experimental": "Thử nghiệm"
+        "experimental": "Thử nghiệm",
+        "subtitles": "Phụ đề"
       },
       "experimentalToggle": {
         "label": "Tính năng thử nghiệm",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "Tự động viết hoa",
         "description": "Tự động viết hoa chữ cái đầu của câu."
+      },
+      "subtitles": {
+        "enable": {
+          "label": "Phụ đề trực tiếp",
+          "description": "Hiển thị văn bản phiên âm theo thời gian thực bên dưới quả cầu ghi âm."
+        },
+        "fontSize": {
+          "label": "Cỡ phụ đề",
+          "description": "Cỡ chữ của phụ đề trên màn hình.",
+          "options": {
+            "small": "Nhỏ",
+            "medium": "Vừa",
+            "large": "Lớn"
+          }
+        },
+        "maxChars": {
+          "label": "Độ dài phụ đề",
+          "description": "Số ký tự tối đa giữ trên màn hình."
+        },
+        "refreshMs": {
+          "label": "Khoảng làm mới",
+          "description": "Tần suất cập nhật phụ đề trực tiếp khi bạn nói."
+        }
       }
     },
     "postProcessing": {

@@ -245,7 +245,8 @@
         "output": "輸出",
         "transcription": "轉錄",
         "history": "歷史",
-        "experimental": "實驗性"
+        "experimental": "實驗性",
+        "subtitles": "字幕"
       },
       "experimentalToggle": {
         "label": "實驗性功能",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "自動首字母大寫",
         "description": "自動將句子的首字母大寫。"
+      },
+      "subtitles": {
+        "enable": {
+          "label": "即時字幕",
+          "description": "在錄音球下方即時顯示轉錄文字。"
+        },
+        "fontSize": {
+          "label": "字幕大小",
+          "description": "螢幕字幕的文字大小。",
+          "options": {
+            "small": "小",
+            "medium": "中",
+            "large": "大"
+          }
+        },
+        "maxChars": {
+          "label": "字幕長度",
+          "description": "螢幕上保留的最大字元數。"
+        },
+        "refreshMs": {
+          "label": "重新整理間隔",
+          "description": "說話時即時字幕的更新頻率。"
+        }
       }
     },
     "postProcessing": {

@@ -24,7 +24,7 @@ use crate::platform::tray;
 use crate::settings::APPLE_INTELLIGENCE_DEFAULT_MODEL_ID;
 use crate::settings::{
     self, get_settings, AutoSubmitKey, ClipboardHandling, KeyboardImplementation, LLMPrompt,
-    OverlayPosition, PasteMethod, ShortcutBinding, SoundTheme, TypingTool,
+    OverlayPosition, PasteMethod, ShortcutBinding, SoundTheme, SubtitleFontSize, TypingTool,
     APPLE_INTELLIGENCE_PROVIDER_ID,
 };
 
@@ -1179,6 +1179,36 @@ pub fn change_auto_capitalize_setting(app: AppHandle, enabled: bool) -> Result<(
 pub fn change_subtitle_overlay_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
     let mut settings = settings::get_settings(&app);
     settings.subtitle_overlay = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_subtitle_font_size_setting(
+    app: AppHandle,
+    size: SubtitleFontSize,
+) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.subtitle_font_size = size;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_subtitle_max_chars_setting(app: AppHandle, max_chars: u32) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.subtitle_max_chars = max_chars;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_subtitle_refresh_ms_setting(app: AppHandle, refresh_ms: u32) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.subtitle_refresh_ms = refresh_ms;
     settings::write_settings(&app, settings);
     Ok(())
 }

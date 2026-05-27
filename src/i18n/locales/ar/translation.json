@@ -223,7 +223,8 @@
         "output": "الإخراج",
         "transcription": "التفريغ الصوتي",
         "history": "السجل",
-        "experimental": "تجريبي"
+        "experimental": "تجريبي",
+        "subtitles": "الترجمات"
       },
       "experimentalToggle": {
         "label": "الميزات التجريبية",
@@ -342,6 +343,29 @@
       "autoCapitalize": {
         "label": "أحرف كبيرة تلقائية",
         "description": "كتابة الحرف الأول من كل جملة بحرف كبير تلقائيًا."
+      },
+      "subtitles": {
+        "enable": {
+          "label": "ترجمات حية",
+          "description": "عرض النص المنسوخ في الوقت الفعلي أسفل كرة التسجيل."
+        },
+        "fontSize": {
+          "label": "حجم الترجمة",
+          "description": "حجم نص الترجمات المعروضة على الشاشة.",
+          "options": {
+            "small": "صغير",
+            "medium": "متوسط",
+            "large": "كبير"
+          }
+        },
+        "maxChars": {
+          "label": "طول الترجمة",
+          "description": "الحد الأقصى لعدد الأحرف المحفوظة على الشاشة."
+        },
+        "refreshMs": {
+          "label": "فترة التحديث",
+          "description": "عدد مرات تحديث الترجمات الحية أثناء التحدث."
+        }
       }
     },
     "postProcessing": {

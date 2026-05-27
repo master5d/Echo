@@ -245,7 +245,8 @@
         "output": "出力",
         "transcription": "文字起こし",
         "history": "履歴",
-        "experimental": "実験的"
+        "experimental": "実験的",
+        "subtitles": "字幕"
       },
       "experimentalToggle": {
         "label": "実験的機能",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "自動大文字化",
         "description": "文の最初の文字を自動的に大文字にします。"
+      },
+      "subtitles": {
+        "enable": {
+          "label": "ライブ字幕",
+          "description": "録音オーブの下に文字起こしテキストをリアルタイムで表示します。"
+        },
+        "fontSize": {
+          "label": "字幕サイズ",
+          "description": "画面上の字幕の文字サイズ。",
+          "options": {
+            "small": "小",
+            "medium": "中",
+            "large": "大"
+          }
+        },
+        "maxChars": {
+          "label": "字幕の長さ",
+          "description": "画面に保持する最大文字数。"
+        },
+        "refreshMs": {
+          "label": "更新間隔",
+          "description": "話している間にライブ字幕を更新する頻度。"
+        }
       }
     },
     "postProcessing": {

@@ -245,7 +245,8 @@
         "output": "Output",
         "transcription": "Trascrizione",
         "history": "Cronologia",
-        "experimental": "Sperimentale"
+        "experimental": "Sperimentale",
+        "subtitles": "Sottotitoli"
       },
       "experimentalToggle": {
         "label": "Funzionalità Sperimentali",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "Maiuscole automatiche",
         "description": "Rende automaticamente maiuscola la prima lettera delle frasi."
+      },
+      "subtitles": {
+        "enable": {
+          "label": "Sottotitoli in tempo reale",
+          "description": "Mostra il testo trascritto in tempo reale sotto la sfera di registrazione."
+        },
+        "fontSize": {
+          "label": "Dimensione sottotitoli",
+          "description": "Dimensione del testo dei sottotitoli a schermo.",
+          "options": {
+            "small": "Piccolo",
+            "medium": "Medio",
+            "large": "Grande"
+          }
+        },
+        "maxChars": {
+          "label": "Lunghezza sottotitoli",
+          "description": "Numero massimo di caratteri mantenuti a schermo."
+        },
+        "refreshMs": {
+          "label": "Intervallo di aggiornamento",
+          "description": "Con quale frequenza i sottotitoli in tempo reale si aggiornano mentre parli."
+        }
       }
     },
     "postProcessing": {

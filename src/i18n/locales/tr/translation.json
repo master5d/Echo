@@ -245,7 +245,8 @@
         "output": "Çıktı",
         "transcription": "Transkripsiyon",
         "history": "Geçmiş",
-        "experimental": "Deneysel"
+        "experimental": "Deneysel",
+        "subtitles": "Altyazılar"
       },
       "experimentalToggle": {
         "label": "Deneysel Özellikler",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "Otomatik büyük harf",
         "description": "Cümlelerin ilk harfini otomatik olarak büyük yapar."
+      },
+      "subtitles": {
+        "enable": {
+          "label": "Canlı altyazılar",
+          "description": "Yazıya dökülen metni kayıt küresinin altında gerçek zamanlı göster."
+        },
+        "fontSize": {
+          "label": "Altyazı boyutu",
+          "description": "Ekrandaki altyazıların metin boyutu.",
+          "options": {
+            "small": "Küçük",
+            "medium": "Orta",
+            "large": "Büyük"
+          }
+        },
+        "maxChars": {
+          "label": "Altyazı uzunluğu",
+          "description": "Ekranda tutulan maksimum karakter sayısı."
+        },
+        "refreshMs": {
+          "label": "Yenileme aralığı",
+          "description": "Konuşurken canlı altyazıların ne sıklıkta güncellendiği."
+        }
       }
     },
     "postProcessing": {

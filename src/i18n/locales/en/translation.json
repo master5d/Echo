@@ -245,7 +245,8 @@
         "output": "Output",
         "transcription": "Transcription",
         "history": "History",
-        "experimental": "Experimental"
+        "experimental": "Experimental",
+        "subtitles": "Subtitles"
       },
       "experimentalToggle": {
         "label": "Experimental Features",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "Auto-Capitalize",
         "description": "Automatically capitalize the first letter of sentences."
+      },
+      "subtitles": {
+        "enable": {
+          "label": "Live subtitles",
+          "description": "Show transcribed text in real time below the recording orb."
+        },
+        "fontSize": {
+          "label": "Subtitle size",
+          "description": "Text size of the on-screen subtitles.",
+          "options": {
+            "small": "Small",
+            "medium": "Medium",
+            "large": "Large"
+          }
+        },
+        "maxChars": {
+          "label": "Subtitle length",
+          "description": "Maximum number of characters kept on screen."
+        },
+        "refreshMs": {
+          "label": "Refresh interval",
+          "description": "How often the live subtitles update while you speak."
+        }
       }
     },
     "postProcessing": {

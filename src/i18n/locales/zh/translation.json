@@ -245,7 +245,8 @@
         "output": "输出",
         "transcription": "转录",
         "history": "历史",
-        "experimental": "实验性"
+        "experimental": "实验性",
+        "subtitles": "字幕"
       },
       "experimentalToggle": {
         "label": "实验性功能",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "自动首字母大写",
         "description": "自动将句子的首字母大写。"
+      },
+      "subtitles": {
+        "enable": {
+          "label": "实时字幕",
+          "description": "在录音球下方实时显示转录文本。"
+        },
+        "fontSize": {
+          "label": "字幕大小",
+          "description": "屏幕字幕的文字大小。",
+          "options": {
+            "small": "小",
+            "medium": "中",
+            "large": "大"
+          }
+        },
+        "maxChars": {
+          "label": "字幕长度",
+          "description": "屏幕上保留的最大字符数。"
+        },
+        "refreshMs": {
+          "label": "刷新间隔",
+          "description": "说话时实时字幕的更新频率。"
+        }
       }
     },
     "postProcessing": {

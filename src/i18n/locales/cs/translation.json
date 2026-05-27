@@ -245,7 +245,8 @@
         "output": "Výstup",
         "transcription": "Přepis",
         "history": "Historie",
-        "experimental": "Experimentální"
+        "experimental": "Experimentální",
+        "subtitles": "Titulky"
       },
       "experimentalToggle": {
         "label": "Experimentální funkce",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "Automatická velká písmena",
         "description": "Automaticky píše první písmeno vět velkým písmenem."
+      },
+      "subtitles": {
+        "enable": {
+          "label": "Živé titulky",
+          "description": "Zobrazovat přepsaný text v reálném čase pod nahrávací koulí."
+        },
+        "fontSize": {
+          "label": "Velikost titulků",
+          "description": "Velikost textu titulků na obrazovce.",
+          "options": {
+            "small": "Malá",
+            "medium": "Střední",
+            "large": "Velká"
+          }
+        },
+        "maxChars": {
+          "label": "Délka titulků",
+          "description": "Maximální počet znaků ponechaných na obrazovce."
+        },
+        "refreshMs": {
+          "label": "Interval obnovení",
+          "description": "Jak často se živé titulky aktualizují, když mluvíte."
+        }
       }
     },
     "postProcessing": {

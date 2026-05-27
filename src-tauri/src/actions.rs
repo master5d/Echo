@@ -60,6 +60,17 @@ fn strip_invisible_chars(s: &str) -> String {
     s.replace(['\u{200B}', '\u{200C}', '\u{200D}', '\u{FEFF}'], "")
 }
 
+/// Keep only the last `max_chars` characters (char-safe) of a subtitle so the
+/// on-screen overlay stays a readable tail instead of growing unbounded.
+fn tail_chars(s: &str, max_chars: usize) -> String {
+    let count = s.chars().count();
+    if count <= max_chars {
+        s.to_string()
+    } else {
+        s.chars().skip(count - max_chars).collect()
+    }
+}
+
 /// Build a system prompt from the user's prompt template.
 /// Removes `${output}` placeholder since the transcription is sent as the user message.
 fn build_system_prompt(prompt_template: &str) -> String {
@@ -546,28 +557,33 @@ impl ShortcutAction for TranscribeAction {
                 let app_handle = app.clone();
                 let rm_clone = Arc::clone(&rm);
                 let tm_clone = Arc::clone(&tm);
+                // User-tunable cadence + on-screen length (clamped to sane bounds).
+                let refresh = Duration::from_millis(settings.subtitle_refresh_ms.max(100) as u64);
+                let max_chars = settings.subtitle_max_chars.max(20) as usize;
 
                 tauri::async_runtime::spawn(async move {
                     debug!("Starting subtitle streaming task");
                     let mut last_peek_time = Instant::now();
 
                     while rm_clone.is_recording() {
-                        if last_peek_time.elapsed() >= Duration::from_millis(200) {
+                        if last_peek_time.elapsed() >= refresh {
                             if let Some(samples) = rm_clone.peek_recording() {
                                 if !samples.is_empty() {
                                     // Transcribe a slice of the audio for speed, or the whole thing
                                     // Parakeet is fast enough for the whole thing usually
                                     if let Ok(partial_text) = tm_clone.transcribe(samples) {
                                         if !partial_text.is_empty() {
-                                            let _ =
-                                                app_handle.emit("subtitle-update", partial_text);
+                                            let _ = app_handle.emit(
+                                                "subtitle-update",
+                                                tail_chars(&partial_text, max_chars),
+                                            );
                                         }
                                     }
                                 }
                             }
                             last_peek_time = Instant::now();
                         }
-                        tokio::time::sleep(Duration::from_millis(100)).await;
+                        tokio::time::sleep(refresh.min(Duration::from_millis(100))).await;
                     }
                     debug!("Subtitle streaming task stopped");
                 });
@@ -699,7 +715,12 @@ impl ShortcutAction for TranscribeAction {
                                     .await;
 
                             // Emit the processed text as a subtitle update for the overlay
-                            let _ = ah.emit("subtitle-update", &processed.final_text);
+                            // (trimmed to the configured on-screen length).
+                            let sub_max = get_settings(&ah).subtitle_max_chars.max(20) as usize;
+                            let _ = ah.emit(
+                                "subtitle-update",
+                                tail_chars(&processed.final_text, sub_max),
+                            );
 
                             // Save to history if WAV was saved
                             if wav_saved {

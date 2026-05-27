@@ -163,6 +163,16 @@ pub enum RecordingRetentionPeriod {
     Months3,
 }
 
+/// Live-subtitle text size. The actual CSS pixel mapping is applied in the
+/// overlay frontend (`SUBTITLE_FONT_PX`), keyed off this enum's serialized name.
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type)]
+#[serde(rename_all = "snake_case")]
+pub enum SubtitleFontSize {
+    Small,
+    Medium,
+    Large,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type)]
 #[serde(rename_all = "snake_case")]
 pub enum KeyboardImplementation {
@@ -438,6 +448,12 @@ pub struct AppSettings {
     pub auto_capitalize: bool,
     #[serde(default = "default_subtitle_overlay")]
     pub subtitle_overlay: bool,
+    #[serde(default = "default_subtitle_font_size")]
+    pub subtitle_font_size: SubtitleFontSize,
+    #[serde(default = "default_subtitle_max_chars")]
+    pub subtitle_max_chars: u32,
+    #[serde(default = "default_subtitle_refresh_ms")]
+    pub subtitle_refresh_ms: u32,
 }
 
 pub fn default_auto_punctuate() -> bool {
@@ -455,6 +471,18 @@ pub fn default_subtitle_overlay() -> bool {
     // it floods the inference engine and makes the pipeline appear to hang for
     // a very long time. Opt in only when running a fast model.
     false
+}
+
+pub fn default_subtitle_font_size() -> SubtitleFontSize {
+    SubtitleFontSize::Medium
+}
+
+pub fn default_subtitle_max_chars() -> u32 {
+    140
+}
+
+pub fn default_subtitle_refresh_ms() -> u32 {
+    300
 }
 
 fn default_model() -> String {
@@ -875,6 +903,9 @@ pub fn get_default_settings() -> AppSettings {
         auto_punctuate: default_auto_punctuate(),
         auto_capitalize: default_auto_capitalize(),
         subtitle_overlay: default_subtitle_overlay(),
+        subtitle_font_size: default_subtitle_font_size(),
+        subtitle_max_chars: default_subtitle_max_chars(),
+        subtitle_refresh_ms: default_subtitle_refresh_ms(),
     }
 }
 

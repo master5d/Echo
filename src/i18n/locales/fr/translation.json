@@ -245,7 +245,8 @@
         "output": "Sortie",
         "transcription": "Transcription",
         "history": "Historique",
-        "experimental": "Expérimental"
+        "experimental": "Expérimental",
+        "subtitles": "Sous-titres"
       },
       "experimentalToggle": {
         "label": "Fonctionnalités Expérimentales",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "Majuscule automatique",
         "description": "Met automatiquement en majuscule la première lettre des phrases."
+      },
+      "subtitles": {
+        "enable": {
+          "label": "Sous-titres en direct",
+          "description": "Afficher le texte transcrit en temps réel sous l'orbe d'enregistrement."
+        },
+        "fontSize": {
+          "label": "Taille des sous-titres",
+          "description": "Taille du texte des sous-titres à l'écran.",
+          "options": {
+            "small": "Petit",
+            "medium": "Moyen",
+            "large": "Grand"
+          }
+        },
+        "maxChars": {
+          "label": "Longueur des sous-titres",
+          "description": "Nombre maximal de caractères conservés à l'écran."
+        },
+        "refreshMs": {
+          "label": "Intervalle de rafraîchissement",
+          "description": "Fréquence de mise à jour des sous-titres en direct pendant que vous parlez."
+        }
       }
     },
     "postProcessing": {

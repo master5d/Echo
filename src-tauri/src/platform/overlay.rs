@@ -393,11 +393,14 @@ pub fn hide_recording_overlay(app_handle: &AppHandle) {
 }
 
 pub fn emit_levels(app_handle: &AppHandle, levels: &Vec<f32>) {
-    // emit levels to main app
-    let _ = app_handle.emit("mic-level", levels);
-
-    // also emit to the recording overlay if it's open
+    // The recording overlay is the only consumer of "mic-level". Emit straight
+    // to that window — and only while it's actually visible — instead of
+    // broadcasting to every window ~31×/s (512-sample frames at 16 kHz). When
+    // the overlay is disabled or hidden the levels go nowhere, so we skip the
+    // serialization + IPC entirely and stay quiet.
     if let Some(overlay_window) = app_handle.get_webview_window("recording_overlay") {
-        let _ = overlay_window.emit("mic-level", levels);
+        if overlay_window.is_visible().unwrap_or(false) {
+            let _ = overlay_window.emit("mic-level", levels);
+        }
     }
 }

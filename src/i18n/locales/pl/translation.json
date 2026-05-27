@@ -245,7 +245,8 @@
         "output": "Wyjście",
         "transcription": "Transkrypcja",
         "history": "Historia",
-        "experimental": "Eksperymentalne"
+        "experimental": "Eksperymentalne",
+        "subtitles": "Napisy"
       },
       "experimentalToggle": {
         "label": "Funkcje Eksperymentalne",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "Automatyczne wielkie litery",
         "description": "Automatycznie zapisuje pierwszą literę zdań wielką literą."
+      },
+      "subtitles": {
+        "enable": {
+          "label": "Napisy na żywo",
+          "description": "Pokazuj transkrybowany tekst w czasie rzeczywistym pod kulą nagrywania."
+        },
+        "fontSize": {
+          "label": "Rozmiar napisów",
+          "description": "Rozmiar tekstu napisów na ekranie.",
+          "options": {
+            "small": "Mały",
+            "medium": "Średni",
+            "large": "Duży"
+          }
+        },
+        "maxChars": {
+          "label": "Długość napisów",
+          "description": "Maksymalna liczba znaków utrzymywanych na ekranie."
+        },
+        "refreshMs": {
+          "label": "Częstotliwość odświeżania",
+          "description": "Jak często napisy na żywo są aktualizowane podczas mówienia."
+        }
       }
     },
     "postProcessing": {

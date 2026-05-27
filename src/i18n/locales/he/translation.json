@@ -245,7 +245,8 @@
         "output": "פלט",
         "transcription": "תמלול",
         "history": "היסטוריה",
-        "experimental": "ניסיוני"
+        "experimental": "ניסיוני",
+        "subtitles": "כתוביות"
       },
       "experimentalToggle": {
         "label": "תכונות ניסיוניות",
@@ -364,6 +365,29 @@
       "autoCapitalize": {
         "label": "אות גדולה אוטומטית",
         "description": "הופך אוטומטית את האות הראשונה של המשפטים לאות גדולה."
+      },
+      "subtitles": {
+        "enable": {
+          "label": "כתוביות חיות",
+          "description": "הצג את הטקסט המתומלל בזמן אמת מתחת לכדור ההקלטה."
+        },
+        "fontSize": {
+          "label": "גודל כתוביות",
+          "description": "גודל הטקסט של הכתוביות על המסך.",
+          "options": {
+            "small": "קטן",
+            "medium": "בינוני",
+            "large": "גדול"
+          }
+        },
+        "maxChars": {
+          "label": "אורך כתוביות",
+          "description": "מספר התווים המרבי שנשמר על המסך."
+        },
+        "refreshMs": {
+          "label": "מרווח רענון",
+          "description": "באיזו תדירות הכתוביות החיות מתעדכנות בזמן הדיבור."
+        }
       }
     },
     "postProcessing": {

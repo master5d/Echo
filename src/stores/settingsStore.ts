@@ -6,6 +6,7 @@ import type {
   AudioDevice,
   WhisperAcceleratorSetting,
   OrtAcceleratorSetting,
+  SubtitleFontSize,
 } from "@/bindings";
 import { commands } from "@/bindings";
 
@@ -161,6 +162,12 @@ const settingUpdaters: {
     commands.changeAutoCapitalizeSetting(value as boolean),
   subtitle_overlay: (value) =>
     commands.changeSubtitleOverlaySetting(value as boolean),
+  subtitle_font_size: (value) =>
+    commands.changeSubtitleFontSizeSetting(value as SubtitleFontSize),
+  subtitle_max_chars: (value) =>
+    commands.changeSubtitleMaxCharsSetting(value as number),
+  subtitle_refresh_ms: (value) =>
+    commands.changeSubtitleRefreshMsSetting(value as number),
 };
 
 export const useSettingsStore = create<SettingsStore>()(
