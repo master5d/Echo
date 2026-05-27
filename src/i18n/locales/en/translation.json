@@ -614,6 +614,7 @@
   "overlay": {
     "transcribing": "Transcribing...",
     "processing": "Processing...",
-    "cancel": "Cancel recording"
+    "cancel": "Cancel recording",
+    "preparing": "Preparing…"
   }
 }

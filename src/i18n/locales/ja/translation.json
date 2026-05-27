@@ -356,6 +356,14 @@
         "add": "追加",
         "remove": "{{word}}を削除",
         "duplicate": "「{{word}}」は既に存在します"
+      },
+      "autoPunctuate": {
+        "label": "自動句読点",
+        "description": "文の構造に基づいてカンマや文末の句読点を自動的に挿入します（ロシア語/英語対応）。"
+      },
+      "autoCapitalize": {
+        "label": "自動大文字化",
+        "description": "文の最初の文字を自動的に大文字にします。"
       }
     },
     "postProcessing": {
@@ -531,7 +539,8 @@
           "description": "OpenAIのWhisper自動音声認識モデルの高性能推論",
           "details": "Handyは高速でローカルな音声からテキストへの変換にWhisper.cppを使用しています。Georgi Gerganov氏と貢献者の皆様の素晴らしい仕事に感謝します。"
         }
-      }
+      },
+      "eliteEdition": "ローカルなバイリンガル音声入力"
     }
   },
   "footer": {
@@ -594,7 +603,9 @@
     "modelLoadFailed": "モデルの読み込みに失敗しました: {{model}}",
     "modelLoadFailedUnknown": "不明なモデル",
     "pasteFailedTitle": "テキストの貼り付けに失敗しました",
-    "pasteFailed": "アクティブなアプリケーションにテキストを貼り付けられませんでした。"
+    "pasteFailed": "アクティブなアプリケーションにテキストを貼り付けられませんでした。",
+    "renderingSettingsTitle": "設定の表示エラー",
+    "renderingSettingsDescription": "セクション「{{section}}」のコンポーネントがありません。"
   },
   "appLanguage": {
     "title": "アプリケーション言語",
@@ -602,6 +613,8 @@
   },
   "overlay": {
     "transcribing": "文字起こし中...",
-    "processing": "処理中..."
+    "processing": "処理中...",
+    "cancel": "録音をキャンセル",
+    "preparing": "準備中…"
   }
 }

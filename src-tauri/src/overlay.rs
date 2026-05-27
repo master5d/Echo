@@ -339,6 +339,13 @@ fn show_overlay_state(app_handle: &AppHandle, state: &str) {
     }
 }
 
+/// Shows the overlay in the "preparing" state: the hotkey fired but the audio
+/// stream is still warming up, so the user should wait for the recording cue
+/// instead of talking into a mic that isn't capturing yet.
+pub fn show_preparing_overlay(app_handle: &AppHandle) {
+    show_overlay_state(app_handle, "preparing");
+}
+
 /// Shows the recording overlay window with fade-in animation
 pub fn show_recording_overlay(app_handle: &AppHandle) {
     show_overlay_state(app_handle, "recording");

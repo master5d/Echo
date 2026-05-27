@@ -9,7 +9,8 @@ use crate::settings::{get_settings, AppSettings, APPLE_INTELLIGENCE_PROVIDER_ID}
 use crate::shortcut;
 use crate::tray::{change_tray_icon, TrayIconState};
 use crate::utils::{
-    self, show_processing_overlay, show_recording_overlay, show_transcribing_overlay,
+    self, show_preparing_overlay, show_processing_overlay, show_recording_overlay,
+    show_transcribing_overlay,
 };
 use crate::TranscriptionCoordinator;
 use ferrous_opencc::{config::BuiltinConfig, OpenCC};
@@ -472,7 +473,10 @@ impl ShortcutAction for TranscribeAction {
 
         let binding_id = binding_id.to_string();
         change_tray_icon(app, TrayIconState::Recording);
-        show_recording_overlay(app);
+        // Show the pill in "preparing" state first; we flip it to "recording"
+        // only once the audio stream is actually live (below), so the user
+        // doesn't start talking into a mic that isn't capturing yet.
+        show_preparing_overlay(app);
 
         // Get the microphone mode to determine audio feedback timing
         let settings = get_settings(app);
@@ -488,6 +492,9 @@ impl ShortcutAction for TranscribeAction {
             // The blocking helper exits immediately if audio feedback is disabled,
             // so we can always reuse this thread to ensure mute happens right after playback.
             std::thread::spawn(move || {
+                // Always-on mic is already capturing, so flip to "recording"
+                // together with the start cue.
+                show_recording_overlay(&app_clone);
                 play_feedback_sound_blocking(&app_clone, SoundType::Start);
                 rm_clone.apply_mute();
             });
@@ -510,6 +517,9 @@ impl ShortcutAction for TranscribeAction {
                     std::thread::spawn(move || {
                         std::thread::sleep(std::time::Duration::from_millis(100));
                         debug!("Handling delayed audio feedback/mute sequence");
+                        // The stream is active now: flip the pill to "recording"
+                        // in lock-step with the audible start cue.
+                        show_recording_overlay(&app_clone);
                         // Helper handles disabled audio feedback by returning early, so we reuse it
                         // to keep mute sequencing consistent in every mode.
                         play_feedback_sound_blocking(&app_clone, SoundType::Start);

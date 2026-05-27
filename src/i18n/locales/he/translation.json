@@ -356,6 +356,14 @@
         "add": "הוסף",
         "remove": "הסר את {{word}}",
         "duplicate": "\"{{word}}\" כבר קיימת"
+      },
+      "autoPunctuate": {
+        "label": "פיסוק אוטומטי",
+        "description": "מוסיף פסיקים וסימני פיסוק סופיים באופן אוטומטי לפי מבנה המשפט (תמיכה ברוסית/אנגלית)."
+      },
+      "autoCapitalize": {
+        "label": "אות גדולה אוטומטית",
+        "description": "הופך אוטומטית את האות הראשונה של המשפטים לאות גדולה."
       }
     },
     "postProcessing": {
@@ -531,7 +539,8 @@
           "description": "הסקה מהירה לביצועים גבוהים עבור מודל זיהוי הדיבור Whisper של OpenAI",
           "details": "Handy משתמש ב-Whisper.cpp לתמלול מהיר ומקומי. תודה לעבודה המדהימה של Georgi Gerganov וכל התורמים."
         }
-      }
+      },
+      "eliteEdition": "הכתבה דו-לשונית מקומית"
     }
   },
   "footer": {
@@ -594,7 +603,9 @@
     "modelLoadFailed": "טעינת המודל נכשלה: {{model}}",
     "modelLoadFailedUnknown": "מודל לא ידוע",
     "pasteFailedTitle": "ההדבקה נכשלה",
-    "pasteFailed": "לא ניתן היה להדביק את הטקסט ביישום הפעיל."
+    "pasteFailed": "לא ניתן היה להדביק את הטקסט ביישום הפעיל.",
+    "renderingSettingsTitle": "שגיאה בעיבוד ההגדרות",
+    "renderingSettingsDescription": "הרכיב עבור המקטע \"{{section}}\" חסר."
   },
   "appLanguage": {
     "title": "שפת האפליקציה",
@@ -602,6 +613,8 @@
   },
   "overlay": {
     "transcribing": "מתמלל...",
-    "processing": "מעבד..."
+    "processing": "מעבד...",
+    "cancel": "ביטול ההקלטה",
+    "preparing": "מתכונן…"
   }
 }

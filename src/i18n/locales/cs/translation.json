@@ -356,6 +356,14 @@
         "add": "Přidat",
         "remove": "Odebrat {{word}}",
         "duplicate": "\"{{word}}\" již existuje"
+      },
+      "autoPunctuate": {
+        "label": "Automatická interpunkce",
+        "description": "Automaticky vkládá čárky a koncovou interpunkci podle struktury věty (podpora RU/EN)."
+      },
+      "autoCapitalize": {
+        "label": "Automatická velká písmena",
+        "description": "Automaticky píše první písmeno vět velkým písmenem."
       }
     },
     "postProcessing": {
@@ -531,7 +539,8 @@
           "description": "Vysoce výkonné inferenční zpracování modelu automatického rozpoznávání řeči Whisper od OpenAI",
           "details": "Handy používá Whisper.cpp pro rychlé lokální zpracování řeči na text. Díky skvělé práci Georgiho Gerganova a přispěvatelů."
         }
-      }
+      },
+      "eliteEdition": "Lokální dvojjazyčné diktování"
     }
   },
   "footer": {
@@ -594,7 +603,9 @@
     "modelLoadFailed": "Nepodařilo se načíst model: {{model}}",
     "modelLoadFailedUnknown": "neznámý model",
     "pasteFailedTitle": "Vložení textu se nezdařilo",
-    "pasteFailed": "Text nebylo možné vložit do aktivní aplikace."
+    "pasteFailed": "Text nebylo možné vložit do aktivní aplikace.",
+    "renderingSettingsTitle": "Chyba při vykreslování nastavení",
+    "renderingSettingsDescription": "Komponenta pro sekci „{{section}}“ chybí."
   },
   "appLanguage": {
     "title": "Jazyk aplikace",
@@ -602,6 +613,8 @@
   },
   "overlay": {
     "transcribing": "Přepisuji...",
-    "processing": "Zpracovávám..."
+    "processing": "Zpracovávám...",
+    "cancel": "Zrušit nahrávání",
+    "preparing": "Příprava…"
   }
 }

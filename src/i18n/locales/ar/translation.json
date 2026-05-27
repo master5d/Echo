@@ -334,6 +334,14 @@
         "add": "إضافة",
         "remove": "إزالة {{word}}",
         "duplicate": "\"{{word}}\" موجود بالفعل"
+      },
+      "autoPunctuate": {
+        "label": "ترقيم تلقائي",
+        "description": "إدراج الفواصل وعلامات نهاية الجملة تلقائيًا بناءً على بنية الجملة (دعم الروسية/الإنجليزية)."
+      },
+      "autoCapitalize": {
+        "label": "أحرف كبيرة تلقائية",
+        "description": "كتابة الحرف الأول من كل جملة بحرف كبير تلقائيًا."
       }
     },
     "postProcessing": {
@@ -509,7 +517,8 @@
           "description": "استنتاج عالي الأداء لنموذج التعرف التلقائي على الكلام Whisper من OpenAI",
           "details": ".يستخدم Handy برنامج Whisper.cpp لمعالجة سريعة ومحلية لتحويل الكلام إلى نص. شكراً للعمل الرائع الذي قام به Georgi Gerganov والمساهمون"
         }
-      }
+      },
+      "eliteEdition": "إملاء ثنائي اللغة محلي"
     },
     "modelSettings": {
       "title": "إعدادات النموذج",
@@ -594,7 +603,9 @@
     "modelLoadFailed": "فشل في تحميل النموذج: {{model}}",
     "modelLoadFailedUnknown": "نموذج غير معروف",
     "pasteFailedTitle": "فشل لصق النص",
-    "pasteFailed": "تعذر لصق النص في التطبيق النشط."
+    "pasteFailed": "تعذر لصق النص في التطبيق النشط.",
+    "renderingSettingsTitle": "خطأ في عرض الإعدادات",
+    "renderingSettingsDescription": "المكوّن الخاص بالقسم \"{{section}}\" مفقود."
   },
   "appLanguage": {
     "title": "لغة التطبيق",
@@ -602,6 +613,8 @@
   },
   "overlay": {
     "transcribing": "...جاري التفريغ",
-    "processing": "...جاري المعالجة"
+    "processing": "...جاري المعالجة",
+    "cancel": "إلغاء التسجيل",
+    "preparing": "جارٍ التحضير…"
   }
 }

@@ -356,6 +356,14 @@
         "add": "Thêm",
         "remove": "Xóa {{word}}",
         "duplicate": "\"{{word}}\" đã tồn tại"
+      },
+      "autoPunctuate": {
+        "label": "Tự động chấm câu",
+        "description": "Tự động chèn dấu phẩy và dấu kết thúc câu dựa trên cấu trúc câu (hỗ trợ RU/EN)."
+      },
+      "autoCapitalize": {
+        "label": "Tự động viết hoa",
+        "description": "Tự động viết hoa chữ cái đầu của câu."
       }
     },
     "postProcessing": {
@@ -531,7 +539,8 @@
           "description": "Suy luận hiệu suất cao của mô hình nhận dạng giọng nói tự động Whisper của OpenAI",
           "details": "Handy sử dụng Whisper.cpp để xử lý chuyển đổi giọng nói thành văn bản nhanh, cục bộ. Cảm ơn công việc tuyệt vời của Georgi Gerganov và các cộng tác viên."
         }
-      }
+      },
+      "eliteEdition": "Nhập liệu giọng nói song ngữ cục bộ"
     }
   },
   "footer": {
@@ -594,7 +603,9 @@
     "modelLoadFailed": "Không thể tải mô hình: {{model}}",
     "modelLoadFailedUnknown": "mô hình không xác định",
     "pasteFailedTitle": "Không thể dán văn bản",
-    "pasteFailed": "Không thể dán văn bản vào ứng dụng đang hoạt động."
+    "pasteFailed": "Không thể dán văn bản vào ứng dụng đang hoạt động.",
+    "renderingSettingsTitle": "Lỗi hiển thị cài đặt",
+    "renderingSettingsDescription": "Thiếu thành phần cho mục \"{{section}}\"."
   },
   "appLanguage": {
     "title": "Ngôn ngữ ứng dụng",
@@ -602,6 +613,8 @@
   },
   "overlay": {
     "transcribing": "Đang chuyển đổi...",
-    "processing": "Đang xử lý..."
+    "processing": "Đang xử lý...",
+    "cancel": "Hủy ghi âm",
+    "preparing": "Đang chuẩn bị…"
   }
 }

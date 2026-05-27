@@ -356,6 +356,14 @@
         "add": "添加",
         "remove": "删除 {{word}}",
         "duplicate": "\"{{word}}\" 已存在"
+      },
+      "autoPunctuate": {
+        "label": "自动标点",
+        "description": "根据句子结构自动插入逗号和句末标点（支持俄语/英语）。"
+      },
+      "autoCapitalize": {
+        "label": "自动首字母大写",
+        "description": "自动将句子的首字母大写。"
       }
     },
     "postProcessing": {
@@ -531,7 +539,8 @@
           "description": "OpenAI Whisper 自动语音识别模型的高性能推理",
           "details": "Handy 使用 Whisper.cpp 进行快速的本地语音转文字处理。感谢 Georgi Gerganov 和贡献者们的出色工作。"
         }
-      }
+      },
+      "eliteEdition": "本地优先的双语听写"
     }
   },
   "footer": {
@@ -594,7 +603,9 @@
     "modelLoadFailed": "加载模型失败: {{model}}",
     "modelLoadFailedUnknown": "未知模型",
     "pasteFailedTitle": "粘贴文本失败",
-    "pasteFailed": "无法将文本粘贴到当前活动的应用程序中。"
+    "pasteFailed": "无法将文本粘贴到当前活动的应用程序中。",
+    "renderingSettingsTitle": "渲染设置时出错",
+    "renderingSettingsDescription": "缺少版块“{{section}}”的组件。"
   },
   "appLanguage": {
     "title": "应用语言",
@@ -602,6 +613,8 @@
   },
   "overlay": {
     "transcribing": "正在转录...",
-    "processing": "处理中..."
+    "processing": "处理中...",
+    "cancel": "取消录音",
+    "preparing": "准备中…"
   }
 }

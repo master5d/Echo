@@ -356,6 +356,14 @@
         "add": "Ajouter",
         "remove": "Supprimer {{word}}",
         "duplicate": "\"{{word}}\" existe déjà"
+      },
+      "autoPunctuate": {
+        "label": "Ponctuation automatique",
+        "description": "Insère automatiquement les virgules et la ponctuation finale selon la structure de la phrase (prise en charge RU/EN)."
+      },
+      "autoCapitalize": {
+        "label": "Majuscule automatique",
+        "description": "Met automatiquement en majuscule la première lettre des phrases."
       }
     },
     "postProcessing": {
@@ -531,7 +539,8 @@
           "description": "Inférence haute performance du modèle de reconnaissance vocale automatique Whisper d'OpenAI",
           "details": "Handy utilise Whisper.cpp pour un traitement rapide et local de la parole en texte. Merci au travail incroyable de Georgi Gerganov et des contributeurs."
         }
-      }
+      },
+      "eliteEdition": "Dictée bilingue locale"
     }
   },
   "footer": {
@@ -594,7 +603,9 @@
     "modelLoadFailed": "Échec du chargement du modèle : {{model}}",
     "modelLoadFailedUnknown": "modèle inconnu",
     "pasteFailedTitle": "Échec du collage du texte",
-    "pasteFailed": "Le texte n'a pas pu être collé dans l'application active."
+    "pasteFailed": "Le texte n'a pas pu être collé dans l'application active.",
+    "renderingSettingsTitle": "Erreur d'affichage des paramètres",
+    "renderingSettingsDescription": "Le composant pour la section « {{section}} » est manquant."
   },
   "appLanguage": {
     "title": "Langue de l'application",
@@ -602,6 +613,8 @@
   },
   "overlay": {
     "transcribing": "Transcription...",
-    "processing": "Traitement..."
+    "processing": "Traitement...",
+    "cancel": "Annuler l'enregistrement",
+    "preparing": "Préparation…"
   }
 }

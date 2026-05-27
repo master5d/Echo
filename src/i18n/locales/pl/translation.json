@@ -356,6 +356,14 @@
         "add": "Dodaj",
         "remove": "Usuń {{word}}",
         "duplicate": "\"{{word}}\" już istnieje"
+      },
+      "autoPunctuate": {
+        "label": "Automatyczna interpunkcja",
+        "description": "Automatycznie wstawia przecinki i interpunkcję końcową na podstawie struktury zdania (obsługa RU/EN)."
+      },
+      "autoCapitalize": {
+        "label": "Automatyczne wielkie litery",
+        "description": "Automatycznie zapisuje pierwszą literę zdań wielką literą."
       }
     },
     "postProcessing": {
@@ -531,7 +539,8 @@
           "description": "Wydajne wykonywanie modelu rozpoznawania mowy Whisper od OpenAI",
           "details": "Handy używa Whisper.cpp do szybkiego, lokalnego przetwarzania mowy na tekst. Dzięki niesamowitej pracy Georgi Gerganova i współtwórców."
         }
-      }
+      },
+      "eliteEdition": "Lokalne dwujęzyczne dyktowanie"
     }
   },
   "footer": {
@@ -594,7 +603,9 @@
     "modelLoadFailed": "Nie udało się załadować modelu: {{model}}",
     "modelLoadFailedUnknown": "nieznany model",
     "pasteFailedTitle": "Nie udało się wkleić tekstu",
-    "pasteFailed": "Nie można było wkleić tekstu do aktywnej aplikacji."
+    "pasteFailed": "Nie można było wkleić tekstu do aktywnej aplikacji.",
+    "renderingSettingsTitle": "Błąd renderowania ustawień",
+    "renderingSettingsDescription": "Brak komponentu dla sekcji „{{section}}”."
   },
   "appLanguage": {
     "title": "Język aplikacji",
@@ -602,6 +613,8 @@
   },
   "overlay": {
     "transcribing": "Transkrypcja...",
-    "processing": "Przetwarzanie..."
+    "processing": "Przetwarzanie...",
+    "cancel": "Anuluj nagrywanie",
+    "preparing": "Przygotowywanie…"
   }
 }

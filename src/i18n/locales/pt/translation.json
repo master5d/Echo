@@ -356,6 +356,14 @@
         "add": "Adicionar",
         "remove": "Remover {{word}}",
         "duplicate": "\"{{word}}\" já existe"
+      },
+      "autoPunctuate": {
+        "label": "Pontuação automática",
+        "description": "Insere automaticamente vírgulas e pontuação final com base na estrutura da frase (suporte a RU/EN)."
+      },
+      "autoCapitalize": {
+        "label": "Maiúsculas automáticas",
+        "description": "Coloca automaticamente em maiúscula a primeira letra das frases."
       }
     },
     "postProcessing": {
@@ -531,7 +539,8 @@
           "description": "Inferência de alto desempenho do modelo de reconhecimento automático de fala Whisper da OpenAI",
           "details": "O Handy usa Whisper.cpp para processamento rápido e local de fala para texto. Agradecemos ao incrível trabalho de Georgi Gerganov e colaboradores."
         }
-      }
+      },
+      "eliteEdition": "Ditado bilíngue local"
     }
   },
   "footer": {
@@ -594,7 +603,9 @@
     "modelLoadFailed": "Falha ao carregar o modelo: {{model}}",
     "modelLoadFailedUnknown": "modelo desconhecido",
     "pasteFailedTitle": "Falha ao colar o texto",
-    "pasteFailed": "Não foi possível colar o texto no aplicativo ativo."
+    "pasteFailed": "Não foi possível colar o texto no aplicativo ativo.",
+    "renderingSettingsTitle": "Erro ao renderizar as configurações",
+    "renderingSettingsDescription": "O componente para a seção \"{{section}}\" está ausente."
   },
   "appLanguage": {
     "title": "Idioma da Aplicação",
@@ -602,6 +613,8 @@
   },
   "overlay": {
     "transcribing": "Transcrevendo...",
-    "processing": "Processando..."
+    "processing": "Processando...",
+    "cancel": "Cancelar gravação",
+    "preparing": "Preparando…"
   }
 }
