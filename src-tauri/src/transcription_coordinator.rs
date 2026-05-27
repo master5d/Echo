@@ -26,10 +26,7 @@ enum Command {
 /// Pipeline lifecycle, owned exclusively by the coordinator thread.
 enum Stage {
     Idle,
-    Recording {
-        binding_id: String,
-        is_locked: bool,
-    },
+    Recording { binding_id: String, is_locked: bool },
     Processing,
 }
 
@@ -75,7 +72,10 @@ impl TranscriptionCoordinator {
                                     Stage::Idle => {
                                         start(&app, &mut stage, &binding_id, &hotkey_string, false);
                                     }
-                                    Stage::Recording { binding_id: active_id, is_locked } => {
+                                    Stage::Recording {
+                                        binding_id: active_id,
+                                        is_locked,
+                                    } => {
                                         if active_id == &binding_id {
                                             // If already recording and it's a toggle-press, stop it.
                                             // If it was PTT, we handle the stop on release.
@@ -95,7 +95,10 @@ impl TranscriptionCoordinator {
                                     let is_tap = duration < Duration::from_millis(250);
 
                                     match &mut stage {
-                                        Stage::Recording { binding_id: active_id, is_locked } if active_id == &binding_id => {
+                                        Stage::Recording {
+                                            binding_id: active_id,
+                                            is_locked,
+                                        } if active_id == &binding_id => {
                                             if is_tap {
                                                 // It was a tap - lock it if it wasn't already
                                                 *is_locked = true;
@@ -115,7 +118,8 @@ impl TranscriptionCoordinator {
                         } => {
                             // Don't reset during processing — wait for the pipeline to finish.
                             if !matches!(stage, Stage::Processing)
-                                && (recording_was_active || matches!(stage, Stage::Recording { .. }))
+                                && (recording_was_active
+                                    || matches!(stage, Stage::Recording { .. }))
                             {
                                 stage = Stage::Idle;
                             }
@@ -177,7 +181,13 @@ impl TranscriptionCoordinator {
     }
 }
 
-fn start(app: &AppHandle, stage: &mut Stage, binding_id: &str, hotkey_string: &str, is_locked: bool) {
+fn start(
+    app: &AppHandle,
+    stage: &mut Stage,
+    binding_id: &str,
+    hotkey_string: &str,
+    is_locked: bool,
+) {
     let Some(action) = ACTION_MAP.get(binding_id) else {
         warn!("No action in ACTION_MAP for '{binding_id}'");
         return;

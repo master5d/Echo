@@ -1,13 +1,15 @@
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
 use crate::apple_intelligence;
-use crate::audio_feedback::{play_feedback_sound, play_feedback_sound_blocking, SoundType};
 use crate::audio_toolkit::{is_microphone_access_denied, is_no_input_device_error};
 use crate::managers::audio::AudioRecordingManager;
 use crate::managers::history::HistoryManager;
 use crate::managers::transcription::TranscriptionManager;
+use crate::platform::audio_feedback::{
+    play_feedback_sound, play_feedback_sound_blocking, SoundType,
+};
+use crate::platform::tray::{change_tray_icon, TrayIconState};
 use crate::settings::{get_settings, AppSettings, APPLE_INTELLIGENCE_PROVIDER_ID};
 use crate::shortcut;
-use crate::tray::{change_tray_icon, TrayIconState};
 use crate::utils::{
     self, show_preparing_overlay, show_processing_overlay, show_recording_overlay,
     show_transcribing_overlay,
@@ -393,23 +395,25 @@ pub(crate) async fn process_transcription_output(
     if let Some(title) = get_active_window_title() {
         let title_lower = title.to_lowercase();
         debug!("Active window detected: {}", title);
-        
-        let is_code_editor = title_lower.contains("visual studio code") || 
-           title_lower.contains("cursor") || 
-           title_lower.contains("zed") ||
-           title_lower.contains("sublime") ||
-           title_lower.contains("intellij") ||
-           title_lower.contains("webstorm") ||
-           title_lower.contains("pycharm") ||
-           title_lower.contains("clion") ||
-           title_lower.contains("neovim") ||
-           title_lower.contains("visual studio");
+
+        let is_code_editor = title_lower.contains("visual studio code")
+            || title_lower.contains("cursor")
+            || title_lower.contains("zed")
+            || title_lower.contains("sublime")
+            || title_lower.contains("intellij")
+            || title_lower.contains("webstorm")
+            || title_lower.contains("pycharm")
+            || title_lower.contains("clion")
+            || title_lower.contains("neovim")
+            || title_lower.contains("visual studio");
 
         if is_code_editor {
             // Strip trailing punctuation for code editors
-            final_text = final_text.trim_end_matches(|c: char| c.is_ascii_punctuation()).to_string();
+            final_text = final_text
+                .trim_end_matches(|c: char| c.is_ascii_punctuation())
+                .to_string();
             debug!("Applying 'Code Editor' formatting: stripped trailing punctuation");
-            
+
             // Explicit CamelCase trigger: "camel case [text]"
             let lower_final = final_text.to_lowercase();
             if let Some(rest) = lower_final.strip_prefix("camel case ") {
@@ -542,11 +546,11 @@ impl ShortcutAction for TranscribeAction {
                 let app_handle = app.clone();
                 let rm_clone = Arc::clone(&rm);
                 let tm_clone = Arc::clone(&tm);
-                
+
                 tauri::async_runtime::spawn(async move {
                     debug!("Starting subtitle streaming task");
                     let mut last_peek_time = Instant::now();
-                    
+
                     while rm_clone.is_recording() {
                         if last_peek_time.elapsed() >= Duration::from_millis(200) {
                             if let Some(samples) = rm_clone.peek_recording() {
@@ -555,7 +559,8 @@ impl ShortcutAction for TranscribeAction {
                                     // Parakeet is fast enough for the whole thing usually
                                     if let Ok(partial_text) = tm_clone.transcribe(samples) {
                                         if !partial_text.is_empty() {
-                                            let _ = app_handle.emit("subtitle-update", partial_text);
+                                            let _ =
+                                                app_handle.emit("subtitle-update", partial_text);
                                         }
                                     }
                                 }

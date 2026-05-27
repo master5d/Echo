@@ -1,4 +1,4 @@
-use crate::input::{self, EnigoState};
+use crate::platform::input::{self, EnigoState};
 #[cfg(target_os = "linux")]
 use crate::settings::TypingTool;
 use crate::settings::{get_settings, AutoSubmitKey, ClipboardHandling, PasteMethod};

@@ -1,26 +1,20 @@
 mod actions;
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
 mod apple_intelligence;
-mod audio_feedback;
 pub mod audio_toolkit;
 pub mod cli;
-mod clipboard;
 mod commands;
 mod helpers;
 mod heuristics;
 #[cfg(test)]
 mod heuristics_tests;
-mod input;
 mod llm_client;
 mod managers;
-mod overlay;
+mod platform;
 pub mod portable;
 mod settings;
 mod shortcut;
-mod signal_handle;
 mod transcription_coordinator;
-mod tray;
-mod tray_i18n;
 mod utils;
 
 pub use cli::CliArgs;
@@ -177,7 +171,7 @@ fn initialize_core_logic(app_handle: &AppHandle) {
     let signals = Signals::new(&[SIGUSR1, SIGUSR2]).unwrap();
     // Set up signal handlers for toggling transcription
     #[cfg(unix)]
-    signal_handle::setup_signal_handler(app_handle.clone(), signals);
+    platform::signal_handle::setup_signal_handler(app_handle.clone(), signals);
 
     // Apply macOS Accessory policy if starting hidden and tray is available.
     // If the tray icon is disabled, keep the dock icon so the user can reopen.
@@ -189,10 +183,11 @@ fn initialize_core_logic(app_handle: &AppHandle) {
         }
     }
     // Get the current theme to set the appropriate initial icon
-    let initial_theme = tray::get_current_theme(app_handle);
+    let initial_theme = platform::tray::get_current_theme(app_handle);
 
     // Choose the appropriate initial icon based on theme
-    let initial_icon_path = tray::get_icon_path(initial_theme, tray::TrayIconState::Idle);
+    let initial_icon_path =
+        platform::tray::get_icon_path(initial_theme, platform::tray::TrayIconState::Idle);
 
     let tray = TrayIconBuilder::new()
         .icon(
@@ -204,7 +199,7 @@ fn initialize_core_logic(app_handle: &AppHandle) {
             )
             .unwrap(),
         )
-        .tooltip(tray::tray_tooltip())
+        .tooltip(platform::tray::tray_tooltip())
         .show_menu_on_left_click(true)
         .icon_as_template(true)
         .on_menu_event(|app, event| match event.id.as_ref() {
@@ -219,7 +214,7 @@ fn initialize_core_logic(app_handle: &AppHandle) {
                 }
             }
             "copy_last_transcript" => {
-                tray::copy_last_transcript(app);
+                platform::tray::copy_last_transcript(app);
             }
             "unload_model" => {
                 let transcription_manager = app.state::<Arc<TranscriptionManager>>();
@@ -257,7 +252,11 @@ fn initialize_core_logic(app_handle: &AppHandle) {
                             log::error!("Failed to switch model via tray: {}", e);
                         }
                     }
-                    tray::update_tray_menu(&app_clone, &tray::TrayIconState::Idle, None);
+                    platform::tray::update_tray_menu(
+                        &app_clone,
+                        &platform::tray::TrayIconState::Idle,
+                        None,
+                    );
                 });
             }
             _ => {}
@@ -272,13 +271,17 @@ fn initialize_core_logic(app_handle: &AppHandle) {
     // Apply show_tray_icon setting
     let settings = settings::get_settings(app_handle);
     if !settings.show_tray_icon {
-        tray::set_tray_visibility(app_handle, false);
+        platform::tray::set_tray_visibility(app_handle, false);
     }
 
     // Refresh tray menu when model state changes
     let app_handle_for_listener = app_handle.clone();
     app_handle.listen("model-state-changed", move |_| {
-        tray::update_tray_menu(&app_handle_for_listener, &tray::TrayIconState::Idle, None);
+        platform::tray::update_tray_menu(
+            &app_handle_for_listener,
+            &platform::tray::TrayIconState::Idle,
+            None,
+        );
     });
 
     // Get the autostart manager and configure based on user setting
@@ -488,9 +491,13 @@ pub fn run(cli_args: CliArgs) {
     builder
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             if args.iter().any(|a| a == "--toggle-transcription") {
-                signal_handle::send_transcription_input(app, "transcribe", "CLI");
+                platform::signal_handle::send_transcription_input(app, "transcribe", "CLI");
             } else if args.iter().any(|a| a == "--toggle-post-process") {
-                signal_handle::send_transcription_input(app, "transcribe_with_post_process", "CLI");
+                platform::signal_handle::send_transcription_input(
+                    app,
+                    "transcribe_with_post_process",
+                    "CLI",
+                );
             } else if args.iter().any(|a| a == "--cancel") {
                 crate::utils::cancel_current_operation(app);
             } else {
@@ -561,7 +568,7 @@ pub fn run(cli_args: CliArgs) {
 
             // Hide tray icon if --no-tray was passed
             if cli_args.no_tray {
-                tray::set_tray_visibility(&app_handle, false);
+                platform::tray::set_tray_visibility(&app_handle, false);
             }
 
             // Show main window only if not starting hidden.

@@ -555,8 +555,8 @@ impl TranscriptionManager {
                             // with the user's glossary (custom_words).
                             let initial_prompt = {
                                 const STEER_LANGS: &[&str] = &[
-                                    "auto", "ru", "uk", "be", "bg", "sr", "mk",
-                                    "cs", "sk", "pl", "sl", "hr",
+                                    "auto", "ru", "uk", "be", "bg", "sr", "mk", "cs", "sk", "pl",
+                                    "sl", "hr",
                                 ];
                                 let mut parts: Vec<String> = Vec::new();
                                 if STEER_LANGS.contains(&validated_language.as_str()) {

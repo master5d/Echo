@@ -1,8 +1,8 @@
 use crate::managers::history::{HistoryEntry, HistoryManager};
 use crate::managers::model::ModelManager;
 use crate::managers::transcription::TranscriptionManager;
+use crate::platform::tray_i18n::get_tray_translations;
 use crate::settings;
-use crate::tray_i18n::get_tray_translations;
 use log::{error, info, warn};
 use std::sync::Arc;
 use tauri::image::Image;

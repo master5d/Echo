@@ -132,7 +132,7 @@ pub fn check_apple_intelligence_available() -> bool {
 #[specta::specta]
 #[tauri::command]
 pub fn initialize_enigo(app: AppHandle) -> Result<(), String> {
-    use crate::input::EnigoState;
+    use crate::platform::input::EnigoState;
 
     // Check if already initialized
     if app.try_state::<EnigoState>().is_some() {

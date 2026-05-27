@@ -1,4 +1,4 @@
-use crate::input;
+use crate::platform::input;
 use crate::settings;
 use crate::settings::OverlayPosition;
 use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize};

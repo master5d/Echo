@@ -1,6 +1,6 @@
-use std::collections::HashSet;
-use regex::Regex;
 use once_cell::sync::Lazy;
+use regex::Regex;
+use std::collections::HashSet;
 
 static WORD_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\wа-яА-ЯёЁ]+").unwrap());
 
@@ -18,24 +18,89 @@ impl Heuristics {
     // grammar engine.
     pub fn new() -> Self {
         let question_words: HashSet<String> = [
-            "who", "what", "where", "when", "why", "how",
-            "is", "are", "was", "were", "do", "does", "did",
-            "can", "could", "will", "would", "should", "shall",
-            "have", "has", "had", "may", "might",
-            "кто", "что", "где", "когда", "почему", "как",
-            "какой", "какая", "какие", "сколько", "зачем", "откуда",
-            "чей", "чья", "чьё", "чьи", "куда", "доколе",
-            "неужели", "разве", "ли"
-        ].iter().map(|s| s.to_string()).collect();
+            "who",
+            "what",
+            "where",
+            "when",
+            "why",
+            "how",
+            "is",
+            "are",
+            "was",
+            "were",
+            "do",
+            "does",
+            "did",
+            "can",
+            "could",
+            "will",
+            "would",
+            "should",
+            "shall",
+            "have",
+            "has",
+            "had",
+            "may",
+            "might",
+            "кто",
+            "что",
+            "где",
+            "когда",
+            "почему",
+            "как",
+            "какой",
+            "какая",
+            "какие",
+            "сколько",
+            "зачем",
+            "откуда",
+            "чей",
+            "чья",
+            "чьё",
+            "чьи",
+            "куда",
+            "доколе",
+            "неужели",
+            "разве",
+            "ли",
+        ]
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
 
         let comma_before_words: HashSet<String> = [
-            "but", "however", "although", "though", "yet", "so",
-            "which", "because", "while", "whereas",
-            "но", "а", "однако", "хотя", "потому", "поэтому",
-            "который", "которая", "которые", "которое",
-            "что", "чтобы", "если", "ибо", "словно", "будто",
-            "нежели", "пока"
-        ].iter().map(|s| s.to_string()).collect();
+            "but",
+            "however",
+            "although",
+            "though",
+            "yet",
+            "so",
+            "which",
+            "because",
+            "while",
+            "whereas",
+            "но",
+            "а",
+            "однако",
+            "хотя",
+            "потому",
+            "поэтому",
+            "который",
+            "которая",
+            "которые",
+            "которое",
+            "что",
+            "чтобы",
+            "если",
+            "ибо",
+            "словно",
+            "будто",
+            "нежели",
+            "пока",
+        ]
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
 
         Self {
             question_words,
@@ -99,7 +164,11 @@ impl Heuristics {
                 if self.comma_before_words.contains(&clean_word) {
                     let prev_index = i - 1;
                     let prev_word = &words[prev_index];
-                    if !prev_word.chars().last().map_or(false, |c| c.is_ascii_punctuation() || c == ',') {
+                    if !prev_word
+                        .chars()
+                        .last()
+                        .map_or(false, |c| c.is_ascii_punctuation() || c == ',')
+                    {
                         words[prev_index] = format!("{},", prev_word);
                     }
                 }
@@ -107,7 +176,7 @@ impl Heuristics {
         }
 
         let mut result = words.join(" ");
-        
+
         if let Some(mat) = WORD_REGEX.find(&words[0]) {
             let first_word_clean = mat.as_str().to_lowercase();
             if self.question_words.contains(&first_word_clean) {

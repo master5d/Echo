@@ -7,10 +7,10 @@ use std::sync::Arc;
 use tauri::{AppHandle, Manager};
 
 // Re-export all utility modules for easy access
-// pub use crate::audio_feedback::*;
-pub use crate::clipboard::*;
-pub use crate::overlay::*;
-pub use crate::tray::*;
+// pub use crate::platform::audio_feedback::*;
+pub use crate::platform::clipboard::*;
+pub use crate::platform::overlay::*;
+pub use crate::platform::tray::*;
 
 /// Centralized cancellation function that can be called from anywhere in the app.
 /// Handles cancelling both recording and transcription operations and updates UI state.
@@ -26,7 +26,7 @@ pub fn cancel_current_operation(app: &AppHandle) {
     audio_manager.cancel_recording();
 
     // Update tray icon and hide overlay
-    change_tray_icon(app, crate::tray::TrayIconState::Idle);
+    change_tray_icon(app, crate::platform::tray::TrayIconState::Idle);
     hide_recording_overlay(app);
 
     // Unload model if immediate unload is enabled

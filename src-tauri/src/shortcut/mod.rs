@@ -19,6 +19,7 @@ use specta::Type;
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_autostart::ManagerExt;
 
+use crate::platform::tray;
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
 use crate::settings::APPLE_INTELLIGENCE_DEFAULT_MODEL_ID;
 use crate::settings::{
@@ -26,7 +27,6 @@ use crate::settings::{
     OverlayPosition, PasteMethod, ShortcutBinding, SoundTheme, TypingTool,
     APPLE_INTELLIGENCE_PROVIDER_ID,
 };
-use crate::tray;
 
 // Note: Commands are accessed via shortcut::handy_keys:: in lib.rs
 
@@ -704,7 +704,7 @@ pub fn change_paste_method_setting(app: AppHandle, method: String) -> Result<(),
 pub fn get_available_typing_tools() -> Vec<String> {
     #[cfg(target_os = "linux")]
     {
-        crate::clipboard::get_available_typing_tools()
+        crate::platform::clipboard::get_available_typing_tools()
     }
     #[cfg(not(target_os = "linux"))]
     {
