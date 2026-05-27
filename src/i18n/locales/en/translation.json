@@ -520,7 +520,6 @@
     "about": {
       "title": "About",
       "eliteEdition": "Local-first bilingual dictation",
-      "nautilusIntegration": "",
       "version": {
         "title": "Version",
         "description": "Current version of Echo"
@@ -533,11 +532,6 @@
         "title": "Source Code",
         "description": "View source code and contribute",
         "button": "View on GitHub"
-      },
-      "supportDevelopment": {
-        "title": "Support Development",
-        "description": "Help us continue building Echo",
-        "button": "Donate"
       },
       "acknowledgments": {
         "title": "Acknowledgments",
