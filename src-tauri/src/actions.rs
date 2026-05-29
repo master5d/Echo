@@ -794,14 +794,20 @@ impl ShortcutAction for TranscribeAction {
 
                             // Save to history if WAV was saved
                             if wav_saved {
+                                // Coach v0: delivery-report metrics from the raw transcription.
+                                let coach_duration_ms = (sample_count as u64) * 1000
+                                    / crate::audio_toolkit::constants::WHISPER_SAMPLE_RATE as u64;
+                                let coach_metrics_json =
+                                    serde_json::to_string(&crate::coach::analyze(&transcription, coach_duration_ms))
+                                        .ok();
                                 if let Err(err) = hm.save_entry(
                                     file_name,
                                     transcription,
                                     post_process,
                                     processed.post_processed_text.clone(),
                                     processed.post_process_prompt.clone(),
-                                    None, // TODO(B3): pass real duration_ms + coach metrics
-                                    None,
+                                    Some(coach_duration_ms as i64),
+                                    coach_metrics_json,
                                 ) {
                                     error!("Failed to save history entry: {}", err);
                                 }
