@@ -45,3 +45,10 @@ blob-report/
 
 # Nix build output
 result
+
+# Local build helpers (machine-specific absolute paths)
+/build-echo.bat
+/dev-run-echo.bat
+
+# Superpowers planning docs (kept local, not published)
+docs/superpowers/

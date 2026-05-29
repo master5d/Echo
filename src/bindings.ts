@@ -952,8 +952,15 @@ export type PostProcessProvider = { id: string; label: string; base_url: string;
 export type RecordingRetentionPeriod = "never" | "preserve_limit" | "days_3" | "weeks_2" | "months_3"
 export type SecretMap = Partial<{ [key in string]: string }>
 export type ShortcutBinding = { id: string; name: string; description: string; default_binding: string; current_binding: string }
+/**
+ * A spoken-trigger text expansion: saying `trigger` inserts `text`.
+ */
 export type Snippet = { trigger: string; text: string }
 export type SoundTheme = "marimba" | "pop" | "custom"
+/**
+ * Live-subtitle text size. The actual CSS pixel mapping is applied in the
+ * overlay frontend (`SUBTITLE_FONT_PX`), keyed off this enum's serialized name.
+ */
 export type SubtitleFontSize = "small" | "medium" | "large"
 export type TypingTool = "auto" | "wtype" | "kwtype" | "dotool" | "ydotool" | "xdotool"
 export type WhisperAcceleratorSetting = "auto" | "cpu" | "gpu"
