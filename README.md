@@ -2,7 +2,7 @@
 
 # Echo
 
-**Local‑first, Russian‑primary bilingual dictation.**
+**Local‑first, Russian‑primary bilingual speech‑to‑text dictation.**
 
 Speak in Russian, English, or both at once — Echo transcribes it on‑device, in
 real time, and types it straight into whatever app you're using. No cloud, no
