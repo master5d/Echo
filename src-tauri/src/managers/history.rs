@@ -615,7 +615,9 @@ impl HistoryManager {
                 transcription_text,
                 post_processed_text,
                 post_process_prompt,
-                post_process_requested
+                post_process_requested,
+                duration_ms,
+                coach_metrics
              FROM transcription_history
              WHERE id = ?1",
         )?;
