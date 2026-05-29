@@ -31,6 +31,8 @@ static MIGRATIONS: &[M] = &[
     M::up("ALTER TABLE transcription_history ADD COLUMN post_processed_text TEXT;"),
     M::up("ALTER TABLE transcription_history ADD COLUMN post_process_prompt TEXT;"),
     M::up("ALTER TABLE transcription_history ADD COLUMN post_process_requested BOOLEAN NOT NULL DEFAULT 0;"),
+    M::up("ALTER TABLE transcription_history ADD COLUMN duration_ms INTEGER;"),
+    M::up("ALTER TABLE transcription_history ADD COLUMN coach_metrics TEXT;"),
 ];
 
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
@@ -63,6 +65,8 @@ pub struct HistoryEntry {
     pub post_processed_text: Option<String>,
     pub post_process_prompt: Option<String>,
     pub post_process_requested: bool,
+    pub duration_ms: Option<i64>,
+    pub coach_metrics: Option<String>,
 }
 
 pub struct HistoryManager {
@@ -207,6 +211,8 @@ impl HistoryManager {
             post_processed_text: row.get("post_processed_text")?,
             post_process_prompt: row.get("post_process_prompt")?,
             post_process_requested: row.get("post_process_requested")?,
+            duration_ms: row.get("duration_ms")?,
+            coach_metrics: row.get("coach_metrics")?,
         })
     }
 
@@ -223,6 +229,8 @@ impl HistoryManager {
         post_process_requested: bool,
         post_processed_text: Option<String>,
         post_process_prompt: Option<String>,
+        duration_ms: Option<i64>,
+        coach_metrics: Option<String>,
     ) -> Result<HistoryEntry> {
         let timestamp = Utc::now().timestamp();
         let title = self.format_timestamp_title(timestamp);
@@ -237,8 +245,10 @@ impl HistoryManager {
                 transcription_text,
                 post_processed_text,
                 post_process_prompt,
-                post_process_requested
-            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                post_process_requested,
+                duration_ms,
+                coach_metrics
+            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
             params![
                 &file_name,
                 timestamp,
@@ -248,6 +258,8 @@ impl HistoryManager {
                 &post_processed_text,
                 &post_process_prompt,
                 post_process_requested,
+                duration_ms,
+                &coach_metrics,
             ],
         )?;
 
@@ -261,6 +273,8 @@ impl HistoryManager {
             post_processed_text,
             post_process_prompt,
             post_process_requested,
+            duration_ms,
+            coach_metrics,
         };
 
         debug!("Saved history entry with id {}", entry.id);
@@ -308,7 +322,7 @@ impl HistoryManager {
 
         let entry = conn
             .query_row(
-                "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, post_process_requested
+                "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, post_process_requested, duration_ms, coach_metrics
                  FROM transcription_history WHERE id = ?1",
                 params![id],
                 Self::map_history_entry,
@@ -459,7 +473,7 @@ impl HistoryManager {
             (Some(cursor_id), Some(lim)) => {
                 let fetch_count = (lim + 1) as i64;
                 let mut stmt = conn.prepare(
-                    "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, post_process_requested
+                    "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, post_process_requested, duration_ms, coach_metrics
                      FROM transcription_history
                      WHERE id < ?1
                      ORDER BY id DESC
@@ -473,7 +487,7 @@ impl HistoryManager {
             (None, Some(lim)) => {
                 let fetch_count = (lim + 1) as i64;
                 let mut stmt = conn.prepare(
-                    "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, post_process_requested
+                    "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, post_process_requested, duration_ms, coach_metrics
                      FROM transcription_history
                      ORDER BY id DESC
                      LIMIT ?1",
@@ -485,7 +499,7 @@ impl HistoryManager {
             }
             (_, None) => {
                 let mut stmt = conn.prepare(
-                    "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, post_process_requested
+                    "SELECT id, file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt, post_process_requested, duration_ms, coach_metrics
                      FROM transcription_history
                      ORDER BY id DESC",
                 )?;
@@ -516,7 +530,9 @@ impl HistoryManager {
                 transcription_text,
                 post_processed_text,
                 post_process_prompt,
-                post_process_requested
+                post_process_requested,
+                duration_ms,
+                coach_metrics
              FROM transcription_history
              ORDER BY timestamp DESC
              LIMIT 1",
@@ -543,7 +559,9 @@ impl HistoryManager {
                 transcription_text,
                 post_processed_text,
                 post_process_prompt,
-                post_process_requested
+                post_process_requested,
+                duration_ms,
+                coach_metrics
              FROM transcription_history
              WHERE transcription_text != ''
              ORDER BY timestamp DESC
@@ -666,7 +684,9 @@ mod tests {
                 transcription_text TEXT NOT NULL,
                 post_processed_text TEXT,
                 post_process_prompt TEXT,
-                post_process_requested BOOLEAN NOT NULL DEFAULT 0
+                post_process_requested BOOLEAN NOT NULL DEFAULT 0,
+                duration_ms INTEGER,
+                coach_metrics TEXT
             );",
         )
         .expect("create transcription_history table");
@@ -683,8 +703,10 @@ mod tests {
                 transcription_text,
                 post_processed_text,
                 post_process_prompt,
-                post_process_requested
-            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                post_process_requested,
+                duration_ms,
+                coach_metrics
+            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
             params![
                 format!("handy-{}.wav", timestamp),
                 timestamp,
@@ -694,6 +716,8 @@ mod tests {
                 post_processed,
                 Option::<String>::None,
                 false,
+                Option::<i64>::None,
+                Option::<String>::None,
             ],
         )
         .expect("insert history entry");
@@ -733,5 +757,35 @@ mod tests {
 
         assert_eq!(entry.timestamp, 100);
         assert_eq!(entry.transcription_text, "completed");
+    }
+
+    #[test]
+    fn migrations_add_duration_ms_and_coach_metrics_columns() {
+        let mut conn = Connection::open_in_memory().expect("open in-memory db");
+        let migrations = Migrations::new(MIGRATIONS.to_vec());
+        migrations
+            .to_latest(&mut conn)
+            .expect("migrations should succeed");
+
+        // Query PRAGMA table_info to get column names
+        let mut stmt = conn
+            .prepare("PRAGMA table_info(transcription_history)")
+            .expect("prepare pragma");
+        let column_names: Vec<String> = stmt
+            .query_map([], |row| row.get::<_, String>(1))
+            .expect("query pragma")
+            .map(|r| r.expect("row"))
+            .collect();
+
+        assert!(
+            column_names.contains(&"duration_ms".to_string()),
+            "expected duration_ms column, got: {:?}",
+            column_names
+        );
+        assert!(
+            column_names.contains(&"coach_metrics".to_string()),
+            "expected coach_metrics column, got: {:?}",
+            column_names
+        );
     }
 }

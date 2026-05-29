@@ -800,6 +800,8 @@ impl ShortcutAction for TranscribeAction {
                                     post_process,
                                     processed.post_processed_text.clone(),
                                     processed.post_process_prompt.clone(),
+                                    None, // TODO(B3): pass real duration_ms + coach metrics
+                                    None,
                                 ) {
                                     error!("Failed to save history entry: {}", err);
                                 }
@@ -843,6 +845,8 @@ impl ShortcutAction for TranscribeAction {
                                     String::new(),
                                     post_process,
                                     None,
+                                    None,
+                                    None, // TODO(B3): pass real duration_ms + coach metrics
                                     None,
                                 ) {
                                     error!("Failed to save failed history entry: {}", save_err);
