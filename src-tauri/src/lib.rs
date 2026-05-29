@@ -3,6 +3,7 @@ mod actions;
 mod apple_intelligence;
 pub mod audio_toolkit;
 pub mod cli;
+mod coach;
 mod commands;
 mod helpers;
 mod heuristics;
