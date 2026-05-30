@@ -341,10 +341,11 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APPLE_ID: ${{ inputs.sign-binaries && secrets.APPLE_ID || '' }}
-          APPLE_ID_PASSWORD: ${{ inputs.sign-binaries && secrets.APPLE_ID_PASSWORD || '' }}
-          APPLE_PASSWORD: ${{ inputs.sign-binaries && secrets.APPLE_PASSWORD || '' }}
-          APPLE_TEAM_ID: ${{ inputs.sign-binaries && secrets.APPLE_TEAM_ID || '' }}
+          # Apple notarization env (APPLE_ID / APPLE_ID_PASSWORD / APPLE_PASSWORD /
+          # APPLE_TEAM_ID) is intentionally NOT passed: this fork ships ad-hoc-signed,
+          # un-notarized macOS builds (no paid Apple account). Passing them as empty
+          # strings made tauri attempt notarization and fail ("Team ID must be at
+          # least 3 characters"). Re-add (gated on sign-binaries) to enable notarizing.
           # APPLE_CERTIFICATE is intentionally not passed here. When signing, the
           # gated "import Apple Developer Certificate" step loads it into the
           # keychain and APPLE_SIGNING_IDENTITY selects it. Passing it as an empty
