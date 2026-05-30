@@ -52,3 +52,6 @@ result
 
 # Superpowers planning docs (kept local, not published)
 docs/superpowers/
+
+# Firecrawl skill artifacts
+.firecrawl/

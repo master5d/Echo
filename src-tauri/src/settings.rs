@@ -464,6 +464,8 @@ pub struct AppSettings {
     #[serde(default)]
     pub command_mode_enabled: bool,
     #[serde(default)]
+    pub coach_toast_enabled: bool,
+    #[serde(default)]
     pub snippets: Vec<Snippet>,
     #[serde(default)]
     pub self_correction_enabled: bool,
@@ -928,6 +930,7 @@ pub fn get_default_settings() -> AppSettings {
         subtitle_max_chars: default_subtitle_max_chars(),
         subtitle_refresh_ms: default_subtitle_refresh_ms(),
         command_mode_enabled: false,
+        coach_toast_enabled: false,
         snippets: Vec::new(),
         self_correction_enabled: false,
         spoken_lists_enabled: default_spoken_lists_enabled(),
