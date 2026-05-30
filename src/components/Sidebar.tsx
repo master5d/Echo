@@ -122,7 +122,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 width={20}
                 height={20}
                 className={`shrink-0 transition-colors duration-300 ${
-                  isActive ? "text-white" : "text-slate-500 group-hover:text-indigo-400"
+                  isActive
+                    ? "text-white"
+                    : "text-slate-500 group-hover:text-indigo-400"
                 }`}
               />
               <p

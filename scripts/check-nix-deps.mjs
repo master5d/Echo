@@ -65,4 +65,6 @@ if (result.error || result.status !== 0) {
 
 writeFileSync(hashFile, currentHash + "\n");
 console.log(`[check-nix-deps] Updated ${nixFile}`);
-console.log("[check-nix-deps] Commit: bun.lock .nix/bun.nix .nix/bun-lock-hash");
+console.log(
+  "[check-nix-deps] Commit: bun.lock .nix/bun.nix .nix/bun-lock-hash",
+);

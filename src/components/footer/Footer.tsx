@@ -33,7 +33,9 @@ const Footer: React.FC = () => {
           <UpdateChecker />
           <span className="text-slate-700">•</span>
           {/* eslint-disable-next-line i18next/no-literal-string */}
-          <span className="font-bold text-slate-500 tracking-tight">v{version}</span>
+          <span className="font-bold text-slate-500 tracking-tight">
+            v{version}
+          </span>
         </div>
       </div>
     </div>

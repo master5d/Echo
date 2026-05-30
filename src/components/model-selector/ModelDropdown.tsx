@@ -41,14 +41,14 @@ const ModelDropdown: React.FC<ModelDropdownProps> = ({
               tabIndex={0}
               role="button"
               className={`w-full px-4 py-3 text-start hover:bg-white/5 transition-all cursor-pointer focus:outline-none ${
-                currentModelId === model.id
-                  ? "bg-indigo-600/20"
-                  : ""
+                currentModelId === model.id ? "bg-indigo-600/20" : ""
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="min-w-0">
-                  <div className={`text-[13px] font-bold tracking-tight truncate ${currentModelId === model.id ? "text-indigo-400" : "text-slate-200"}`}>
+                  <div
+                    className={`text-[13px] font-bold tracking-tight truncate ${currentModelId === model.id ? "text-indigo-400" : "text-slate-200"}`}
+                  >
                     {getTranslatedModelName(model, t)}
                     {model.is_custom && (
                       <span className="ms-2 text-[9px] font-black text-slate-500 uppercase tracking-widest bg-slate-800 px-1.5 py-0.5 rounded">

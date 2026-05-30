@@ -149,7 +149,12 @@
 .orb-caption {
   color: oklch(93% 0.008 160 / 0.9);
   font-size: 11px;
-  font-family: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family:
+    "Golos Text",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
   letter-spacing: 0.02em;
   white-space: nowrap;
   padding: 2px 8px;
@@ -179,8 +184,13 @@
   max-width: 80%;
   text-align: center;
   font-size: var(--subtitle-font-size, 16px);
-  font-family: "Golos Text", system-ui, -apple-system, "Segoe UI Variable Text",
-    "Segoe UI", sans-serif;
+  font-family:
+    "Golos Text",
+    system-ui,
+    -apple-system,
+    "Segoe UI Variable Text",
+    "Segoe UI",
+    sans-serif;
   line-height: 1.4;
   backdrop-filter: blur(12px);
   pointer-events: none;

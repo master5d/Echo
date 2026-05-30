@@ -463,7 +463,10 @@ mod tests {
 
     #[test]
     fn detect_capture_single_phrase() {
-        assert_eq!(detect_capture("capture note buy milk", &["capture note"]).as_deref(), Some("buy milk"));
+        assert_eq!(
+            detect_capture("capture note buy milk", &["capture note"]).as_deref(),
+            Some("buy milk")
+        );
     }
     #[test]
     fn detect_capture_multi_phrase_and_case_insensitive() {
@@ -481,6 +484,9 @@ mod tests {
     }
     #[test]
     fn parse_phrases_trims_and_drops_empty() {
-        assert_eq!(parse_capture_phrases("a, b ,, c "), vec!["a".to_string(), "b".to_string(), "c".to_string()]);
+        assert_eq!(
+            parse_capture_phrases("a, b ,, c "),
+            vec!["a".to_string(), "b".to_string(), "c".to_string()]
+        );
     }
 }

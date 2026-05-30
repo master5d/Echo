@@ -416,16 +416,24 @@ pub(crate) async fn process_transcription_output(
     // (as a markdown note) instead of pasting it into the active app.
     let capture_folder = settings.capture_folder.trim().to_string();
     if !capture_folder.is_empty() {
-        let phrases = crate::voice_commands::parse_capture_phrases(&settings.capture_trigger_phrases);
+        let phrases =
+            crate::voice_commands::parse_capture_phrases(&settings.capture_trigger_phrases);
         let phrase_refs: Vec<&str> = phrases.iter().map(|s| s.as_str()).collect();
         if let Some(body) = crate::voice_commands::detect_capture(&final_text, &phrase_refs) {
             let now = chrono::Local::now();
             let lang = Some(settings.selected_language.as_str());
             let filename = crate::capture::capture_filename(now);
             let note = crate::capture::build_note(&body, now, lang);
-            match crate::capture::write_capture(std::path::Path::new(&capture_folder), &filename, &note) {
+            match crate::capture::write_capture(
+                std::path::Path::new(&capture_folder),
+                &filename,
+                &note,
+            ) {
                 Ok(path) => {
-                    let _ = app.emit("voice-capture", serde_json::json!({ "ok": true, "path": path.to_string_lossy() }));
+                    let _ = app.emit(
+                        "voice-capture",
+                        serde_json::json!({ "ok": true, "path": path.to_string_lossy() }),
+                    );
                     return ProcessedTranscription {
                         final_text: String::new(),
                         post_processed_text: None,
@@ -435,7 +443,10 @@ pub(crate) async fn process_transcription_output(
                 }
                 Err(e) => {
                     error!("Voice capture failed: {e:#}");
-                    let _ = app.emit("voice-capture", serde_json::json!({ "ok": false, "error": e.to_string() }));
+                    let _ = app.emit(
+                        "voice-capture",
+                        serde_json::json!({ "ok": false, "error": e.to_string() }),
+                    );
                     // fall through: dictate normally so words aren't lost
                 }
             }
@@ -827,9 +838,10 @@ impl ShortcutAction for TranscribeAction {
                                 // Coach v0: delivery-report metrics from the raw transcription.
                                 let coach_duration_ms = (sample_count as u64) * 1000
                                     / crate::audio_toolkit::constants::WHISPER_SAMPLE_RATE as u64;
-                                let coach_metrics_json =
-                                    serde_json::to_string(&crate::coach::analyze(&transcription, coach_duration_ms))
-                                        .ok();
+                                let coach_metrics_json = serde_json::to_string(
+                                    &crate::coach::analyze(&transcription, coach_duration_ms),
+                                )
+                                .ok();
                                 if let Err(err) = hm.save_entry(
                                     file_name,
                                     transcription,

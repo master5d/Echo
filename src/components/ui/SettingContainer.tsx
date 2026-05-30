@@ -107,10 +107,14 @@ export const SettingContainer: React.FC<SettingContainerProps> = ({
     return (
       <div className={containerClasses}>
         <div className="mb-3">
-          <h3 className={`text-[13px] font-bold tracking-tight ${disabled ? "opacity-30" : "text-slate-200"}`}>
+          <h3
+            className={`text-[13px] font-bold tracking-tight ${disabled ? "opacity-30" : "text-slate-200"}`}
+          >
             {title}
           </h3>
-          <p className={`text-xs mt-1 ${disabled ? "opacity-30" : "text-slate-400"}`}>
+          <p
+            className={`text-xs mt-1 ${disabled ? "opacity-30" : "text-slate-400"}`}
+          >
             {description}
           </p>
         </div>
@@ -181,10 +185,14 @@ export const SettingContainer: React.FC<SettingContainerProps> = ({
   return (
     <div className={horizontalContainerClasses}>
       <div className="max-w-2/3">
-        <h3 className={`text-[13px] font-bold tracking-tight ${disabled ? "opacity-30" : "text-slate-200"}`}>
+        <h3
+          className={`text-[13px] font-bold tracking-tight ${disabled ? "opacity-30" : "text-slate-200"}`}
+        >
           {title}
         </h3>
-        <p className={`text-xs mt-1 ${disabled ? "opacity-30" : "text-slate-400"}`}>
+        <p
+          className={`text-xs mt-1 ${disabled ? "opacity-30" : "text-slate-400"}`}
+        >
           {description}
         </p>
       </div>

@@ -24,7 +24,7 @@ Add it as a GitHub Actions secret so CI can sign releases. **Never commit it.**
    - Value: the full contents of `echo-updater.key`
 3. Add a second secret (the key has no password):
    - Name: `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`
-   - Value: *(leave empty)*
+   - Value: _(leave empty)_
 
 > Back up `echo-updater.key` somewhere safe. If it's lost, existing installs can
 > no longer auto-update (you'd have to ship a new pubkey + reinstall).
@@ -42,7 +42,7 @@ install. To enable it later, add the `APPLE_*` / `AZURE_*` secrets and flip
    - `package.json` -> `version`
    - `src-tauri/Cargo.toml` -> `[package] version`
 2. Commit and push to `main`.
-3. GitHub -> Actions -> **Release** -> *Run workflow* (it's `workflow_dispatch`).
+3. GitHub -> Actions -> **Release** -> _Run workflow_ (it's `workflow_dispatch`).
 4. It creates a **draft** release `v<version>`, builds the matrix
    (macOS/Windows/Linux), signs the updater artifacts, and uploads them plus
    `latest.json`.

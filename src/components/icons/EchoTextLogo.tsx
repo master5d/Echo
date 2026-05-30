@@ -10,7 +10,10 @@ const EchoTextLogo = ({
   className?: string;
 }) => {
   return (
-    <div className={`flex flex-col items-center justify-center ${className}`} style={{ width, height }}>
+    <div
+      className={`flex flex-col items-center justify-center ${className}`}
+      style={{ width, height }}
+    >
       <h1 className="text-4xl font-bold tracking-tighter text-logo-primary">
         ECHO
       </h1>

@@ -2,6 +2,7 @@ mod actions;
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
 mod apple_intelligence;
 pub mod audio_toolkit;
+mod capture;
 pub mod cli;
 mod coach;
 mod commands;
@@ -11,7 +12,6 @@ mod heuristics;
 mod heuristics_tests;
 mod llm_client;
 mod managers;
-mod capture;
 mod platform;
 pub mod portable;
 mod settings;

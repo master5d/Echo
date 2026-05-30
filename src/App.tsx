@@ -32,7 +32,9 @@ const renderSettingsContent = (section: SidebarSection, t: TFunction) => {
     });
     return (
       <div className="p-8 text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl">
-        <h2 className="text-xl font-bold">{t("errors.renderingSettingsTitle")}</h2>
+        <h2 className="text-xl font-bold">
+          {t("errors.renderingSettingsTitle")}
+        </h2>
         <p>{t("errors.renderingSettingsDescription", { section })}</p>
       </div>
     );
@@ -271,7 +273,9 @@ function App() {
       <div className="flex h-screen items-center justify-center bg-[#0F172A] text-white">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm font-medium tracking-wide animate-pulse">Initializing Echo...</p>
+          <p className="text-sm font-medium tracking-wide animate-pulse">
+            Initializing Echo...
+          </p>
         </div>
       </div>
     );

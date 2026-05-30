@@ -52,7 +52,11 @@ function getAllKeyPaths(obj, prefix = []) {
 function hasKeyPath(obj, keyPath) {
   let current = obj;
   for (const key of keyPath) {
-    if (typeof current !== "object" || current === null || current[key] === undefined) {
+    if (
+      typeof current !== "object" ||
+      current === null ||
+      current[key] === undefined
+    ) {
       return false;
     }
     current = current[key];
@@ -77,7 +81,9 @@ function validateTranslations() {
   console.log(`Loading reference language: ${REFERENCE_LANG}`);
   const referenceData = loadTranslationFile(REFERENCE_LANG);
   if (!referenceData) {
-    console.error(colorize(`\n✗ Failed to load reference file (${REFERENCE_LANG})`, "red"));
+    console.error(
+      colorize(`\n✗ Failed to load reference file (${REFERENCE_LANG})`, "red"),
+    );
     process.exit(1);
   }
 
@@ -94,10 +100,18 @@ function validateTranslations() {
       results[lang] = { valid: false, missing: [], extra: [] };
       continue;
     }
-    const missing = referenceKeyPaths.filter((keyPath) => !hasKeyPath(langData, keyPath));
+    const missing = referenceKeyPaths.filter(
+      (keyPath) => !hasKeyPath(langData, keyPath),
+    );
     const langKeyPaths = getAllKeyPaths(langData);
-    const extra = langKeyPaths.filter((keyPath) => !hasKeyPath(referenceData, keyPath));
-    results[lang] = { valid: missing.length === 0 && extra.length === 0, missing, extra };
+    const extra = langKeyPaths.filter(
+      (keyPath) => !hasKeyPath(referenceData, keyPath),
+    );
+    results[lang] = {
+      valid: missing.length === 0 && extra.length === 0,
+      missing,
+      extra,
+    };
     if (missing.length > 0 || extra.length > 0) hasErrors = true;
   }
 
@@ -107,21 +121,41 @@ function validateTranslations() {
   for (const lang of LANGUAGES) {
     const result = results[lang];
     if (result.valid) {
-      console.log(colorize(`✓ ${lang.toUpperCase()}: All keys present`, "green"));
+      console.log(
+        colorize(`✓ ${lang.toUpperCase()}: All keys present`, "green"),
+      );
     } else {
       console.log(colorize(`✗ ${lang.toUpperCase()}: Issues found`, "red"));
       if (result.missing.length > 0) {
-        console.log(colorize(`  Missing ${result.missing.length} keys:`, "yellow"));
-        result.missing.slice(0, 10).forEach((keyPath) => console.log(`    - ${keyPath.join(".")}`));
+        console.log(
+          colorize(`  Missing ${result.missing.length} keys:`, "yellow"),
+        );
+        result.missing
+          .slice(0, 10)
+          .forEach((keyPath) => console.log(`    - ${keyPath.join(".")}`));
         if (result.missing.length > 10) {
-          console.log(colorize(`    ... and ${result.missing.length - 10} more`, "yellow"));
+          console.log(
+            colorize(
+              `    ... and ${result.missing.length - 10} more`,
+              "yellow",
+            ),
+          );
         }
       }
       if (result.extra.length > 0) {
-        console.log(colorize(`  Extra ${result.extra.length} keys (not in reference):`, "yellow"));
-        result.extra.slice(0, 10).forEach((keyPath) => console.log(`    - ${keyPath.join(".")}`));
+        console.log(
+          colorize(
+            `  Extra ${result.extra.length} keys (not in reference):`,
+            "yellow",
+          ),
+        );
+        result.extra
+          .slice(0, 10)
+          .forEach((keyPath) => console.log(`    - ${keyPath.join(".")}`));
         if (result.extra.length > 10) {
-          console.log(colorize(`    ... and ${result.extra.length - 10} more`, "yellow"));
+          console.log(
+            colorize(`    ... and ${result.extra.length - 10} more`, "yellow"),
+          );
         }
       }
       console.log("");
@@ -134,10 +168,20 @@ function validateTranslations() {
   const totalCount = LANGUAGES.length;
 
   if (hasErrors) {
-    console.log(colorize(`\n✗ Validation failed: ${validCount}/${totalCount} languages passed`, "red"));
+    console.log(
+      colorize(
+        `\n✗ Validation failed: ${validCount}/${totalCount} languages passed`,
+        "red",
+      ),
+    );
     process.exit(1);
   } else {
-    console.log(colorize(`\n✓ All ${totalCount} languages have complete translations!`, "green"));
+    console.log(
+      colorize(
+        `\n✓ All ${totalCount} languages have complete translations!`,
+        "green",
+      ),
+    );
     process.exit(0);
   }
 }

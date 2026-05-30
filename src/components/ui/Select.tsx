@@ -39,14 +39,10 @@ type NonCreatableProps = {
 
 export type SelectProps = BaseProps & (CreatableProps | NonCreatableProps);
 
-const baseBackground =
-  "rgba(30, 41, 59, 0.4)";
-const hoverBackground =
-  "rgba(99, 102, 241, 0.1)";
-const focusBackground =
-  "rgba(99, 102, 241, 0.2)";
-const neutralBorder =
-  "rgba(71, 85, 105, 0.5)";
+const baseBackground = "rgba(30, 41, 59, 0.4)";
+const hoverBackground = "rgba(99, 102, 241, 0.1)";
+const focusBackground = "rgba(99, 102, 241, 0.2)";
+const neutralBorder = "rgba(71, 85, 105, 0.5)";
 
 const selectStyles: StylesConfig<SelectOption, false> = {
   control: (base, state) => ({
@@ -79,9 +75,7 @@ const selectStyles: StylesConfig<SelectOption, false> = {
   }),
   dropdownIndicator: (base, state) => ({
     ...base,
-    color: state.isFocused
-      ? "#6366F1"
-      : "rgba(148, 163, 184, 0.6)",
+    color: state.isFocused ? "#6366F1" : "rgba(148, 163, 184, 0.6)",
     ":hover": {
       color: "#6366F1",
     },
@@ -98,8 +92,7 @@ const selectStyles: StylesConfig<SelectOption, false> = {
     zIndex: 30,
     backgroundColor: "#0F172A",
     color: "#F8FAFC",
-    border:
-      "1px solid rgba(148, 163, 184, 0.2)",
+    border: "1px solid rgba(148, 163, 184, 0.2)",
     boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4)",
   }),
   option: (base, state) => ({

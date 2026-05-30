@@ -19,7 +19,9 @@ export const SettingsGroup: React.FC<SettingsGroupProps> = ({
             {title}
           </h2>
           {description && (
-            <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">{description}</p>
+            <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+              {description}
+            </p>
           )}
         </div>
       )}

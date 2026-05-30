@@ -7,10 +7,10 @@
      slate/indigo scales here remaps every existing utility class app-wide. */
 
   /* Semantic tokens */
-  --color-text: oklch(93% 0.008 160);          /* off-white, faint teal cast */
-  --color-background: oklch(19% 0.02 195);       /* teal-ink ground */
-  --color-background-ui: oklch(26% 0.018 195);   /* raised surfaces */
-  --color-logo-primary: oklch(68% 0.16 30);      /* coral accent */
+  --color-text: oklch(93% 0.008 160); /* off-white, faint teal cast */
+  --color-background: oklch(19% 0.02 195); /* teal-ink ground */
+  --color-background-ui: oklch(26% 0.018 195); /* raised surfaces */
+  --color-logo-primary: oklch(68% 0.16 30); /* coral accent */
   --color-logo-stroke: oklch(26% 0.018 195);
   --color-text-stroke: oklch(93% 0.008 160);
   --color-mid-gray: oklch(66% 0.025 185);
@@ -39,7 +39,13 @@
   /* Leads with a Cyrillic-display face (bundle "Golos Text"/"Onest" as woff2
      to activate); falls back to the native UI font, which renders Cyrillic
      well on Win11/macOS. Intentionally avoids Inter/Roboto/Geist. */
-  font-family: "Golos Text", system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-family:
+    "Golos Text",
+    system-ui,
+    -apple-system,
+    "Segoe UI Variable Text",
+    "Segoe UI",
+    sans-serif;
   font-size: 14px;
   line-height: 22px;
   font-weight: 400;

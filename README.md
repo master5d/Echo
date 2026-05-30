@@ -31,17 +31,17 @@ or browser. Everything runs offline.
 
 ### Smart dictation
 
-- 🗣️ **Bilingual code‑switching.** Say *"давай закоммитим этот pull request в
-  main"* and English terms stay in Latin script while Russian stays Cyrillic —
+- 🗣️ **Bilingual code‑switching.** Say _"давай закоммитим этот pull request в
+  main"_ and English terms stay in Latin script while Russian stays Cyrillic —
   no transliteration to «бамп».
 - 🌍 **Slavic family + English.** Auto‑detects Russian, Ukrainian, Polish,
   Czech, Slovak, Slovenian, Bulgarian, Croatian and 25 European languages.
 - ✏️ **Auto‑punctuation & capitalization.** Bilingual heuristics add commas,
   sentence case, and question marks from intonation cues — toggleable.
-- 🔁 **Self‑correction.** Restate yourself mid‑sentence (*"встречаемся в 2, нет,
-  в 3 часа"*) and Echo keeps only the corrected version.
-- 🔢 **Spoken lists.** Dictated enumerations (*"first… second… third…"* /
-  *"первое… второе…"*) become a clean numbered list.
+- 🔁 **Self‑correction.** Restate yourself mid‑sentence (_"встречаемся в 2, нет,
+  в 3 часа"_) and Echo keeps only the corrected version.
+- 🔢 **Spoken lists.** Dictated enumerations (_"first… second… third…"_ /
+  _"первое… второе…"_) become a clean numbered list.
 - 🧠 **Clean output.** Voice‑activity detection trims silence, and known Whisper
   "silence hallucinations" (subtitle credits, "thanks for watching", …) are
   filtered out so they never land in your text.
@@ -51,11 +51,11 @@ or browser. Everything runs offline.
 Begin an utterance with a spoken instruction and Echo transforms the text in a
 single step — no app switching:
 
-- *"translate to English …"* / *"переведи на английский …"* → inserts the
+- _"translate to English …"_ / _"переведи на английский …"_ → inserts the
   translation.
-- *"make shorter …"* / *"сделай короче …"* → condenses the phrasing.
-- *"make formal …"* / *"ответь формально …"* → rewrites in a professional tone.
-- End with *"press enter"* / *"нажми ввод"* to submit after pasting.
+- _"make shorter …"_ / _"сделай короче …"_ → condenses the phrasing.
+- _"make formal …"_ / _"ответь формально …"_ → rewrites in a professional tone.
+- End with _"press enter"_ / _"нажми ввод"_ to submit after pasting.
 
 Transform commands run through your configured post‑processing provider (a local
 LLM via Ollama/llama.cpp, or any OpenAI‑compatible endpoint). Detection itself is
@@ -68,7 +68,7 @@ or more comma‑separated **trigger phrases** under **Settings → Advanced**, t
 start an utterance with a phrase and Echo writes the rest to a timestamped
 markdown file instead of pasting it into the active app:
 
-- *"capture note buy milk"* → writes `…-echo-note.md` (with simple frontmatter)
+- _"capture note buy milk"_ → writes `…-echo-note.md` (with simple frontmatter)
   to your capture folder; nothing is typed into the current window.
 
 Trigger phrases are fully configurable. Leave the capture folder empty to keep the
@@ -89,7 +89,7 @@ tool that watches a folder.
 
 - ⌨️ **Context‑aware formatting.** Echo detects code editors (VS Code, Cursor,
   Zed, JetBrains, …) and strips trailing punctuation automatically.
-- 🐫 **camelCase trigger.** Say *"camel case my variable name"* to get
+- 🐫 **camelCase trigger.** Say _"camel case my variable name"_ to get
   `myVariableName`.
 - 🧰 **Developer dictionary.** An opt‑in built‑in glossary steers transcription
   toward the correct spelling of common tooling (GitHub, Vercel, TypeScript,
@@ -111,12 +111,12 @@ tool that watches a folder.
 
 Echo ships several engines. For the bilingual Russian use case:
 
-| Model | Best for | Speed | Notes |
-| --- | --- | --- | --- |
-| **Parakeet V3** *(recommended)* | RU + Slavic + EN, auto‑detect | ⚡⚡ fast (GPU/CPU) | Great all‑rounder; weaker on heavy intra‑sentence code‑switching |
-| **Whisper Large v3 Turbo** | Heavy RU↔EN code‑switching | ⚡ (GPU) | Keeps English in Latin; needs GPU to be snappy |
-| **GigaAM v3** | Pure Russian, max accuracy | ⚡⚡ | Russian‑only — no code‑switching or other languages |
-| Whisper Small / Medium / Large | General multilingual | varies | Classic Whisper quality/size trade‑offs |
+| Model                           | Best for                      | Speed               | Notes                                                            |
+| ------------------------------- | ----------------------------- | ------------------- | ---------------------------------------------------------------- |
+| **Parakeet V3** _(recommended)_ | RU + Slavic + EN, auto‑detect | ⚡⚡ fast (GPU/CPU) | Great all‑rounder; weaker on heavy intra‑sentence code‑switching |
+| **Whisper Large v3 Turbo**      | Heavy RU↔EN code‑switching    | ⚡ (GPU)            | Keeps English in Latin; needs GPU to be snappy                   |
+| **GigaAM v3**                   | Pure Russian, max accuracy    | ⚡⚡                | Russian‑only — no code‑switching or other languages              |
+| Whisper Small / Medium / Large  | General multilingual          | varies              | Classic Whisper quality/size trade‑offs                          |
 
 Pick and download models in **Settings → Models**.
 
@@ -135,13 +135,13 @@ Pick and download models in **Settings → Models**.
   with English identifiers — `pull request`, `main`, `useEffect` stay in Latin,
   trailing punctuation is stripped for the editor.
 - **Instant translation.** Reply to a foreign colleague: Command Mode
-  *"переведи на английский …"*, speak in Russian, the English text lands in the
+  _"переведи на английский …"_, speak in Russian, the English text lands in the
   chat box.
-- **Quick meeting notes.** Dictate *"first decisions, second action items,
-  third owners"* and get a formatted numbered list in Notion.
+- **Quick meeting notes.** Dictate _"first decisions, second action items,
+  third owners"_ and get a formatted numbered list in Notion.
 - **Templated support reply.** A snippet `calendar link` expands to your full
   booking URL as you speak the trigger phrase.
-- **Fast send.** End any dictation with *"press enter"* to fire the message
+- **Fast send.** End any dictation with _"press enter"_ to fire the message
   without touching the keyboard.
 
 ## Limitations
@@ -152,7 +152,7 @@ Pick and download models in **Settings → Models**.
   dictation, snippets, self‑correction, lists, and the developer dictionary are
   fully offline.
 - **Self‑correction is heuristic.** It collapses comma‑delimited restatements
-  (*"…, no, …"*) and is off by default; complex corrections may pass through.
+  (_"…, no, …"_) and is off by default; complex corrections may pass through.
 - **Live subtitles cost compute.** The streaming caption re‑transcribes the
   buffer periodically, so it's best paired with a fast engine (Parakeet /
   Whisper on GPU); it's off by default.
@@ -187,7 +187,7 @@ in [BUILD.md](BUILD.md). Contributors: see [CONTRIBUTING.md](CONTRIBUTING.md).
 Whisper can run on the GPU via Vulkan, which auto‑detects any vendor's card
 (NVIDIA / AMD / Intel) and falls back to CPU when none is present. Choose the
 accelerator and device in **Settings → Advanced → Hardware Acceleration**
-(enable *Experimental Features* if the section is hidden). Parakeet uses
+(enable _Experimental Features_ if the section is hidden). Parakeet uses
 DirectML on Windows.
 
 ## Architecture
@@ -234,11 +234,11 @@ macOS (Intel + Apple Silicon), x64 Windows, x64 Linux (Ubuntu 22.04 / 24.04).
 
 Text injection needs a display‑server tool:
 
-| Display server | Tool | Install |
-| --- | --- | --- |
-| X11 | `xdotool` | `sudo apt install xdotool` |
-| Wayland | `wtype` | `sudo apt install wtype` |
-| Either | `dotool` | `sudo apt install dotool` (add user to `input` group) |
+| Display server | Tool      | Install                                               |
+| -------------- | --------- | ----------------------------------------------------- |
+| X11            | `xdotool` | `sudo apt install xdotool`                            |
+| Wayland        | `wtype`   | `sudo apt install wtype`                              |
+| Either         | `dotool`  | `sudo apt install dotool` (add user to `input` group) |
 
 Without one, Echo falls back to `enigo`, which has limited Wayland support.
 
@@ -281,9 +281,9 @@ name `parakeet-tdt-0.6b-v3-int8`):
 https://blob.handy.computer/parakeet-v3-int8.tar.gz   # V3 (478 MB)
 ```
 
-Restart Echo; the models appear in **Settings → Models** as *Downloaded*. Custom
+Restart Echo; the models appear in **Settings → Models** as _Downloaded_. Custom
 Whisper GGML `.bin` files dropped into `models/` are auto‑discovered under
-*Custom Models*.
+_Custom Models_.
 
 > Model files are hosted on the upstream Handy CDN (`blob.handy.computer`).
 

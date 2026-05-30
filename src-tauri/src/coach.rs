@@ -29,13 +29,27 @@ pub struct CoachMetrics {
 
 // Categorized bilingual default lists (v0; user-editable lists are a fast-follow).
 const EN_FILLERS: &[&str] = &[
-    "um", "uh", "er", "ah", "like", "basically", "actually", "literally", "so", "well",
-    "kinda", "sorta",
+    "um",
+    "uh",
+    "er",
+    "ah",
+    "like",
+    "basically",
+    "actually",
+    "literally",
+    "so",
+    "well",
+    "kinda",
+    "sorta",
 ];
 const RU_FILLERS: &[&str] = &["э", "ну", "типа", "короче", "вот", "значит", "собственно"];
 const EN_FILLER_PHRASES: &[[&str; 2]] = &[["you", "know"], ["i", "mean"]];
-const RU_FILLER_PHRASES: &[[&str; 2]] =
-    &[["как", "бы"], ["это", "самое"], ["в", "общем"], ["так", "сказать"]];
+const RU_FILLER_PHRASES: &[[&str; 2]] = &[
+    ["как", "бы"],
+    ["это", "самое"],
+    ["в", "общем"],
+    ["так", "сказать"],
+];
 const EN_HEDGES: &[&str] = &["just", "maybe", "perhaps", "probably", "hopefully"];
 const RU_HEDGES: &[&str] = &["наверное", "просто", "вроде", "возможно", "кажется"];
 const EN_HEDGE_PHRASES: &[[&str; 2]] = &[["sort", "of"], ["kind", "of"], ["i", "think"]];
@@ -93,7 +107,10 @@ pub fn analyze(text: &str, duration_ms: u64) -> CoachMetrics {
     };
 
     let to_sorted = |m: BTreeMap<String, u32>| -> Vec<WordCount> {
-        let mut v: Vec<WordCount> = m.into_iter().map(|(word, count)| WordCount { word, count }).collect();
+        let mut v: Vec<WordCount> = m
+            .into_iter()
+            .map(|(word, count)| WordCount { word, count })
+            .collect();
         v.sort_by(|a, b| b.count.cmp(&a.count).then(a.word.cmp(&b.word)));
         v
     };
@@ -115,7 +132,10 @@ mod tests {
     use super::*;
 
     fn count_of<'a>(v: &'a [WordCount], word: &str) -> u32 {
-        v.iter().find(|w| w.word == word).map(|w| w.count).unwrap_or(0)
+        v.iter()
+            .find(|w| w.word == word)
+            .map(|w| w.count)
+            .unwrap_or(0)
     }
 
     #[test]
@@ -170,7 +190,8 @@ mod tests {
         assert_eq!(analyze(&"w ".repeat(109), 60_000).pace_band, PaceBand::Slow); // 109
         assert_eq!(analyze(&"w ".repeat(110), 60_000).pace_band, PaceBand::Good); // 110
         assert_eq!(analyze(&"w ".repeat(170), 60_000).pace_band, PaceBand::Good); // 170
-        assert_eq!(analyze(&"w ".repeat(171), 60_000).pace_band, PaceBand::Fast); // 171
+        assert_eq!(analyze(&"w ".repeat(171), 60_000).pace_band, PaceBand::Fast);
+        // 171
     }
 
     #[test]
