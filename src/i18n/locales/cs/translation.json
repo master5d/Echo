@@ -591,6 +591,20 @@
         }
       },
       "eliteEdition": "Lokální dvojjazyčné diktování"
+    },
+    "coach": {
+      "wpm": "WPM",
+      "fillers": "Fillers",
+      "pace": {
+        "slow": "slow",
+        "good": "good pace",
+        "fast": "fast"
+      },
+      "aggregate": "This view: avg {{wpm}} WPM · {{rate}}% fillers",
+      "toastEnabled": {
+        "title": "Coach toast",
+        "description": "Show a brief delivery summary after each dictation"
+      }
     }
   },
   "footer": {

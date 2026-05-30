@@ -14,6 +14,11 @@ import { useOsType } from "@/hooks/useOsType";
 import { formatDateTime } from "@/utils/dateFormat";
 import { AudioPlayer } from "../../ui/AudioPlayer";
 import { Button } from "../../ui/Button";
+import {
+  CoachReport,
+  parseCoachMetrics,
+  type CoachMetrics,
+} from "./CoachReport";
 
 const IconButton: React.FC<{
   onClick: () => void;
@@ -234,6 +239,19 @@ export const HistorySettings: React.FC = () => {
     }
   };
 
+  const reports = entries
+    .map((e) => parseCoachMetrics(e.coach_metrics))
+    .filter((m): m is CoachMetrics => m !== null);
+  const wpmReports = reports.filter((r) => r.wpm > 0);
+  const avgWpm = wpmReports.length
+    ? Math.round(wpmReports.reduce((s, r) => s + r.wpm, 0) / wpmReports.length)
+    : 0;
+  const avgFillerRate = reports.length
+    ? (reports.reduce((s, r) => s + r.filler_rate, 0) / reports.length).toFixed(
+        1,
+      )
+    : "0.0";
+
   let content: React.ReactNode;
 
   if (loading) {
@@ -278,6 +296,14 @@ export const HistorySettings: React.FC = () => {
             <h2 className="text-xs font-medium text-mid-gray uppercase tracking-wide">
               {t("settings.history.title")}
             </h2>
+            {reports.length > 0 && (
+              <p className="text-xs text-text/50 mt-0.5">
+                {t("settings.coach.aggregate", {
+                  wpm: avgWpm,
+                  rate: avgFillerRate,
+                })}
+              </p>
+            )}
           </div>
           <OpenRecordingsButton
             onClick={openRecordingsFolder}
@@ -438,6 +464,8 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
             ? entry.transcription_text
             : t("settings.history.transcriptionFailed")}
       </p>
+
+      {!retrying && <CoachReport metricsJson={entry.coach_metrics} />}
 
       <AudioPlayer onLoadRequest={handleLoadAudio} className="w-full" />
     </div>
