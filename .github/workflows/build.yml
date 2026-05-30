@@ -350,7 +350,10 @@ jobs:
           # keychain and APPLE_SIGNING_IDENTITY selects it. Passing it as an empty
           # string (sign-binaries=false) made tauri attempt `security import` of an
           # empty cert and fail macOS bundling — ad-hoc "-" signing is used instead.
-          APPLE_SIGNING_IDENTITY: ${{ inputs.sign-binaries && env.CERT_ID || '' }}
+          # When not signing, use "-" (ad-hoc) — NOT "" — so tauri ad-hoc-signs the
+          # app + embedded dylibs. An empty identity overrides tauri.conf's "-" and
+          # makes codesign fail ("item could not be found in the keychain").
+          APPLE_SIGNING_IDENTITY: ${{ inputs.sign-binaries && env.CERT_ID || '-' }}
           AZURE_CLIENT_ID: ${{ inputs.sign-binaries && secrets.AZURE_CLIENT_ID || '' }}
           AZURE_CLIENT_SECRET: ${{ inputs.sign-binaries && secrets.AZURE_CLIENT_SECRET || '' }}
           AZURE_TENANT_ID: ${{ inputs.sign-binaries && secrets.AZURE_TENANT_ID || '' }}
