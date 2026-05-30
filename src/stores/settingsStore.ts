@@ -125,6 +125,10 @@ const settingUpdaters: {
   typing_tool: (value) => commands.changeTypingToolSetting(value as string),
   external_script_path: (value) =>
     commands.changeExternalScriptPathSetting(value as string | null),
+  capture_folder: (value) =>
+    commands.changeCaptureFolderSetting(value as string),
+  capture_trigger_phrases: (value) =>
+    commands.changeCaptureTriggerPhrasesSetting(value as string),
   clipboard_handling: (value) =>
     commands.changeClipboardHandlingSetting(value as string),
   auto_submit: (value) => commands.changeAutoSubmitSetting(value as boolean),

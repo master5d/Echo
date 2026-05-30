@@ -164,6 +164,42 @@ pub fn detect_prefix_command(text: &str) -> Option<DetectedCommand> {
     None
 }
 
+/// Split the comma-separated trigger setting into trimmed, non-empty phrases.
+pub fn parse_capture_phrases(setting: &str) -> Vec<String> {
+    setting
+        .split(',')
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect()
+}
+
+/// If `text` starts (case-insensitively) with one of `phrases` followed by a
+/// whitespace boundary, return the trimmed remainder (note body). Empty
+/// remainder -> None. First matching phrase wins.
+pub fn detect_capture(text: &str, phrases: &[&str]) -> Option<String> {
+    let trimmed = text.trim_start();
+    let lower = trimmed.to_lowercase();
+    for phrase in phrases {
+        let p = phrase.trim().to_lowercase();
+        if p.is_empty() {
+            continue;
+        }
+        if lower.starts_with(&p) {
+            let n = p.chars().count();
+            match trimmed.chars().nth(n) {
+                Some(c) if c.is_whitespace() => {}
+                _ => continue, // mid-word or no boundary
+            }
+            let body: String = trimmed.chars().skip(n).collect();
+            let body = body.trim().to_string();
+            if !body.is_empty() {
+                return Some(body);
+            }
+        }
+    }
+    None
+}
+
 static SUBMIT_SUFFIX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
         r"(?i)[\s,.]*(?:press enter|hit enter|нажми(?:\s+на)?\s+(?:enter|ввод|энтер))[\s.!]*$",
@@ -423,5 +459,28 @@ mod tests {
     fn spoken_list_requires_two_cues() {
         let single = "first of all this is fine";
         assert_eq!(format_spoken_list(single), single);
+    }
+
+    #[test]
+    fn detect_capture_single_phrase() {
+        assert_eq!(detect_capture("capture note buy milk", &["capture note"]).as_deref(), Some("buy milk"));
+    }
+    #[test]
+    fn detect_capture_multi_phrase_and_case_insensitive() {
+        assert_eq!(
+            detect_capture("Save To Vault Hello", &["save note", "save to vault"]).as_deref(),
+            Some("Hello")
+        );
+    }
+    #[test]
+    fn detect_capture_negatives() {
+        assert!(detect_capture("just talking", &["capture note"]).is_none());
+        assert!(detect_capture("capture note", &["capture note"]).is_none()); // empty body
+        assert!(detect_capture("capture notebook stuff", &["capture note"]).is_none()); // prefix mid-word
+        assert!(detect_capture("anything", &[]).is_none()); // no phrases
+    }
+    #[test]
+    fn parse_phrases_trims_and_drops_empty() {
+        assert_eq!(parse_capture_phrases("a, b ,, c "), vec!["a".to_string(), "b".to_string(), "c".to_string()]);
     }
 }

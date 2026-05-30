@@ -440,6 +440,10 @@ pub struct AppSettings {
     pub typing_tool: TypingTool,
     pub external_script_path: Option<String>,
     #[serde(default)]
+    pub capture_folder: String,
+    #[serde(default)]
+    pub capture_trigger_phrases: String,
+    #[serde(default)]
     pub custom_filler_words: Option<Vec<String>>,
     #[serde(default)]
     pub whisper_accelerator: WhisperAcceleratorSetting,
@@ -918,6 +922,8 @@ pub fn get_default_settings() -> AppSettings {
         paste_delay_ms: default_paste_delay_ms(),
         typing_tool: default_typing_tool(),
         external_script_path: None,
+        capture_folder: String::new(),
+        capture_trigger_phrases: "capture note, сохрани заметку".to_string(),
         custom_filler_words: None,
         whisper_accelerator: WhisperAcceleratorSetting::default(),
         ort_accelerator: OrtAcceleratorSetting::default(),

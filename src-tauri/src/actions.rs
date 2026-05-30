@@ -412,6 +412,36 @@ pub(crate) async fn process_transcription_output(
     let mut post_process_prompt: Option<String> = None;
     let mut force_submit = false;
 
+    // Voice capture: a configured trigger phrase saves the remainder to a folder
+    // (as a markdown note) instead of pasting it into the active app.
+    let capture_folder = settings.capture_folder.trim().to_string();
+    if !capture_folder.is_empty() {
+        let phrases = crate::voice_commands::parse_capture_phrases(&settings.capture_trigger_phrases);
+        let phrase_refs: Vec<&str> = phrases.iter().map(|s| s.as_str()).collect();
+        if let Some(body) = crate::voice_commands::detect_capture(&final_text, &phrase_refs) {
+            let now = chrono::Local::now();
+            let lang = Some(settings.selected_language.as_str());
+            let filename = crate::capture::capture_filename(now);
+            let note = crate::capture::build_note(&body, now, lang);
+            match crate::capture::write_capture(std::path::Path::new(&capture_folder), &filename, &note) {
+                Ok(path) => {
+                    let _ = app.emit("voice-capture", serde_json::json!({ "ok": true, "path": path.to_string_lossy() }));
+                    return ProcessedTranscription {
+                        final_text: String::new(),
+                        post_processed_text: None,
+                        post_process_prompt: None,
+                        force_submit: false,
+                    };
+                }
+                Err(e) => {
+                    error!("Voice capture failed: {e:#}");
+                    let _ = app.emit("voice-capture", serde_json::json!({ "ok": false, "error": e.to_string() }));
+                    // fall through: dictate normally so words aren't lost
+                }
+            }
+        }
+    }
+
     // ── Command Mode ────────────────────────────────────────────────────────
     // A trailing "press enter" submits after paste; a leading instruction
     // ("translate to english", "make shorter", ...) routes the remainder

@@ -11,6 +11,7 @@ mod heuristics;
 mod heuristics_tests;
 mod llm_client;
 mod managers;
+mod capture;
 mod platform;
 pub mod portable;
 mod settings;
@@ -351,6 +352,8 @@ pub fn run(cli_args: CliArgs) {
             shortcut::get_available_typing_tools,
             shortcut::change_typing_tool_setting,
             shortcut::change_external_script_path_setting,
+            shortcut::change_capture_folder_setting,
+            shortcut::change_capture_trigger_phrases_setting,
             shortcut::change_clipboard_handling_setting,
             shortcut::change_auto_submit_setting,
             shortcut::change_auto_submit_key_setting,

@@ -747,6 +747,24 @@ pub fn change_external_script_path_setting(
 
 #[tauri::command]
 #[specta::specta]
+pub fn change_capture_folder_setting(app: AppHandle, value: String) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.capture_folder = value;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_capture_trigger_phrases_setting(app: AppHandle, value: String) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.capture_trigger_phrases = value;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
 pub fn change_clipboard_handling_setting(app: AppHandle, handling: String) -> Result<(), String> {
     let mut settings = settings::get_settings(&app);
     let parsed = match handling.as_str() {
