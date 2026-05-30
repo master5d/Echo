@@ -31,6 +31,7 @@ import { Snippets } from "./Snippets";
 import { SelfCorrection } from "./SelfCorrection";
 import { SpokenLists } from "./SpokenLists";
 import { DevDictionary } from "./DevDictionary";
+import { CaptureFolder } from "./CaptureFolder";
 
 export const AdvancedSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -51,6 +52,7 @@ export const AdvancedSettings: React.FC = () => {
 
       <SettingsGroup title={t("settings.advanced.groups.output")}>
         <PasteMethodSetting descriptionMode="tooltip" grouped={true} />
+        <CaptureFolder descriptionMode="tooltip" grouped={true} />
         <TypingToolSetting descriptionMode="tooltip" grouped={true} />
         <ClipboardHandlingSetting descriptionMode="tooltip" grouped={true} />
         <AutoSubmit descriptionMode="tooltip" grouped={true} />

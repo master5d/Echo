@@ -567,6 +567,16 @@
         "description": "Extra time (in milliseconds) to keep recording after you release the key, to capture trailing audio. 0 = no extra buffer."
       }
     },
+    "capture": {
+      "captureSuccess": "Saved to capture folder",
+      "captureError": "Voice capture failed — check the folder",
+      "dirLabel": "Voice capture folder",
+      "dirDescription": "Folder where dictated notes are saved when you start with a capture phrase (empty = off)",
+      "dirPlaceholder": "/path/to/your/notes/inbox",
+      "phrasesLabel": "Capture trigger phrases",
+      "phrasesDescription": "Comma-separated phrases that start a capture (e.g. capture note, save note)",
+      "phrasesPlaceholder": "capture note, save note"
+    },
     "about": {
       "title": "About",
       "eliteEdition": "Local-first bilingual dictation",

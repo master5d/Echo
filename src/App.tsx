@@ -152,6 +152,20 @@ function App() {
     };
   }, [t]);
 
+  // Listen for voice capture results and show a toast
+  useEffect(() => {
+    const un = listen<{ ok: boolean; path?: string; error?: string }>(
+      "voice-capture",
+      (e) => {
+        if (e.payload.ok) toast.success(t("settings.capture.captureSuccess"));
+        else toast.error(t("settings.capture.captureError"));
+      },
+    );
+    return () => {
+      un.then((f) => f());
+    };
+  }, [t]);
+
   // Listen for model loading failures and show a toast
   useEffect(() => {
     const unlisten = listen<ModelStateEvent>("model-state-changed", (event) => {
