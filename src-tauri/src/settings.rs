@@ -679,10 +679,11 @@ fn default_post_process_providers() -> Vec<PostProcessProvider> {
         supports_structured_output: true,
     });
 
-    // Custom provider for NAUTILUS / Local LLM
+    // Custom provider: a local LLM via a LiteLLM-style gateway (or any
+    // OpenAI-compatible endpoint). id stays "custom" — load-bearing for stored configs.
     providers.push(PostProcessProvider {
         id: "custom".to_string(),
-        label: "NAUTILUS LiteLLM".to_string(),
+        label: "Local LLM (LiteLLM)".to_string(),
         base_url: "http://localhost:4000/v1".to_string(),
         allow_base_url_edit: true,
         models_endpoint: Some("/models".to_string()),
