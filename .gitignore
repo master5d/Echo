@@ -8,6 +8,9 @@ pnpm-debug.log*
 lerna-debug.log*
 
 package-lock.json
+# bun is the canonical lockfile (CI/Nix). Don't commit other PMs' lockfiles —
+# a stray pnpm-lock.yaml makes tauri-action run `pnpm` (not installed in CI).
+pnpm-lock.yaml
 
 node_modules
 dist
