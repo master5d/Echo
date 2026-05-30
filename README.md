@@ -61,6 +61,21 @@ Transform commands run through your configured post‑processing provider (a loc
 LLM via Ollama/llama.cpp, or any OpenAI‑compatible endpoint). Detection itself is
 local; opt in under **Settings → Advanced → Voice commands**.
 
+### Voice capture to folder
+
+Save a dictation as a note instead of typing it. Set a **capture folder** and one
+or more comma‑separated **trigger phrases** under **Settings → Advanced**, then
+start an utterance with a phrase and Echo writes the rest to a timestamped
+markdown file instead of pasting it into the active app:
+
+- *"capture note buy milk"* → writes `…-echo-note.md` (with simple frontmatter)
+  to your capture folder; nothing is typed into the current window.
+
+Trigger phrases are fully configurable. Leave the capture folder empty to keep the
+feature off. Everything stays local — it's just a file written to a folder you
+choose, so it pairs naturally with an Obsidian inbox, a notes directory, or any
+tool that watches a folder.
+
 ### Personalization
 
 - 📓 **Custom dictionary.** Teach Echo unusual names, terms, and acronyms.

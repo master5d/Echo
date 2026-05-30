@@ -56,7 +56,11 @@ npm run format            # Prettier + cargo fmt
   pipeline, and context-aware formatting logic.
 - `voice_commands.rs` - Wispr-inspired transforms: Command Mode detection
   (`detect_prefix_command`, `strip_submit_command`), snippet expansion,
-  self-correction, spoken-list formatting, and the built-in developer dictionary.
+  self-correction, spoken-list formatting, the built-in developer dictionary, and
+  voice-capture intent detection (`parse_capture_phrases`, `detect_capture`).
+- `capture.rs` - Voice capture: when a dictation starts with a configured trigger
+  phrase, the remainder is written as a timestamped markdown note to `capture_folder`
+  (via `process_transcription_output`) instead of being pasted into the active app.
 - `platform/` - OS/UX peripherals grouped by module: `overlay.rs` (stealth UX,
   `WS_EX_NOACTIVATE`), `clipboard.rs` (paste + auto-submit), `input.rs`,
   `tray.rs`, `signal_handle.rs`, `audio_feedback.rs`.
