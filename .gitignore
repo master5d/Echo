@@ -35,8 +35,10 @@ dist-ssr
 recording_*
 .crush/
 
-# Models
-src-tauri/resources/models/
+# Models (large binaries excluded; VAD + vocab tracked so the release bundles them)
+src-tauri/resources/models/*
+!src-tauri/resources/models/silero_vad_v4.onnx
+!src-tauri/resources/models/gigaam_vocab.txt
 
 # Playwright
 playwright-report/
