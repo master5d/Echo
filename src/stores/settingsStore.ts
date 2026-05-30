@@ -171,6 +171,8 @@ const settingUpdaters: {
     commands.changeSubtitleRefreshMsSetting(value as number),
   command_mode_enabled: (value) =>
     commands.changeCommandModeSetting(value as boolean),
+  coach_toast_enabled: (value) =>
+    commands.changeCoachToastSetting(value as boolean),
   self_correction_enabled: (value) =>
     commands.changeSelfCorrectionSetting(value as boolean),
   spoken_lists_enabled: (value) =>

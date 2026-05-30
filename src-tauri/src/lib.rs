@@ -387,6 +387,7 @@ pub fn run(cli_args: CliArgs) {
             shortcut::change_subtitle_max_chars_setting,
             shortcut::change_subtitle_refresh_ms_setting,
             shortcut::change_command_mode_setting,
+            shortcut::change_coach_toast_setting,
             shortcut::change_self_correction_setting,
             shortcut::change_spoken_lists_setting,
             shortcut::change_dev_dictionary_setting,

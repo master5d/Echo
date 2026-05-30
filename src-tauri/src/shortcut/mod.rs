@@ -1224,6 +1224,15 @@ pub fn change_command_mode_setting(app: AppHandle, enabled: bool) -> Result<(), 
 
 #[tauri::command]
 #[specta::specta]
+pub fn change_coach_toast_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.coach_toast_enabled = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
 pub fn change_self_correction_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
     let mut settings = settings::get_settings(&app);
     settings.self_correction_enabled = enabled;
