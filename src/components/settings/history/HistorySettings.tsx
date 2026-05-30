@@ -19,6 +19,8 @@ import {
   parseCoachMetrics,
   type CoachMetrics,
 } from "./CoachReport";
+import { CoachToastToggle } from "./CoachToastToggle";
+import { useSettingsStore } from "@/stores/settingsStore";
 
 const IconButton: React.FC<{
   onClick: () => void;
@@ -141,6 +143,16 @@ export const HistorySettings: React.FC = () => {
       const payload: HistoryUpdatePayload = event.payload;
       if (payload.action === "added") {
         setEntries((prev) => [payload.entry, ...prev]);
+        if (useSettingsStore.getState().settings?.coach_toast_enabled) {
+          const m = parseCoachMetrics(payload.entry.coach_metrics);
+          if (m) {
+            toast(
+              `${m.filler_total} ${t("settings.coach.fillers").toLowerCase()} · ${
+                m.wpm > 0 ? `${m.wpm} ${t("settings.coach.wpm")}` : "—"
+              }`,
+            );
+          }
+        }
       } else if (payload.action === "updated") {
         setEntries((prev) =>
           prev.map((e) => (e.id === payload.entry.id ? payload.entry : e)),
@@ -153,7 +165,7 @@ export const HistorySettings: React.FC = () => {
     return () => {
       unlisten.then((fn) => fn());
     };
-  }, []);
+  }, [t]);
 
   const toggleSaved = async (id: number) => {
     // Optimistic update
@@ -290,6 +302,9 @@ export const HistorySettings: React.FC = () => {
 
   return (
     <div className="max-w-3xl w-full mx-auto space-y-6">
+      <div className="px-4">
+        <CoachToastToggle />
+      </div>
       <div className="space-y-2">
         <div className="px-4 flex items-center justify-between">
           <div>
