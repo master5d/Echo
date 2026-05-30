@@ -9,16 +9,9 @@
 name: "nix build check"
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "flake.nix"
-      - "flake.lock"
-      - ".nix/**"
-      - "bun.lock"
-      - "src-tauri/**"
-      - "src/**"
-      - ".github/workflows/**"
+  # The full nix build (~25 min) is flaky on the Nix cache action's rate limits;
+  # don't run it on every push to main. PRs touching nix files + manual dispatch
+  # still cover it.
   pull_request:
     paths:
       - "flake.nix"
