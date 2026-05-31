@@ -865,6 +865,22 @@ async getHistoryEntries(cursor: number | null, limit: number | null) : Promise<R
     else return { status: "error", error: e  as any };
 }
 },
+async getCoachDashboard(window: TrendWindow) : Promise<Result<CoachDashboard, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_coach_dashboard", { window }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async getCoachBaseline() : Promise<Result<Baseline | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_coach_baseline") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async toggleHistoryEntrySaved(id: number) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("toggle_history_entry_saved", { id }) };
@@ -970,6 +986,11 @@ export type ModelUnloadTimeout = "never" | "immediately" | "min_2" | "min_5" | "
 export type OrtAcceleratorSetting = "auto" | "cpu" | "cuda" | "directml" | "rocm"
 export type OverlayPosition = "none" | "top" | "bottom"
 export type PaginatedHistory = { entries: HistoryEntry[]; has_more: boolean }
+export type TrendWindow = "Days7" | "Days30" | "All"
+export type PeriodSummary = { avg_wpm: number; avg_filler_rate: number; session_count: number; prev_avg_wpm: number; prev_avg_filler_rate: number; prev_session_count: number }
+export type TrendPoint = { day: number; avg_wpm: number; avg_filler_rate: number }
+export type Baseline = { avg_wpm: number; avg_filler_rate: number }
+export type CoachDashboard = { summary: PeriodSummary; trend: TrendPoint[]; current_streak: number; best_streak: number }
 export type PasteMethod = "ctrl_v" | "direct" | "none" | "shift_insert" | "ctrl_shift_v" | "external_script"
 export type PermissionAccess = "allowed" | "denied" | "unknown"
 export type PostProcessProvider = { id: string; label: string; base_url: string; allow_base_url_edit?: boolean; models_endpoint?: string | null; supports_structured_output?: boolean }

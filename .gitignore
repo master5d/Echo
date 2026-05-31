@@ -61,3 +61,6 @@ docs/superpowers/
 
 # Firecrawl skill artifacts
 .firecrawl/
+
+# Visual-companion brainstorm mockups
+.superpowers/

@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { commands, type Baseline } from "@/bindings";
 
 export type WordCount = { word: string; count: number };
 export type CoachMetrics = {
@@ -29,6 +31,13 @@ export function CoachReport({
   metricsJson: string | null | undefined;
 }) {
   const { t } = useTranslation();
+  const [baseline, setBaseline] = useState<Baseline | null>(null);
+  useEffect(() => {
+    commands
+      .getCoachBaseline()
+      .then((res) => setBaseline(res.status === "ok" ? res.data : null))
+      .catch(() => setBaseline(null));
+  }, []);
   const m = parseCoachMetrics(metricsJson);
   if (!m) return null;
 
@@ -42,6 +51,13 @@ export function CoachReport({
         {t("settings.coach.fillers")}: {m.filler_total} (
         {m.filler_rate.toFixed(1)}%)
       </span>
+      {baseline && m.filler_rate !== baseline.avg_filler_rate && (
+        <span className="text-text/50">
+          {m.filler_rate < baseline.avg_filler_rate
+            ? `↓ ${t("settings.coach.belowAvg")}`
+            : `↑ ${t("settings.coach.aboveAvg")}`}
+        </span>
+      )}
       {m.fillers.slice(0, 6).map((f) => (
         <span key={f.word} className="rounded bg-mid-gray/15 px-1.5 py-0.5">
           {f.word} ×{f.count}
