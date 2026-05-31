@@ -33,6 +33,18 @@ static MIGRATIONS: &[M] = &[
     M::up("ALTER TABLE transcription_history ADD COLUMN post_process_requested BOOLEAN NOT NULL DEFAULT 0;"),
     M::up("ALTER TABLE transcription_history ADD COLUMN duration_ms INTEGER;"),
     M::up("ALTER TABLE transcription_history ADD COLUMN coach_metrics TEXT;"),
+    M::up(
+        "CREATE TABLE IF NOT EXISTS coach_sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp INTEGER NOT NULL,
+            word_count INTEGER NOT NULL,
+            duration_ms INTEGER NOT NULL,
+            wpm INTEGER NOT NULL,
+            filler_total INTEGER NOT NULL,
+            weak_total INTEGER NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_coach_sessions_ts ON coach_sessions(timestamp);",
+    ),
 ];
 
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
@@ -96,6 +108,7 @@ impl HistoryManager {
 
         // Initialize database and run migrations synchronously
         manager.init_database()?;
+        manager.backfill_coach_sessions()?;
 
         Ok(manager)
     }
@@ -218,6 +231,43 @@ impl HistoryManager {
 
     pub fn recordings_dir(&self) -> &std::path::Path {
         &self.recordings_dir
+    }
+
+    /// One-time backfill: if coach_sessions is empty, seed it from existing
+    /// transcription_history rows that already carry coach_metrics JSON.
+    fn backfill_coach_sessions(&self) -> Result<()> {
+        let conn = self.get_connection()?;
+        let count: i64 =
+            conn.query_row("SELECT COUNT(*) FROM coach_sessions", [], |r| r.get(0))?;
+        if count > 0 {
+            return Ok(());
+        }
+        let mut stmt = conn.prepare(
+            "SELECT timestamp, duration_ms, coach_metrics
+             FROM transcription_history
+             WHERE coach_metrics IS NOT NULL AND duration_ms IS NOT NULL",
+        )?;
+        let rows = stmt.query_map([], |r| {
+            Ok((
+                r.get::<_, i64>(0)?,
+                r.get::<_, i64>(1)?,
+                r.get::<_, String>(2)?,
+            ))
+        })?;
+        for row in rows {
+            let (ts, dur, json) = row?;
+            if let Ok(m) = serde_json::from_str::<crate::coach::CoachMetrics>(&json) {
+                let weak_total: u32 = m.weak_words.iter().map(|w| w.count).sum();
+                let _ = conn.execute(
+                    "INSERT INTO coach_sessions
+                       (timestamp, word_count, duration_ms, wpm, filler_total, weak_total)
+                     VALUES (?1,?2,?3,?4,?5,?6)",
+                    params![ts, m.word_count as i64, dur, m.wpm as i64, m.filler_total as i64, weak_total as i64],
+                );
+            }
+        }
+        debug!("Backfilled coach_sessions from history");
+        Ok(())
     }
 
     /// Save a new history entry to the database.
@@ -789,5 +839,25 @@ mod tests {
             "expected coach_metrics column, got: {:?}",
             column_names
         );
+    }
+
+    #[test]
+    fn coach_sessions_table_round_trips() {
+        let mut conn = Connection::open_in_memory().unwrap();
+        Migrations::new(MIGRATIONS.to_vec()).to_latest(&mut conn).unwrap();
+        conn.execute(
+            "INSERT INTO coach_sessions (timestamp, word_count, duration_ms, wpm, filler_total, weak_total)
+             VALUES (?1,?2,?3,?4,?5,?6)",
+            params![1_700_000_000i64, 50i64, 30_000i64, 100i64, 3i64, 1i64],
+        )
+        .unwrap();
+        let (ts, wpm, fil): (i64, i64, i64) = conn
+            .query_row(
+                "SELECT timestamp, wpm, filler_total FROM coach_sessions LIMIT 1",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+            )
+            .unwrap();
+        assert_eq!((ts, wpm, fil), (1_700_000_000, 100, 3));
     }
 }
