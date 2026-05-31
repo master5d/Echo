@@ -54,6 +54,7 @@ result
 # Local build helpers (machine-specific absolute paths)
 /build-echo.bat
 /dev-run-echo.bat
+/build_cli_elite.bat
 
 # Superpowers planning docs (kept local, not published)
 docs/superpowers/

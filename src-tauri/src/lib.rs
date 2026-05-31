@@ -4,6 +4,7 @@ mod apple_intelligence;
 pub mod audio_toolkit;
 mod capture;
 pub mod cli;
+mod cli_transcription;
 mod coach;
 mod commands;
 mod helpers;
@@ -502,8 +503,11 @@ pub fn run(cli_args: CliArgs) {
         builder = builder.plugin(tauri_nspanel::init());
     }
 
-    builder
-        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+    // Single-instance forwards CLI flags to a running GUI instance. Skip it in
+    // headless --transcribe-file mode so the CLI always runs in its own process,
+    // even when the GUI is already open.
+    if cli_args.transcribe_file.is_none() {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             if args.iter().any(|a| a == "--toggle-transcription") {
                 platform::signal_handle::send_transcription_input(app, "transcribe", "CLI");
             } else if args.iter().any(|a| a == "--toggle-post-process") {
@@ -517,7 +521,10 @@ pub fn run(cli_args: CliArgs) {
             } else {
                 show_main_window(app);
             }
-        }))
+        }));
+    }
+
+    builder
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -534,6 +541,33 @@ pub fn run(cli_args: CliArgs) {
         .manage(cli_args.clone())
         .setup(move |app| {
             specta_builder.mount_events(app);
+
+            // Handle Headless CLI Transcription
+            if let Some(input_path) = cli_args.transcribe_file.clone() {
+                let app_handle = app.handle().clone();
+                let output_path = cli_args.output.clone();
+                let language = cli_args.language.clone();
+                let model = cli_args.model.clone();
+
+                // Initialize core logic before starting transcription
+                initialize_core_logic(&app_handle);
+
+                std::thread::spawn(move || {
+                    if let Err(e) = cli_transcription::run_cli_transcription(
+                        &app_handle,
+                        &input_path,
+                        output_path.as_deref(),
+                        language.as_deref(),
+                        model.as_deref(),
+                    ) {
+                        eprintln!("[!] CLI Transcription failed: {}", e);
+                        std::process::exit(1);
+                    }
+                    std::process::exit(0);
+                });
+
+                return Ok(());
+            }
 
             // Create main window programmatically so we can set data_directory
             // for portable mode (redirects WebView2 cache to portable Data dir)

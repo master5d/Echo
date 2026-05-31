@@ -1,4 +1,5 @@
 use clap::Parser;
+use std::path::PathBuf;
 
 #[derive(Parser, Debug, Clone, Default)]
 #[command(name = "echo", about = "Echo - Speech to Text")]
@@ -26,4 +27,22 @@ pub struct CliArgs {
     /// Enable debug mode with verbose logging
     #[arg(long)]
     pub debug: bool,
+
+    /// Path to an audio/video file for offline transcription
+    #[arg(long, value_name = "FILE")]
+    pub transcribe_file: Option<PathBuf>,
+
+    /// Path to save the resulting transcript (plain text). Prints to stdout if omitted.
+    #[arg(short, long, value_name = "OUTPUT")]
+    pub output: Option<PathBuf>,
+
+    /// Language for offline transcription: "auto" (default) or a code like "ru"/"en".
+    /// "auto" enables RU/EN code-switch steering on Whisper models.
+    #[arg(long, value_name = "LANG")]
+    pub language: Option<String>,
+
+    /// Model id to use for offline transcription (e.g. "turbo"). Defaults to the
+    /// app's selected model. Use a Whisper model for best RU/EN mixing.
+    #[arg(long, value_name = "MODEL")]
+    pub model: Option<String>,
 }

@@ -161,3 +161,54 @@ npm run tauri build -- --bundles deb
 ```
 
 Then install using the deb extraction method above.
+
+## CLI / Offline Transcription
+
+Echo can transcribe an audio/video file headlessly from the command line:
+
+```bash
+echo --transcribe-file path/to/audio.mp3                          # transcript to stdout
+echo --transcribe-file talk.mp4 -o talk.txt                       # transcript to a file
+echo --transcribe-file ru-en.wav --model turbo --language auto    # RU/EN code-switch
+```
+
+Flags:
+
+- `--transcribe-file <FILE>` — input audio or video file.
+- `-o, --output <FILE>` — save the transcript (otherwise printed to stdout).
+- `--model <ID>` — model to use (default: the app's selected model). **Use a Whisper
+  model (e.g. `turbo`) for Russian/English code-switching**; single-script engines
+  (Parakeet/GigaAM) transliterate embedded English into Cyrillic.
+- `--language <LANG>` — `auto` (default) or a code like `ru`/`en`. `auto` enables the
+  bilingual RU/EN initial-prompt steering on Whisper models.
+
+**Requirement:** [`ffmpeg`](https://ffmpeg.org/) must be on `PATH` (used to decode and
+normalize the input to 16 kHz mono). On Windows: `winget install Gyan.FFmpeg`.
+
+The CLI reuses the same engine and bilingual prompt steering as the GUI, so RU/EN mixing
+quality matches the app, and it runs in its own process — independent of any running GUI
+instance.
+
+### Windows release build (LLVM toolchain)
+
+The release build uses LLVM/clang-cl + Ninja (the default MSVC/msbuild generator fails to
+build `ggml-vulkan`). Set up the environment, then `cargo build --release`:
+
+```bat
+:: Visual Studio C++ build tools environment
+call "C:\Program Files\Microsoft Visual Studio\<edition>\Common7\Tools\VsDevCmd.bat" -arch=x64
+:: LLVM + Ninja on PATH (e.g. via scoop: scoop install llvm ninja)
+set "CC=clang-cl"
+set "CXX=clang-cl"
+set "CMAKE_GENERATOR=Ninja"
+set "CMAKE_LINKER_TYPE=LLD"
+set "CMAKE_POLICY_VERSION_MINIMUM=3.5"
+set "CXXFLAGS=/EHsc"
+set "VULKAN_SDK=C:\VulkanSDK\<version>"
+:: clear VS instance specs that break the Ninja generator
+set "VSINSTALLDIR="
+set "CMAKE_GENERATOR_INSTANCE="
+set "CMAKE_GENERATOR_PLATFORM="
+set "CMAKE_GENERATOR_TOOLSET="
+cargo build --release
+```
