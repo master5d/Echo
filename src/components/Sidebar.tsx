@@ -1,6 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Cog, FlaskConical, History, Info, Sparkles, Cpu } from "lucide-react";
+import {
+  Cog,
+  FlaskConical,
+  History,
+  Info,
+  Sparkles,
+  Cpu,
+  LineChart,
+} from "lucide-react";
 import EchoTextLogo from "./icons/EchoTextLogo";
 import EchoHand from "./icons/EchoHand";
 import { useSettings } from "../hooks/useSettings";
@@ -8,6 +16,7 @@ import {
   GeneralSettings,
   AdvancedSettings,
   HistorySettings,
+  CoachSettings,
   DebugSettings,
   AboutSettings,
   PostProcessingSettings,
@@ -54,6 +63,12 @@ export const SECTIONS_CONFIG = {
     labelKey: "sidebar.history",
     icon: History,
     component: HistorySettings,
+    enabled: () => true,
+  },
+  coach: {
+    labelKey: "sidebar.coach",
+    icon: LineChart,
+    component: CoachSettings,
     enabled: () => true,
   },
   postprocessing: {

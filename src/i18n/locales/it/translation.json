@@ -15,7 +15,8 @@
     "postProcessing": "Post-Elaborazione",
     "history": "Cronologia",
     "debug": "Debug",
-    "about": "Informazioni"
+    "about": "Informazioni",
+    "coach": "Coach"
   },
   "onboarding": {
     "subtitle": "Per cominciare, scegli un modello di riconoscimento vocale",
@@ -604,7 +605,23 @@
       "toastEnabled": {
         "title": "Coach toast",
         "description": "Show a brief delivery summary after each dictation"
-      }
+      },
+      "title": "Coach",
+      "thisWeek": "this week",
+      "avgWpm": "avg WPM",
+      "fillerRate": "fillers",
+      "sessions": "dictations",
+      "vsPrev": "vs last week",
+      "trend": "Trend",
+      "windowDays7": "7d",
+      "windowDays30": "30d",
+      "windowAll": "All",
+      "streak": "Streak",
+      "streakDays": "{{count}}-day streak",
+      "streakBest": "best {{count}}",
+      "empty": "No sessions yet — dictate something to see progress.",
+      "belowAvg": "below your avg",
+      "aboveAvg": "above your avg"
     },
     "capture": {
       "captureSuccess": "Saved to capture folder",
