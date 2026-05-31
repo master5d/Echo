@@ -5,6 +5,7 @@ pub mod audio_toolkit;
 mod capture;
 pub mod cli;
 mod coach;
+mod coach_progress;
 mod commands;
 mod helpers;
 mod heuristics;
@@ -448,6 +449,8 @@ pub fn run(cli_args: CliArgs) {
             commands::history::retry_history_entry_transcription,
             commands::history::update_history_limit,
             commands::history::update_recording_retention_period,
+            commands::coach::get_coach_dashboard,
+            commands::coach::get_coach_baseline,
             helpers::clamshell::is_laptop,
         ])
         .events(collect_events![managers::history::HistoryUpdatePayload,]);

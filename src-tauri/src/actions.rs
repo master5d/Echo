@@ -835,13 +835,27 @@ impl ShortcutAction for TranscribeAction {
 
                             // Save to history if WAV was saved
                             if wav_saved {
-                                // Coach v0: delivery-report metrics from the raw transcription.
+                                // Coach v0 + progress: delivery-report metrics.
                                 let coach_duration_ms = (sample_count as u64) * 1000
                                     / crate::audio_toolkit::constants::WHISPER_SAMPLE_RATE as u64;
-                                let coach_metrics_json = serde_json::to_string(
-                                    &crate::coach::analyze(&transcription, coach_duration_ms),
-                                )
-                                .ok();
+                                let coach_metrics =
+                                    crate::coach::analyze(&transcription, coach_duration_ms);
+                                // Durable progress row (skip empty dictations).
+                                if coach_metrics.word_count > 0 {
+                                    let weak_total: u32 =
+                                        coach_metrics.weak_words.iter().map(|w| w.count).sum();
+                                    if let Err(e) = hm.insert_coach_session(
+                                        chrono::Utc::now().timestamp(),
+                                        coach_metrics.word_count,
+                                        coach_duration_ms,
+                                        coach_metrics.wpm,
+                                        coach_metrics.filler_total,
+                                        weak_total,
+                                    ) {
+                                        error!("Failed to insert coach session: {}", e);
+                                    }
+                                }
+                                let coach_metrics_json = serde_json::to_string(&coach_metrics).ok();
                                 if let Err(err) = hm.save_entry(
                                     file_name,
                                     transcription,

@@ -270,6 +270,72 @@ impl HistoryManager {
         Ok(())
     }
 
+    pub fn insert_coach_session(
+        &self,
+        timestamp: i64,
+        word_count: u32,
+        duration_ms: u64,
+        wpm: u32,
+        filler_total: u32,
+        weak_total: u32,
+    ) -> Result<()> {
+        let conn = self.get_connection()?;
+        conn.execute(
+            "INSERT INTO coach_sessions
+               (timestamp, word_count, duration_ms, wpm, filler_total, weak_total)
+             VALUES (?1,?2,?3,?4,?5,?6)",
+            params![
+                timestamp,
+                word_count as i64,
+                duration_ms as i64,
+                wpm as i64,
+                filler_total as i64,
+                weak_total as i64
+            ],
+        )?;
+        Ok(())
+    }
+
+    pub fn get_coach_sessions(
+        &self,
+        since: Option<i64>,
+    ) -> Result<Vec<crate::coach_progress::SessionRow>> {
+        let conn = self.get_connection()?;
+        let map = |row: &rusqlite::Row<'_>| -> rusqlite::Result<crate::coach_progress::SessionRow> {
+            Ok(crate::coach_progress::SessionRow {
+                timestamp: row.get("timestamp")?,
+                word_count: row.get::<_, i64>("word_count")? as u32,
+                duration_ms: row.get::<_, i64>("duration_ms")? as u64,
+                wpm: row.get::<_, i64>("wpm")? as u32,
+                filler_total: row.get::<_, i64>("filler_total")? as u32,
+                weak_total: row.get::<_, i64>("weak_total")? as u32,
+            })
+        };
+        let rows = match since {
+            Some(ts) => {
+                let mut stmt = conn.prepare(
+                    "SELECT timestamp, word_count, duration_ms, wpm, filler_total, weak_total
+                     FROM coach_sessions WHERE timestamp >= ?1 ORDER BY timestamp ASC",
+                )?;
+                let result = stmt
+                    .query_map(params![ts], map)?
+                    .collect::<std::result::Result<Vec<_>, _>>()?;
+                result
+            }
+            None => {
+                let mut stmt = conn.prepare(
+                    "SELECT timestamp, word_count, duration_ms, wpm, filler_total, weak_total
+                     FROM coach_sessions ORDER BY timestamp ASC",
+                )?;
+                let result = stmt
+                    .query_map([], map)?
+                    .collect::<std::result::Result<Vec<_>, _>>()?;
+                result
+            }
+        };
+        Ok(rows)
+    }
+
     /// Save a new history entry to the database.
     /// The WAV file should already have been written to the recordings directory.
     pub fn save_entry(
