@@ -85,6 +85,16 @@ tool that watches a folder.
   transcript as you speak, with adjustable size, length, and refresh rate.
 - 🌐 **Interface language.** The UI itself ships in 20 languages.
 
+### Speech coach
+
+- 📈 **Delivery metrics.** Every dictation is scored locally for pace (WPM),
+  filler/crutch words (RU + EN — «э‑э», «ну», "um", "like", …), and weak/hedge
+  words, shown inline in History and as an optional post‑dictation toast.
+- 🗂️ **Progress dashboard.** A **Coach** tab tracks improvement over time:
+  this‑week averages with deltas vs last week, WPM and filler‑rate trend
+  sparklines (7d / 30d / all), and a practice streak. Each new report also shows
+  whether you did better or worse than your rolling baseline — all on‑device.
+
 ### Developer features
 
 - ⌨️ **Context‑aware formatting.** Echo detects code editors (VS Code, Cursor,
@@ -94,6 +104,10 @@ tool that watches a folder.
 - 🧰 **Developer dictionary.** An opt‑in built‑in glossary steers transcription
   toward the correct spelling of common tooling (GitHub, Vercel, TypeScript,
   Kubernetes, …).
+- 🎬 **Offline transcription (CLI).** Batch a file headlessly:
+  `echo --transcribe-file talk.mp4 -o talk.txt` — transcribes any audio/video
+  (via ffmpeg) reusing the same engine and bilingual RU/EN steering as live
+  dictation. Choose engine/language with `--model` / `--language`. See `BUILD.md`.
 
 ### Privacy & performance
 
