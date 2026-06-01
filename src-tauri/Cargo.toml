@@ -17,7 +17,12 @@ incremental = true # Compile your binary in smaller steps.
 # to make the lib name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
 name = "echo_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
+# NOTE: `staticlib` removed for desktop. speakrs → ndarray-linalg → Intel MKL
+# static pulls a huge archive that crashes rustc's ar_archive_writer (ICE at
+# archive_writer.rs:818) when emitting the staticlib. Desktop only needs cdylib
+# (GUI) + rlib (bin); staticlib is a mobile-only artifact. Restore it behind a
+# mobile cfg if/when iOS/Android builds are added.
+crate-type = ["cdylib", "rlib"]
 
 # [[bin]]
 # name = "cli"
