@@ -16,8 +16,8 @@ pub async fn transcribe_file_to_string(
     speaker_hint: Option<u32>,
     format: String,
 ) -> Result<String, String> {
-    let fmt = OutputFormat::from_cli(&format)
-        .ok_or_else(|| format!("Unknown format '{format}'"))?;
+    let fmt =
+        OutputFormat::from_cli(&format).ok_or_else(|| format!("Unknown format '{format}'"))?;
     let input = PathBuf::from(path);
     // Run the blocking pipeline off the async runtime thread.
     let details = tauri::async_runtime::spawn_blocking(move || {

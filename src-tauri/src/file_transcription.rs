@@ -73,7 +73,13 @@ use a Whisper model — e.g. `--model turbo`.",
         write_settings(app_handle, s);
     }
 
-    let result = run_engine(app_handle, input_str, &effective_model, diarize, speaker_hint);
+    let result = run_engine(
+        app_handle,
+        input_str,
+        &effective_model,
+        diarize,
+        speaker_hint,
+    );
 
     if needs_override {
         write_settings(app_handle, base_settings);
@@ -141,7 +147,9 @@ fn run_engine(
         // timestamps, drop speakers, warn on stderr.
         match crate::diarization::diarize(&samples, TARGET_SAMPLE_RATE, speaker_hint) {
             Ok(turns) if !turns.is_empty() => details.speakers = Some(turns),
-            Ok(_) => eprintln!("[!] Diarization produced no speaker turns; output has timestamps only."),
+            Ok(_) => {
+                eprintln!("[!] Diarization produced no speaker turns; output has timestamps only.")
+            }
             Err(e) => eprintln!("[!] Diarization failed ({e}); output has timestamps only."),
         }
     }
