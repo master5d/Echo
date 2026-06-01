@@ -16,7 +16,8 @@
     "history": "История",
     "debug": "Отладка",
     "about": "О программе",
-    "coach": "Coach"
+    "coach": "Coach",
+    "transcribe": "Транскрипция файла"
   },
   "onboarding": {
     "subtitle": "Для начала выберите модель транскрипции",
@@ -622,6 +623,20 @@
       "empty": "No sessions yet — dictate something to see progress.",
       "belowAvg": "below your avg",
       "aboveAvg": "above your avg"
+    },
+    "transcribe": {
+      "tab": "Транскрипция",
+      "title": "Транскрипция файла",
+      "pickFile": "Выбрать аудио/видео файл",
+      "noFile": "Файл не выбран",
+      "timestamps": "Включить таймкоды",
+      "fmtInline": "Внутри текста [MM:SS]",
+      "diarize": "Диаризация (спикеры)",
+      "speakersPlaceholder": "Ожидаемое число спикеров",
+      "run": "Транскрибировать",
+      "working": "Транскрипция...",
+      "copy": "Копировать всё",
+      "saveAs": "Сохранить как..."
     },
     "capture": {
       "captureSuccess": "Saved to capture folder",

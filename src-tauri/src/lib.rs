@@ -453,6 +453,7 @@ pub fn run(cli_args: CliArgs) {
             commands::history::retry_history_entry_transcription,
             commands::history::update_history_limit,
             commands::history::update_recording_retention_period,
+            commands::transcribe::transcribe_file_to_string,
             commands::coach::get_coach_dashboard,
             commands::coach::get_coach_baseline,
             helpers::clamshell::is_laptop,

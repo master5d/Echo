@@ -940,7 +940,15 @@ async isLaptop() : Promise<Result<boolean, string>> {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
-}
+},
+async transcribeFileToString(path: string, language: string | null, model: string | null, diarize: boolean, speakerHint: number | null, format: string) : Promise<Result<string, string>> {
+    try {
+        return { status: "ok", data: await TAURI_INVOKE("transcribe_file_to_string", { path, language, model, diarize, speakerHint, format }) };
+    } catch (e) {
+        if(e instanceof Error) throw e;
+        else return { status: "error", error: e as any };
+    }
+},
 }
 
 /** user-defined events **/

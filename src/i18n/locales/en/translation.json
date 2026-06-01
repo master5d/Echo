@@ -16,7 +16,8 @@
     "history": "History",
     "debug": "Debug",
     "about": "About",
-    "coach": "Coach"
+    "coach": "Coach",
+    "transcribe": "Transcribe File"
   },
   "onboarding": {
     "subtitle": "To get started, choose a transcription model",
@@ -632,6 +633,20 @@
       "empty": "No sessions yet — dictate something to see progress.",
       "belowAvg": "below your avg",
       "aboveAvg": "above your avg"
+    },
+    "transcribe": {
+      "tab": "Transcribe",
+      "title": "Transcribe File",
+      "pickFile": "Pick Audio/Video File",
+      "noFile": "No file selected",
+      "timestamps": "Include timestamps",
+      "fmtInline": "Inline [MM:SS]",
+      "diarize": "Speaker diarization",
+      "speakersPlaceholder": "Speaker count hint",
+      "run": "Transcribe",
+      "working": "Transcribing...",
+      "copy": "Copy All",
+      "saveAs": "Save As..."
     }
   },
   "footer": {
