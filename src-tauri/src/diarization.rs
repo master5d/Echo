@@ -7,9 +7,10 @@ use speakrs::{ExecutionMode, OwnedDiarizationPipeline};
 use std::collections::HashMap;
 use tauri::AppHandle;
 
-/// Diarize 16kHz mono samples into speaker turns. `hint` is an optional known
-/// speaker count (not directly used by speakrs 0.4.2 high-level API but kept
-/// for signature stability).
+/// Diarize 16kHz mono samples into speaker turns.
+/// `_hint` (desired speaker count) is accepted for signature stability but is
+/// IGNORED: speakrs 0.4.2 auto-detects the number of speakers and exposes no
+/// count knob in PipelineConfig.
 pub fn diarize(
     app_handle: &AppHandle,
     samples: &[f32],

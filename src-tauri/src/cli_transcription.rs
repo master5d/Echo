@@ -21,8 +21,15 @@ pub fn run_cli_transcription(
     println!("[*] Starting CLI transcription...");
     println!("[*] Input: {}", input.display());
 
-    if speaker_hint.is_some() && !diarize {
-        eprintln!("[!] --speakers was given without --diarize; ignoring the speaker count.");
+    if speaker_hint.is_some() {
+        if !diarize {
+            eprintln!("[!] --speakers was given without --diarize; ignoring the speaker count.");
+        } else {
+            eprintln!(
+                "[!] --speakers is not yet supported by the diarization engine (speaker count \
+is auto-detected); the value is ignored."
+            );
+        }
     }
 
     // Resolve output format: explicit --format wins, else infer from -o extension, else plain.
