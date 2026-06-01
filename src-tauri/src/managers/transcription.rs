@@ -4,6 +4,7 @@ use crate::managers::model::{EngineType, ModelManager};
 use crate::settings::{
     get_settings, ModelUnloadTimeout, OrtAcceleratorSetting, WhisperAcceleratorSetting,
 };
+use crate::transcript_format::{SpeakerTurn, TimedSegment};
 use anyhow::Result;
 use log::{debug, error, info, warn};
 use serde::Serialize;
@@ -14,6 +15,13 @@ use std::sync::{Arc, Condvar, Mutex, MutexGuard, OnceLock};
 use std::thread;
 use std::time::{Duration, SystemTime};
 use tauri::{AppHandle, Emitter, Manager};
+
+#[derive(Debug, Clone, Serialize)]
+pub struct TranscriptionDetails {
+    pub text: String,
+    pub segments: Vec<TimedSegment>,
+    pub speakers: Option<Vec<SpeakerTurn>>,
+}
 use transcribe_rs::{
     onnx::{
         canary::CanaryModel,
@@ -437,7 +445,7 @@ impl TranscriptionManager {
         current_model.clone()
     }
 
-    pub fn transcribe(&self, audio: Vec<f32>) -> Result<String> {
+    pub fn transcribe_detailed(&self, audio: Vec<f32>) -> Result<TranscriptionDetails> {
         #[cfg(debug_assertions)]
         if std::env::var("HANDY_FORCE_TRANSCRIPTION_FAILURE").is_ok() {
             return Err(anyhow::anyhow!(
@@ -455,7 +463,11 @@ impl TranscriptionManager {
         if audio.is_empty() {
             debug!("Empty audio vector");
             self.maybe_unload_immediately("empty audio");
-            return Ok(String::new());
+            return Ok(TranscriptionDetails {
+                text: String::new(),
+                segments: Vec::new(),
+                speakers: None,
+            });
         }
 
         // Check if model is loaded, if not try to load it
@@ -735,6 +747,20 @@ impl TranscriptionManager {
             }
         };
 
+        let engine_segments: Vec<TimedSegment> = result
+            .segments
+            .as_ref()
+            .map(|segs| {
+                segs.iter()
+                    .map(|s| TimedSegment {
+                        start: s.start,
+                        end: s.end,
+                        text: s.text.clone(),
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+
         // Apply word correction if custom words are configured.
         // Skip for Whisper models since custom words are already passed as initial_prompt.
         let is_whisper = self
@@ -779,7 +805,17 @@ impl TranscriptionManager {
 
         self.maybe_unload_immediately("transcription");
 
-        Ok(final_result)
+        Ok(TranscriptionDetails {
+            text: final_result,
+            segments: engine_segments,
+            speakers: None,
+        })
+    }
+
+    /// Backward-compatible API used by the live dictation hot path. Returns only
+    /// the final text; segments/speakers are computed but discarded here.
+    pub fn transcribe(&self, audio: Vec<f32>) -> Result<String> {
+        Ok(self.transcribe_detailed(audio)?.text)
     }
 }
 
