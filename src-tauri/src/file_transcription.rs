@@ -145,7 +145,7 @@ fn run_engine(
         // Phase 2 attaches real turns here. Until diarization::diarize is
         // implemented it returns an error or empty; degrade gracefully — keep
         // timestamps, drop speakers, warn on stderr.
-        match crate::diarization::diarize(&samples, TARGET_SAMPLE_RATE, speaker_hint) {
+        match crate::diarization::diarize(app_handle, &samples, TARGET_SAMPLE_RATE, speaker_hint) {
             Ok(turns) if !turns.is_empty() => details.speakers = Some(turns),
             Ok(_) => {
                 eprintln!("[!] Diarization produced no speaker turns; output has timestamps only.")

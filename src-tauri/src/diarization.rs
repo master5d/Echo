@@ -1,16 +1,81 @@
-//! Speaker diarization façade. Phase 1 ships this stub (returns an error so the
-//! file pipeline degrades gracefully to timestamps-only). Phase 2 replaces the
-//! body with a burn-based pyannote pipeline. The signature is stable.
+//! Speaker diarization façade. Phase 2 replaces the stub with a real
+//! implementation using the `speakrs` crate (pyannote-style pipeline).
 
-use crate::transcript_format::SpeakerTurn;
-use anyhow::Result;
+use crate::transcript_format::{SpeakerId, SpeakerTurn};
+use anyhow::{Context, Result};
+use speakrs::{ExecutionMode, OwnedDiarizationPipeline};
+use std::collections::HashMap;
+use tauri::AppHandle;
 
 /// Diarize 16kHz mono samples into speaker turns. `hint` is an optional known
-/// speaker count. Phase 1 stub: not yet implemented.
+/// speaker count (not directly used by speakrs 0.4.2 high-level API but kept
+/// for signature stability).
 pub fn diarize(
-    _samples: &[f32],
+    app_handle: &AppHandle,
+    samples: &[f32],
     _sample_rate: u32,
     _hint: Option<usize>,
 ) -> Result<Vec<SpeakerTurn>> {
-    anyhow::bail!("speaker diarization is not yet available in this build")
+    let models_dir = crate::portable::app_data_dir(app_handle)?
+        .join("models")
+        .join("diarization");
+
+    if !models_dir.exists() {
+        let seg_path = models_dir.join("segmentation-3.0.onnx");
+        let emb_path = models_dir.join("wespeaker-voxceleb-resnet34.onnx");
+        anyhow::bail!(
+            "Diarization models missing:\n  {}\n  {}\nDownload the pyannote segmentation and speaker-embedding models into the models directory and retry.",
+            seg_path.display(),
+            emb_path.display(),
+        );
+    }
+
+    // Load pipeline (CPU mode for portability/stability)
+    let mut pipeline = OwnedDiarizationPipeline::from_dir(&models_dir, ExecutionMode::Cpu)
+        .context("Failed to load diarization pipeline")?;
+
+    // Run diarization
+    let result = pipeline.run(samples).context("Diarization run failed")?;
+
+    // Map speakrs segments to SpeakerTurn, ensuring 0-based contiguous IDs
+    let mut speaker_map: HashMap<String, u32> = HashMap::new();
+    let mut next_id = 0;
+
+    let turns = result
+        .segments
+        .into_iter()
+        .map(|s| {
+            let id = *speaker_map.entry(s.speaker.clone()).or_insert_with(|| {
+                let current = next_id;
+                next_id += 1;
+                current
+            });
+            SpeakerTurn {
+                start: s.start as f32,
+                end: s.end as f32,
+                speaker: SpeakerId(id),
+            }
+        })
+        .collect();
+
+    Ok(turns)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[ignore = "requires diarization model files and a real audio sample"]
+    fn diarize_two_speaker_sample_returns_turns() {
+        // Place a known 2-speaker 16kHz mono wav at tests/fixtures/two_speakers.wav
+        // and the models in the models dir, then run with:
+        //   cargo test --manifest-path src-tauri/Cargo.toml diarize_two_speaker -- --ignored
+        // Note: this test needs a dummy AppHandle or to be run in an env where
+        // app_data_dir works. Since it's ignored and for manual use, we assume
+        // the environment is set up.
+
+        // We can't easily create a real AppHandle in a pure unit test without
+        // tauri-test or similar. This test is a template for integration testing.
+    }
 }
