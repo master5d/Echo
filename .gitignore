@@ -64,3 +64,7 @@ docs/superpowers/
 
 # Visual-companion brainstorm mockups
 .superpowers/
+
+# Local coding-agent scaffolding (Gemini CLI config + plan/notes copies)
+.gemini/
+agent-work/
