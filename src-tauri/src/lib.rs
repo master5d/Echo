@@ -5,6 +5,7 @@ pub mod audio_toolkit;
 mod capture;
 pub mod cli;
 mod cli_transcription;
+mod file_transcription;
 mod coach;
 mod coach_progress;
 mod commands;
