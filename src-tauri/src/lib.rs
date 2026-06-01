@@ -5,10 +5,11 @@ pub mod audio_toolkit;
 mod capture;
 pub mod cli;
 mod cli_transcription;
-mod file_transcription;
 mod coach;
 mod coach_progress;
 mod commands;
+mod diarization;
+mod file_transcription;
 mod helpers;
 mod heuristics;
 #[cfg(test)]
@@ -553,6 +554,9 @@ pub fn run(cli_args: CliArgs) {
                 let output_path = cli_args.output.clone();
                 let language = cli_args.language.clone();
                 let model = cli_args.model.clone();
+                let format = cli_args.format.clone();
+                let diarize = cli_args.diarize;
+                let speakers = cli_args.speakers;
 
                 // Initialize core logic before starting transcription
                 initialize_core_logic(&app_handle);
@@ -564,6 +568,9 @@ pub fn run(cli_args: CliArgs) {
                         output_path.as_deref(),
                         language.as_deref(),
                         model.as_deref(),
+                        format.as_deref(),
+                        diarize,
+                        speakers,
                     ) {
                         eprintln!("[!] CLI Transcription failed: {}", e);
                         std::process::exit(1);
