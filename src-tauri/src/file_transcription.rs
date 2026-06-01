@@ -142,9 +142,13 @@ fn run_engine(
         .context("Transcription failed")?;
 
     if diarize {
-        // Phase 2 attaches real turns here. Until diarization::diarize is
-        // implemented it returns an error or empty; degrade gracefully — keep
-        // timestamps, drop speakers, warn on stderr.
+        // Phase 2 attaches real turns here.
+        println!("[*] Ensuring diarization models...");
+        let model_mgr = app_handle.state::<Arc<ModelManager>>();
+        model_mgr
+            .ensure_diarization_models()
+            .context("Diarization model setup failed")?;
+
         match crate::diarization::diarize(app_handle, &samples, TARGET_SAMPLE_RATE, speaker_hint) {
             Ok(turns) if !turns.is_empty() => details.speakers = Some(turns),
             Ok(_) => {

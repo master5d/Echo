@@ -20,19 +20,15 @@ pub fn diarize(
         .join("models")
         .join("diarization");
 
-    if !models_dir.exists() {
-        let seg_path = models_dir.join("segmentation-3.0.onnx");
-        let emb_path = models_dir.join("wespeaker-voxceleb-resnet34.onnx");
-        anyhow::bail!(
-            "Diarization models missing:\n  {}\n  {}\nDownload the pyannote segmentation and speaker-embedding models into the models directory and retry.",
-            seg_path.display(),
-            emb_path.display(),
-        );
-    }
-
     // Load pipeline (CPU mode for portability/stability)
-    let mut pipeline = OwnedDiarizationPipeline::from_dir(&models_dir, ExecutionMode::Cpu)
-        .context("Failed to load diarization pipeline")?;
+    let mut pipeline = if models_dir.exists() {
+        OwnedDiarizationPipeline::from_dir(&models_dir, ExecutionMode::Cpu)
+            .context("Failed to load diarization pipeline from local dir")?
+    } else {
+        // Fallback to pretrained (will use hf-hub cache if ensure_diarization_models was called)
+        OwnedDiarizationPipeline::from_pretrained(ExecutionMode::Cpu)
+            .context("Failed to load diarization pipeline from HuggingFace cache")?
+    };
 
     // Run diarization
     let result = pipeline.run(samples).context("Diarization run failed")?;

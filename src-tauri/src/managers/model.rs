@@ -1439,6 +1439,28 @@ impl ModelManager {
         }
     }
 
+    /// Ensures the diarization models are present (either in the local models/diarization
+    /// directory or in the hf-hub cache). Downloads from HuggingFace if missing.
+    pub fn ensure_diarization_models(&self) -> Result<()> {
+        let diarization_dir = self.models_dir.join("diarization");
+        if diarization_dir.exists() {
+            return Ok(());
+        }
+
+        info!(
+            "Diarization models missing from {:?}, ensuring via speakrs...",
+            diarization_dir
+        );
+        let _ = self.app_handle.emit("model-setup-started", "diarization");
+
+        use speakrs::{ExecutionMode, OwnedDiarizationPipeline};
+        let _ = OwnedDiarizationPipeline::from_pretrained(ExecutionMode::Cpu)
+            .map_err(|e| anyhow::anyhow!("Failed to download/load diarization models: {}", e))?;
+
+        let _ = self.app_handle.emit("model-setup-completed", "diarization");
+        Ok(())
+    }
+
     pub fn cancel_download(&self, model_id: &str) -> Result<()> {
         debug!("ModelManager: cancel_download called for: {}", model_id);
 
