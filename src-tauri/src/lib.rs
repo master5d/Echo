@@ -18,6 +18,7 @@ mod platform;
 pub mod portable;
 mod settings;
 mod shortcut;
+mod transcript_format;
 mod transcription_coordinator;
 mod utils;
 mod voice_commands;
