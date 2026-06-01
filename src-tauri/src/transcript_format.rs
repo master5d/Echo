@@ -110,6 +110,74 @@ pub fn assign_speakers(segments: &[TimedSegment], turns: &[SpeakerTurn]) -> Vec<
         .collect()
 }
 
+/// Split each segment into sub-segments at speaker-turn boundaries. Words are
+/// distributed across the segment's duration uniformly (assuming even speaking
+/// rate), each word assigned to the turn covering its midpoint; consecutive
+/// words with the same speaker are regrouped into one sub-segment. Segments that
+/// overlap no turn are emitted unchanged with `None`. Pure and deterministic.
+pub fn split_segments_by_speakers(
+    segments: &[TimedSegment],
+    turns: &[SpeakerTurn],
+) -> Vec<(TimedSegment, Option<SpeakerId>)> {
+    let mut out: Vec<(TimedSegment, Option<SpeakerId>)> = Vec::new();
+
+    for seg in segments {
+        let words: Vec<&str> = seg.text.split_whitespace().collect();
+        let dur = (seg.end - seg.start).max(0.0);
+
+        // Fast path: no words or zero duration -> single chunk by max overlap.
+        if words.is_empty() || dur == 0.0 {
+            let sp = speaker_at(seg.start, seg.end, turns);
+            out.push((seg.clone(), sp));
+            continue;
+        }
+
+        // Assign each word to a speaker by its midpoint time.
+        let n = words.len();
+        let mut word_speakers: Vec<Option<SpeakerId>> = Vec::with_capacity(n);
+        for (i, _w) in words.iter().enumerate() {
+            let w_start = seg.start + dur * (i as f32) / (n as f32);
+            let w_end = seg.start + dur * ((i + 1) as f32) / (n as f32);
+            word_speakers.push(speaker_at(w_start, w_end, turns));
+        }
+
+        // Group consecutive words with the same speaker into sub-segments.
+        let mut i = 0;
+        while i < n {
+            let sp = word_speakers[i];
+            let mut j = i + 1;
+            while j < n && word_speakers[j] == sp {
+                j += 1;
+            }
+            let sub_start = seg.start + dur * (i as f32) / (n as f32);
+            let sub_end = seg.start + dur * (j as f32) / (n as f32);
+            out.push((
+                TimedSegment {
+                    start: sub_start,
+                    end: sub_end,
+                    text: words[i..j].join(" "),
+                },
+                sp,
+            ));
+            i = j;
+        }
+    }
+
+    out
+}
+
+/// Speaker whose turn has the greatest overlap with [start, end]; None if none overlap.
+fn speaker_at(start: f32, end: f32, turns: &[SpeakerTurn]) -> Option<SpeakerId> {
+    let mut best: Option<(f32, SpeakerId)> = None;
+    for turn in turns {
+        let overlap = (end.min(turn.end) - start.max(turn.start)).max(0.0);
+        if overlap > 0.0 && best.map(|(o, _)| overlap > o).unwrap_or(true) {
+            best = Some((overlap, turn.speaker));
+        }
+    }
+    best.map(|(_, sp)| sp)
+}
+
 /// JSON shape for `OutputFormat::Json`.
 #[derive(Serialize)]
 struct JsonSegment {
@@ -136,39 +204,39 @@ pub fn render(
     speakers: Option<&[SpeakerTurn]>,
     format: OutputFormat,
 ) -> String {
-    let labels: Vec<Option<SpeakerId>> = match speakers {
-        Some(turns) => assign_speakers(segments, turns),
-        None => vec![None; segments.len()],
+    if format == OutputFormat::Plain {
+        return plain_text.to_string();
+    }
+
+    let resolved: Vec<(TimedSegment, Option<SpeakerId>)> = match speakers {
+        Some(turns) => split_segments_by_speakers(segments, turns),
+        None => segments.iter().map(|s| (s.clone(), None)).collect(),
     };
-    let prefix = |i: usize| -> String {
-        labels
-            .get(i)
-            .copied()
-            .flatten()
-            .map(|sp| format!("{}: ", speaker_label(sp)))
+
+    let prefix = |sp: Option<SpeakerId>| -> String {
+        sp.map(|s| format!("{}: ", speaker_label(s)))
             .unwrap_or_default()
     };
 
     match format {
-        OutputFormat::Plain => plain_text.to_string(),
+        OutputFormat::Plain => unreachable!(),
 
-        OutputFormat::Inline => segments
+        OutputFormat::Inline => resolved
             .iter()
-            .enumerate()
-            .map(|(i, s)| format!("[{}] {}{}", fmt_inline(s.start), prefix(i), s.text.trim()))
+            .map(|(s, sp)| format!("[{}] {}{}", fmt_inline(s.start), prefix(*sp), s.text.trim()))
             .collect::<Vec<_>>()
             .join("\n"),
 
-        OutputFormat::Srt => segments
+        OutputFormat::Srt => resolved
             .iter()
             .enumerate()
-            .map(|(i, s)| {
+            .map(|(i, (s, sp))| {
                 format!(
                     "{}\n{} --> {}\n{}{}\n",
                     i + 1,
                     fmt_srt(s.start),
                     fmt_srt(s.end),
-                    prefix(i),
+                    prefix(*sp),
                     s.text.trim()
                 )
             })
@@ -177,9 +245,9 @@ pub fn render(
 
         OutputFormat::Vtt => {
             let mut out = String::from("WEBVTT\n\n");
-            for (i, s) in segments.iter().enumerate() {
-                let body = match labels.get(i).copied().flatten() {
-                    Some(sp) => format!("<v {}>{}", speaker_label(sp), s.text.trim()),
+            for (s, sp) in &resolved {
+                let body = match sp {
+                    Some(id) => format!("<v {}>{}", speaker_label(*id), s.text.trim()),
                     None => s.text.trim().to_string(),
                 };
                 out.push_str(&format!(
@@ -194,14 +262,13 @@ pub fn render(
 
         OutputFormat::Json => {
             let docs = JsonDoc {
-                segments: segments
+                segments: resolved
                     .iter()
-                    .enumerate()
-                    .map(|(i, s)| JsonSegment {
+                    .map(|(s, sp)| JsonSegment {
                         start: s.start,
                         end: s.end,
                         text: s.text.trim().to_string(),
-                        speaker: labels.get(i).copied().flatten().map(speaker_label),
+                        speaker: sp.map(speaker_label),
                     })
                     .collect(),
             };
@@ -220,6 +287,53 @@ mod tests {
             end,
             text: text.to_string(),
         }
+    }
+
+    #[test]
+    fn split_separates_two_speakers_within_one_segment() {
+        // One 0..10s segment, 4 words; turns: spk0 0..5, spk1 5..10.
+        let segs = vec![seg(0.0, 10.0, "aaa bbb ccc ddd")];
+        let turns = vec![
+            SpeakerTurn {
+                start: 0.0,
+                end: 5.0,
+                speaker: SpeakerId(0),
+            },
+            SpeakerTurn {
+                start: 5.0,
+                end: 10.0,
+                speaker: SpeakerId(1),
+            },
+        ];
+        let out = split_segments_by_speakers(&segs, &turns);
+        assert_eq!(out.len(), 2);
+        assert_eq!(out[0].1, Some(SpeakerId(0)));
+        assert_eq!(out[0].0.text, "aaa bbb");
+        assert_eq!(out[1].1, Some(SpeakerId(1)));
+        assert_eq!(out[1].0.text, "ccc ddd");
+    }
+
+    #[test]
+    fn split_single_speaker_segment_stays_whole() {
+        let segs = vec![seg(0.0, 4.0, "one two three")];
+        let turns = vec![SpeakerTurn {
+            start: 0.0,
+            end: 4.0,
+            speaker: SpeakerId(0),
+        }];
+        let out = split_segments_by_speakers(&segs, &turns);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].1, Some(SpeakerId(0)));
+        assert_eq!(out[0].0.text, "one two three");
+    }
+
+    #[test]
+    fn split_no_turns_yields_none() {
+        let segs = vec![seg(0.0, 4.0, "hello world")];
+        let out = split_segments_by_speakers(&segs, &[]);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].1, None);
+        assert_eq!(out[0].0.text, "hello world");
     }
 
     #[test]
