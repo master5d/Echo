@@ -100,6 +100,9 @@ fn run_engine(
 ) -> Result<TranscriptionDetails> {
     use crate::audio_toolkit::audio::read_wav_samples;
     use crate::managers::transcription::TranscribeOpts;
+    use crate::progress::{emit_progress, ProgressPhase};
+
+    emit_progress(app_handle, ProgressPhase::Decoding, None);
 
     let ts = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -133,6 +136,10 @@ fn run_engine(
     let _ = std::fs::remove_file(&temp_wav);
 
     let manager = app_handle.state::<Arc<TranscriptionManager>>();
+
+    manager.reset_cancel();
+    emit_progress(app_handle, ProgressPhase::LoadingModel, None);
+
     if !manager.is_model_loaded() {
         println!("[*] Loading model: {}...", model_id);
         manager
@@ -141,17 +148,25 @@ fn run_engine(
     }
 
     println!("[*] Transcribing (this may take a while for large files)...");
+    emit_progress(app_handle, ProgressPhase::Transcribing, None);
     let mut details = manager
         .transcribe_detailed_with(
             samples.clone(),
             TranscribeOpts {
                 word_timestamps: want_words,
+                emit_progress: true,
+                ..Default::default()
             },
         )
         .context("Transcription failed")?;
 
+    if manager.is_cancelled() {
+        anyhow::bail!("cancelled");
+    }
+
     if diarize {
         // Phase 2 attaches real turns here.
+        emit_progress(app_handle, ProgressPhase::Diarizing, None);
         println!("[*] Ensuring diarization models...");
         let model_mgr = app_handle.state::<Arc<ModelManager>>();
         model_mgr
@@ -165,7 +180,14 @@ fn run_engine(
             }
             Err(e) => eprintln!("[!] Diarization failed ({e}); output has timestamps only."),
         }
+
+        if manager.is_cancelled() {
+            anyhow::bail!("cancelled");
+        }
     }
+
+    emit_progress(app_handle, ProgressPhase::Formatting, None);
+    emit_progress(app_handle, ProgressPhase::Done, None);
 
     Ok(details)
 }
