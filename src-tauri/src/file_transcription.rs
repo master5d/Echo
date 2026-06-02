@@ -25,6 +25,7 @@ pub fn transcribe_file_detailed(
     model: Option<&str>,
     diarize: bool,
     speaker_hint: Option<usize>,
+    want_words: bool,
 ) -> Result<TranscriptionDetails> {
     let input_str = input.to_str().context("Input path is not valid UTF-8")?;
 
@@ -79,6 +80,7 @@ use a Whisper model — e.g. `--model turbo`.",
         &effective_model,
         diarize,
         speaker_hint,
+        want_words,
     );
 
     if needs_override {
@@ -94,8 +96,10 @@ fn run_engine(
     model_id: &str,
     diarize: bool,
     speaker_hint: Option<usize>,
+    want_words: bool,
 ) -> Result<TranscriptionDetails> {
     use crate::audio_toolkit::audio::read_wav_samples;
+    use crate::managers::transcription::TranscribeOpts;
 
     let ts = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -138,7 +142,12 @@ fn run_engine(
 
     println!("[*] Transcribing (this may take a while for large files)...");
     let mut details = manager
-        .transcribe_detailed(samples.clone())
+        .transcribe_detailed_with(
+            samples.clone(),
+            TranscribeOpts {
+                word_timestamps: want_words,
+            },
+        )
         .context("Transcription failed")?;
 
     if diarize {

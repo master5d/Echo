@@ -46,7 +46,7 @@ pub struct CliArgs {
     #[arg(long, value_name = "MODEL")]
     pub model: Option<String>,
 
-    /// Output format for offline transcription: plain (default), inline, srt, vtt, json.
+    /// Output format for offline transcription: plain (default), inline, srt, vtt, json, karaoke.
     #[arg(long, value_name = "FORMAT")]
     pub format: Option<String>,
 
