@@ -48,6 +48,7 @@ is auto-detected); the value is ignored."
     let rendered = render(
         &details.text,
         &details.segments,
+        details.words.as_deref(),
         details.speakers.as_deref(),
         fmt,
     );
