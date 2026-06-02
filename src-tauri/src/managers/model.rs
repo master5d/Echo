@@ -91,6 +91,7 @@ pub struct ModelManager {
     available_models: Mutex<HashMap<String, ModelInfo>>,
     cancel_flags: Arc<Mutex<HashMap<String, Arc<AtomicBool>>>>,
     extracting_models: Arc<Mutex<HashSet<String>>>,
+    diarization_ensured: Arc<AtomicBool>,
 }
 
 impl ModelManager {
@@ -621,6 +622,7 @@ impl ModelManager {
             available_models: Mutex::new(available_models),
             cancel_flags: Arc::new(Mutex::new(HashMap::new())),
             extracting_models: Arc::new(Mutex::new(HashSet::new())),
+            diarization_ensured: Arc::new(AtomicBool::new(false)),
         };
 
         // Migrate any bundled models to user directory
@@ -1439,23 +1441,37 @@ impl ModelManager {
         }
     }
 
+    /// Returns true exactly once per flag lifetime (first caller runs the ensure).
+    fn should_run_diarization_ensure(flag: &std::sync::atomic::AtomicBool) -> bool {
+        flag.compare_exchange(
+            false,
+            true,
+            std::sync::atomic::Ordering::SeqCst,
+            std::sync::atomic::Ordering::SeqCst,
+        )
+        .is_ok()
+    }
+
     /// Ensures the diarization models are present (either in the local models/diarization
     /// directory or in the hf-hub cache). Downloads from HuggingFace if missing.
     pub fn ensure_diarization_models(&self) -> Result<()> {
-        let diarization_dir = self.models_dir.join("diarization");
-        if diarization_dir.exists() {
+        if !Self::should_run_diarization_ensure(&self.diarization_ensured) {
             return Ok(());
         }
 
-        info!(
-            "Diarization models missing from {:?}, ensuring via speakrs...",
-            diarization_dir
-        );
+        info!("Ensuring diarization models via speakrs (once per session)...");
         let _ = self.app_handle.emit("model-setup-started", "diarization");
 
         use speakrs::{ExecutionMode, OwnedDiarizationPipeline};
-        let _ = OwnedDiarizationPipeline::from_pretrained(ExecutionMode::Cpu)
-            .map_err(|e| anyhow::anyhow!("Failed to download/load diarization models: {}", e))?;
+        if let Err(e) = OwnedDiarizationPipeline::from_pretrained(ExecutionMode::Cpu) {
+            // allow a retry next time if the one-shot failed
+            self.diarization_ensured
+                .store(false, std::sync::atomic::Ordering::SeqCst);
+            return Err(anyhow::anyhow!(
+                "Failed to download/load diarization models: {}",
+                e
+            ));
+        }
 
         let _ = self.app_handle.emit("model-setup-completed", "diarization");
         Ok(())
@@ -1667,5 +1683,14 @@ mod tests {
             ModelManager::verify_sha256(&missing_path, Some("anyexpectedhash"), "missing_model");
 
         assert!(result.is_err(), "missing file must return an error");
+    }
+
+    #[test]
+    fn diarization_ensure_is_once() {
+        let flag = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        // first call: not yet ensured -> should run (compare_exchange succeeds)
+        assert!(ModelManager::should_run_diarization_ensure(&flag));
+        // second call: already ensured -> should skip
+        assert!(!ModelManager::should_run_diarization_ensure(&flag));
     }
 }
