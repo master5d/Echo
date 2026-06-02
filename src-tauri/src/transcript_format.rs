@@ -263,37 +263,47 @@ pub fn render_word_json(words: &[TimedSegment], turns: Option<&[SpeakerTurn]>) -
         .unwrap_or_else(|_| "{\"words\":[]}".to_string())
 }
 
-/// Per-word WebVTT with inline timing tags (karaoke highlight). One cue per
-/// consecutive same-speaker word run; words tagged `<mm:ss.mmm>` before each word.
+/// Per-word WebVTT with inline timing tags (karaoke highlight). One cue per line;
+/// within a cue each word is prefixed with its `<mm:ss.mmm>` start tag. Lines are
+/// grouped by consecutive same-speaker run when diarization turns are given, else by
+/// sentence-final punctuation (`. ! ? …`) so cues read as natural sentences instead of
+/// one word per cue.
 pub fn render_karaoke(words: &[TimedSegment], turns: Option<&[SpeakerTurn]>) -> String {
-    let resolved = match turns {
-        Some(t) => assign_words_to_speakers(words, t),
-        None => words.iter().map(|w| (w.clone(), None)).collect(),
-    };
     let mut out = String::from("WEBVTT\n\n");
-    // We need the underlying words per group; recompute groups with word spans.
-    // Simpler: iterate words, opening a cue at each speaker change.
-    for (group, sp) in &resolved {
-        // collect the words belonging to this group's time span
-        let members: Vec<&TimedSegment> = words
-            .iter()
-            .filter(|w| w.start >= group.start - 1e-3 && w.end <= group.end + 1e-3)
-            .collect();
+    let mut i = 0;
+    while i < words.len() {
+        // Speaker of the line (for the optional <v> voice tag), from the first word.
+        let sp = turns.and_then(|t| speaker_at(words[i].start, words[i].end, t));
+        // Extend the line until the grouping boundary.
+        let mut j = i + 1;
+        while j < words.len() {
+            let boundary = match turns {
+                // Diarized: break when the speaker changes.
+                Some(t) => speaker_at(words[j].start, words[j].end, t) != sp,
+                // Undiarized: break after a word ending a sentence.
+                None => words[j - 1].text.trim_end().ends_with(['.', '!', '?', '…']),
+            };
+            if boundary {
+                break;
+            }
+            j += 1;
+        }
         let speaker_tag = sp
             .map(|s| format!("<v {}>", speaker_label(s)))
             .unwrap_or_default();
-        let body: String = members
+        let body: String = words[i..j]
             .iter()
             .map(|w| format!("<{}>{}", fmt_vtt_short(w.start), w.text.trim()))
             .collect::<Vec<_>>()
             .join(" ");
         out.push_str(&format!(
             "{} --> {}\n{}{}\n\n",
-            fmt_vtt(group.start),
-            fmt_vtt(group.end),
+            fmt_vtt(words[i].start),
+            fmt_vtt(words[j - 1].end),
             speaker_tag,
             body
         ));
+        i = j;
     }
     out.trim_end().to_string()
 }
@@ -667,6 +677,21 @@ mod tests {
         assert!(out.contains("<v Speaker 1>")); // 1-based human label
         assert!(out.contains("<00:15.259>hello")); // per-word timing tag
         assert!(out.contains("<00:15.600>there"));
+    }
+
+    #[test]
+    fn karaoke_no_diarize_groups_lines_by_sentence_punctuation() {
+        let words = vec![
+            seg(0.0, 0.5, "Hello"),
+            seg(0.5, 1.0, "world."),
+            seg(1.0, 1.5, "Bye"),
+        ];
+        let out = render_karaoke(&words, None);
+        // Two cues: "Hello world." then "Bye" — not three one-word cues.
+        assert_eq!(out.matches("-->").count(), 2);
+        assert!(out.contains("<00:00.000>Hello <00:00.500>world."));
+        assert!(out.contains("<00:01.000>Bye"));
+        assert!(!out.contains("<v ")); // no speaker tag without diarization
     }
 
     #[test]
