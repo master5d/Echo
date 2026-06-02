@@ -18,6 +18,7 @@ mod llm_client;
 mod managers;
 mod platform;
 pub mod portable;
+mod progress;
 mod settings;
 mod shortcut;
 mod transcript_format;
