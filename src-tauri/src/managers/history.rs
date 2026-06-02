@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use chrono::{DateTime, Local, Utc};
 use log::{debug, error, info, warn};
 use rusqlite::{params, Connection, OptionalExtension};
-use rusqlite_migration::{Migrations, MigrationDefinitionError, M};
+use rusqlite_migration::{MigrationDefinitionError, Migrations, M};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::fs;
