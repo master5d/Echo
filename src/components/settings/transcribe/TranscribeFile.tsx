@@ -19,6 +19,8 @@ export const TranscribeFile: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<{ phase: string; percent: number | null } | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [outputPath, setOutputPath] = useState<string | null>(null);
+  const [savedTo, setSavedTo] = useState<string | null>(null);
 
   const pickFile = async () => {
     const selected = await open({
@@ -37,11 +39,20 @@ export const TranscribeFile: FC = () => {
     }
   };
 
+  const pickOutput = async () => {
+    const { save: saveDialog } = await import("@tauri-apps/plugin-dialog");
+    const ext = timestamps ? format : "txt";
+    const base = path ? path.replace(/\.[^/.]+$/, "").split(/[\\/]/).pop() : "transcript";
+    const target = await saveDialog({ defaultPath: `${base}.${ext}` });
+    if (typeof target === "string") setOutputPath(target);
+  };
+
   const run = async () => {
     if (!path) return;
     setBusy(true);
     setError(null);
     setResult("");
+    setSavedTo(null);
     setCancelling(false);
     setProgress({ phase: "decoding", percent: null });
     const effectiveFormat: Format = timestamps ? format : "plain";
@@ -64,8 +75,14 @@ export const TranscribeFile: FC = () => {
         Number.isFinite(hint) ? hint : null,
         effectiveFormat,
       );
-      if (res.status === "ok") setResult(res.data);
-      else if (!cancelling) setError(res.error);
+      if (res.status === "ok") {
+        setResult(res.data);
+        if (outputPath) {
+          const { writeTextFile } = await import("@tauri-apps/plugin-fs");
+          await writeTextFile(outputPath, res.data);
+          setSavedTo(outputPath);
+        }
+      } else if (!cancelling) setError(res.error);
     } finally {
       unlisten();
       unlistenDl();
@@ -103,6 +120,17 @@ export const TranscribeFile: FC = () => {
         <span className="text-xs text-text/60 truncate">
           {path ?? t("settings.transcribe.noFile")}
         </span>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={pickOutput}
+          className="px-3 py-2 rounded border border-slate-700 text-sm"
+        >
+          {t("settings.transcribe.saveTo")}
+        </button>
+        <span className="text-xs text-text/60 truncate">{outputPath ?? ""}</span>
       </div>
 
       <label className="flex items-center gap-2 text-sm">
@@ -198,6 +226,11 @@ export const TranscribeFile: FC = () => {
       </div>
 
       {error && <div className="text-sm text-red-400">{error}</div>}
+      {savedTo && (
+        <div className="text-sm text-green-400">
+          {t("settings.transcribe.savedTo", { path: savedTo })}
+        </div>
+      )}
       {result && (
         <textarea
           readOnly
