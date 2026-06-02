@@ -20,7 +20,15 @@ use tauri::{AppHandle, Emitter, Manager};
 pub struct TranscriptionDetails {
     pub text: String,
     pub segments: Vec<TimedSegment>,
+    /// Word-level timings when requested and supported (Whisper). None otherwise.
+    pub words: Option<Vec<TimedSegment>>,
     pub speakers: Option<Vec<SpeakerTurn>>,
+}
+
+#[derive(Clone, Copy, Default)]
+pub struct TranscribeOpts {
+    /// Request word-level timestamps from the engine (Whisper only).
+    pub word_timestamps: bool,
 }
 use transcribe_rs::{
     onnx::{
@@ -446,6 +454,14 @@ impl TranscriptionManager {
     }
 
     pub fn transcribe_detailed(&self, audio: Vec<f32>) -> Result<TranscriptionDetails> {
+        self.transcribe_detailed_with(audio, TranscribeOpts::default())
+    }
+
+    pub fn transcribe_detailed_with(
+        &self,
+        audio: Vec<f32>,
+        opts: TranscribeOpts,
+    ) -> Result<TranscriptionDetails> {
         #[cfg(debug_assertions)]
         if std::env::var("HANDY_FORCE_TRANSCRIPTION_FAILURE").is_ok() {
             return Err(anyhow::anyhow!(
@@ -466,6 +482,7 @@ impl TranscriptionManager {
             return Ok(TranscriptionDetails {
                 text: String::new(),
                 segments: Vec::new(),
+                words: None,
                 speakers: None,
             });
         }
@@ -598,6 +615,11 @@ impl TranscriptionManager {
                                 language: whisper_language,
                                 translate: settings.translate_to_english,
                                 initial_prompt,
+                                timestamp_granularity: if opts.word_timestamps {
+                                    Some(TimestampGranularity::Word)
+                                } else {
+                                    None
+                                },
                                 // Slightly more sensitive than the 0.2 default
                                 // (WhisperDesk-tuned) for quiet/low-energy speech.
                                 no_speech_thold: 0.15,
@@ -769,6 +791,12 @@ impl TranscriptionManager {
             .map(|info| matches!(info.engine_type, EngineType::Whisper))
             .unwrap_or(false);
 
+        let words = if opts.word_timestamps && is_whisper {
+            Some(engine_segments.clone())
+        } else {
+            None
+        };
+
         let glossary = settings.effective_custom_words();
         let corrected_result = if !glossary.is_empty() && !is_whisper {
             apply_custom_words(&result.text, &glossary, settings.word_correction_threshold)
@@ -808,6 +836,7 @@ impl TranscriptionManager {
         Ok(TranscriptionDetails {
             text: final_result,
             segments: engine_segments,
+            words,
             speakers: None,
         })
     }
