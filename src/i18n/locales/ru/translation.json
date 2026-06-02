@@ -648,7 +648,9 @@
         "diarizing": "Identifying speakers…",
         "formatting": "Formatting…",
         "done": "Done"
-      }
+      },
+      "saveTo": "Save to…",
+      "savedTo": "Saved to {{path}}"
     },
     "capture": {
       "captureSuccess": "Saved to capture folder",
