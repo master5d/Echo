@@ -143,7 +143,7 @@ Echo ships several engines. For the bilingual Russian use case:
 | Model                           | Best for                      | Speed               | Notes                                                            |
 | ------------------------------- | ----------------------------- | ------------------- | ---------------------------------------------------------------- |
 | **Parakeet V3** _(recommended)_ | RU + Slavic + EN, auto‑detect | ⚡⚡ fast (GPU/CPU) | Great all‑rounder; weaker on heavy intra‑sentence code‑switching |
-| **Whisper Large v3 Turbo**      | Heavy RU↔EN code‑switching   | ⚡ (GPU)            | Keeps English in Latin; needs GPU to be snappy                   |
+| **Whisper Large v3 Turbo**      | Heavy RU↔EN code‑switching    | ⚡ (GPU)            | Keeps English in Latin; needs GPU to be snappy                   |
 | **GigaAM v3**                   | Pure Russian, max accuracy    | ⚡⚡                | Russian‑only — no code‑switching or other languages              |
 | Whisper Small / Medium / Large  | General multilingual          | varies              | Classic Whisper quality/size trade‑offs                          |
 
