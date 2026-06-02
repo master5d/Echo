@@ -170,6 +170,8 @@ Echo can transcribe an audio/video file headlessly from the command line:
 echo --transcribe-file path/to/audio.mp3                          # transcript to stdout
 echo --transcribe-file talk.mp4 -o talk.txt                       # transcript to a file
 echo --transcribe-file ru-en.wav --model turbo --language auto    # RU/EN code-switch
+echo --transcribe-file talk.mp4 -o talk.srt --format srt          # subtitles with timestamps
+echo --transcribe-file meeting.mp3 --diarize --format inline      # label speakers
 ```
 
 Flags:
@@ -181,13 +183,27 @@ Flags:
   (Parakeet/GigaAM) transliterate embedded English into Cyrillic.
 - `--language <LANG>` — `auto` (default) or a code like `ru`/`en`. `auto` enables the
   bilingual RU/EN initial-prompt steering on Whisper models.
+- `--format <FMT>` — output format: `plain` (default), `inline` (`[mm:ss]` prefixes),
+  `srt`, `vtt`, or `json`. When `--format` is omitted, it is inferred from the `-o`
+  extension (`.srt`/`.vtt`/`.json`), else `plain`.
+- `--diarize` — label each section with the speaker (`Speaker 1`, `Speaker 2`, …).
+  Diarization models download from HuggingFace on first use. If it fails, the transcript
+  is still emitted with timestamps (speakers omitted).
+- `--speakers <N>` — **accepted but currently ignored**: the speakrs 0.4.2 engine
+  auto-detects the speaker count and exposes no count hint.
 
 **Requirement:** [`ffmpeg`](https://ffmpeg.org/) must be on `PATH` (used to decode and
 normalize the input to 16 kHz mono). On Windows: `winget install Gyan.FFmpeg`.
 
 The CLI reuses the same engine and bilingual prompt steering as the GUI, so RU/EN mixing
 quality matches the app, and it runs in its own process — independent of any running GUI
-instance.
+instance. The same options are available from the GUI's **Transcribe file** tab.
+
+> **Diarization backend note:** speaker diarization pulls `speakrs` → `ndarray-linalg`
+> with the **Intel MKL static** backend, which adds ~150 MB to the binary. The `staticlib`
+> crate-type is intentionally disabled for desktop (`src-tauri/Cargo.toml`) because the
+> large MKL static archive crashes rustc's `ar_archive_writer`; only `cdylib` + `rlib`
+> (desktop) are built. Restore `staticlib` behind a mobile cfg if iOS/Android is added.
 
 ### Windows release build (LLVM toolchain)
 

@@ -8,6 +8,8 @@ mod cli_transcription;
 mod coach;
 mod coach_progress;
 mod commands;
+mod diarization;
+mod file_transcription;
 mod helpers;
 mod heuristics;
 #[cfg(test)]
@@ -18,6 +20,7 @@ mod platform;
 pub mod portable;
 mod settings;
 mod shortcut;
+mod transcript_format;
 mod transcription_coordinator;
 mod utils;
 mod voice_commands;
@@ -450,6 +453,7 @@ pub fn run(cli_args: CliArgs) {
             commands::history::retry_history_entry_transcription,
             commands::history::update_history_limit,
             commands::history::update_recording_retention_period,
+            commands::transcribe::transcribe_file_to_string,
             commands::coach::get_coach_dashboard,
             commands::coach::get_coach_baseline,
             helpers::clamshell::is_laptop,
@@ -551,6 +555,9 @@ pub fn run(cli_args: CliArgs) {
                 let output_path = cli_args.output.clone();
                 let language = cli_args.language.clone();
                 let model = cli_args.model.clone();
+                let format = cli_args.format.clone();
+                let diarize = cli_args.diarize;
+                let speakers = cli_args.speakers;
 
                 // Initialize core logic before starting transcription
                 initialize_core_logic(&app_handle);
@@ -562,6 +569,9 @@ pub fn run(cli_args: CliArgs) {
                         output_path.as_deref(),
                         language.as_deref(),
                         model.as_deref(),
+                        format.as_deref(),
+                        diarize,
+                        speakers,
                     ) {
                         eprintln!("[!] CLI Transcription failed: {}", e);
                         std::process::exit(1);

@@ -104,10 +104,17 @@ tool that watches a folder.
 - 🧰 **Developer dictionary.** An opt‑in built‑in glossary steers transcription
   toward the correct spelling of common tooling (GitHub, Vercel, TypeScript,
   Kubernetes, …).
-- 🎬 **Offline transcription (CLI).** Batch a file headlessly:
-  `echo --transcribe-file talk.mp4 -o talk.txt` — transcribes any audio/video
+- 🎬 **Offline file transcription (CLI + GUI).** Transcribe any audio/video file
   (via ffmpeg) reusing the same engine and bilingual RU/EN steering as live
-  dictation. Choose engine/language with `--model` / `--language`. See `BUILD.md`.
+  dictation — either headlessly
+  (`echo --transcribe-file talk.mp4 -o talk.srt --format srt`) or from the GUI's
+  **Transcribe file** tab (pick a file, choose options, copy/save the result).
+  - **Timestamps.** Emit segment timings as `plain` / `inline [mm:ss]` / `SRT` /
+    `WebVTT` / `JSON` via `--format`.
+  - **Speaker diarization.** `--diarize` labels each section `Speaker 1/2/…`
+    (powered by [speakrs](https://github.com/avencera/speakrs); models download
+    on first use). Falls back to timestamps-only if diarization is unavailable.
+  - Choose engine/language with `--model` / `--language`. See `BUILD.md`.
 
 ### Privacy & performance
 
@@ -128,7 +135,7 @@ Echo ships several engines. For the bilingual Russian use case:
 | Model                           | Best for                      | Speed               | Notes                                                            |
 | ------------------------------- | ----------------------------- | ------------------- | ---------------------------------------------------------------- |
 | **Parakeet V3** _(recommended)_ | RU + Slavic + EN, auto‑detect | ⚡⚡ fast (GPU/CPU) | Great all‑rounder; weaker on heavy intra‑sentence code‑switching |
-| **Whisper Large v3 Turbo**      | Heavy RU↔EN code‑switching   | ⚡ (GPU)            | Keeps English in Latin; needs GPU to be snappy                   |
+| **Whisper Large v3 Turbo**      | Heavy RU↔EN code‑switching    | ⚡ (GPU)            | Keeps English in Latin; needs GPU to be snappy                   |
 | **GigaAM v3**                   | Pure Russian, max accuracy    | ⚡⚡                | Russian‑only — no code‑switching or other languages              |
 | Whisper Small / Medium / Large  | General multilingual          | varies              | Classic Whisper quality/size trade‑offs                          |
 

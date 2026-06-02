@@ -8,6 +8,7 @@ import {
   Sparkles,
   Cpu,
   LineChart,
+  FileAudio,
 } from "lucide-react";
 import EchoTextLogo from "./icons/EchoTextLogo";
 import EchoHand from "./icons/EchoHand";
@@ -22,6 +23,7 @@ import {
   PostProcessingSettings,
   ModelsSettings,
 } from "./settings";
+import { TranscribeFile } from "./settings/transcribe/TranscribeFile";
 
 export type SidebarSection = keyof typeof SECTIONS_CONFIG;
 
@@ -63,6 +65,12 @@ export const SECTIONS_CONFIG = {
     labelKey: "sidebar.history",
     icon: History,
     component: HistorySettings,
+    enabled: () => true,
+  },
+  transcribe: {
+    labelKey: "sidebar.transcribe",
+    icon: FileAudio,
+    component: TranscribeFile,
     enabled: () => true,
   },
   coach: {

@@ -45,4 +45,16 @@ pub struct CliArgs {
     /// app's selected model. Use a Whisper model for best RU/EN mixing.
     #[arg(long, value_name = "MODEL")]
     pub model: Option<String>,
+
+    /// Output format for offline transcription: plain (default), inline, srt, vtt, json.
+    #[arg(long, value_name = "FORMAT")]
+    pub format: Option<String>,
+
+    /// Enable speaker diarization (label sections with Speaker 1/2/...).
+    #[arg(long)]
+    pub diarize: bool,
+
+    /// Optional known speaker count hint for diarization (else auto-detected).
+    #[arg(long, value_name = "N")]
+    pub speakers: Option<usize>,
 }
