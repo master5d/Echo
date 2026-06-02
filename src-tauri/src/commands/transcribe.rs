@@ -58,3 +58,14 @@ pub async fn transcribe_file_to_string(
 
     Ok(body)
 }
+
+/// Request cancellation of the in-flight file transcription (Transcribe-file tab).
+#[tauri::command]
+#[specta::specta]
+pub async fn cancel_file_transcription(app: AppHandle) -> Result<(), String> {
+    use crate::managers::transcription::TranscriptionManager;
+    use std::sync::Arc;
+    use tauri::Manager;
+    app.state::<Arc<TranscriptionManager>>().request_cancel();
+    Ok(())
+}

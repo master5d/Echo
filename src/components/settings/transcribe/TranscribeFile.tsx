@@ -2,6 +2,8 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { type FC, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { commands } from "@/bindings";
+import { listen } from "@tauri-apps/api/event";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 
 type Format = "plain" | "inline" | "srt" | "vtt" | "json" | "karaoke";
 
@@ -15,6 +17,8 @@ export const TranscribeFile: FC = () => {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<{ phase: string; percent: number | null } | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const pickFile = async () => {
     const selected = await open({
@@ -38,19 +42,41 @@ export const TranscribeFile: FC = () => {
     setBusy(true);
     setError(null);
     setResult("");
+    setCancelling(false);
+    setProgress({ phase: "decoding", percent: null });
     const effectiveFormat: Format = timestamps ? format : "plain";
     const hint = diarize && speakers.trim() ? Number(speakers.trim()) : null;
-    const res = await commands.transcribeFileToString(
-      path,
-      null,
-      null,
-      diarize,
-      Number.isFinite(hint) ? hint : null,
-      effectiveFormat,
+
+    const unlisten = await listen<{ phase: string; percent: number | null }>(
+      "transcription-progress",
+      (e) => setProgress(e.payload),
     );
-    setBusy(false);
-    if (res.status === "ok") setResult(res.data);
-    else setError(res.error);
+    const unlistenDl = await listen<{ percentage: number }>(
+      "model-download-progress",
+      (e) => setProgress({ phase: "loading_model", percent: e.payload.percentage }),
+    );
+    try {
+      const res = await commands.transcribeFileToString(
+        path,
+        null,
+        null,
+        diarize,
+        Number.isFinite(hint) ? hint : null,
+        effectiveFormat,
+      );
+      if (res.status === "ok") setResult(res.data);
+      else if (!cancelling) setError(res.error);
+    } finally {
+      unlisten();
+      unlistenDl();
+      setBusy(false);
+      setProgress(null);
+    }
+  };
+
+  const cancel = async () => {
+    setCancelling(true);
+    await commands.cancelFileTranscription();
   };
 
   const save = async () => {
@@ -120,6 +146,26 @@ export const TranscribeFile: FC = () => {
           onChange={(e) => setSpeakers(e.target.value)}
           className="text-sm bg-transparent border border-slate-700 rounded px-2 py-1 w-40"
         />
+      )}
+
+      {busy && progress && (
+        <div className="space-y-2">
+          <ProgressBar
+            percent={progress.percent}
+            label={t(`settings.transcribe.progress.${progress.phase === "loading_model" ? "loadingModel" : progress.phase}`)}
+          />
+          <button
+            type="button"
+            onClick={cancel}
+            disabled={cancelling}
+            className="px-3 py-1.5 rounded border border-red-500/60 text-red-300 text-xs disabled:opacity-40"
+          >
+            {t("settings.transcribe.cancel")}
+          </button>
+        </div>
+      )}
+      {cancelling && !busy && (
+        <div className="text-sm text-text/60">{t("settings.transcribe.cancelled")}</div>
       )}
 
       <div className="flex gap-2">
