@@ -31,6 +31,7 @@ pub enum OutputFormat {
     Srt,
     Vtt,
     Json,
+    Karaoke,
 }
 
 impl OutputFormat {
@@ -42,6 +43,7 @@ impl OutputFormat {
             "srt" => Some(Self::Srt),
             "vtt" | "webvtt" => Some(Self::Vtt),
             "json" => Some(Self::Json),
+            "karaoke" => Some(Self::Karaoke),
             _ => None,
         }
     }
@@ -56,6 +58,11 @@ impl OutputFormat {
             "txt" | "text" => Some(Self::Plain),
             _ => None,
         }
+    }
+
+    /// Formats that consume per-word timings.
+    pub fn is_word_level(self) -> bool {
+        matches!(self, OutputFormat::Karaoke)
     }
 }
 
@@ -166,6 +173,38 @@ pub fn split_segments_by_speakers(
     out
 }
 
+/// Assign each word to the speaker covering its midpoint (via `speaker_at`), then
+/// regroup consecutive same-speaker words into sub-segments. Pure/deterministic.
+pub fn assign_words_to_speakers(
+    words: &[TimedSegment],
+    turns: &[SpeakerTurn],
+) -> Vec<(TimedSegment, Option<SpeakerId>)> {
+    let mut out: Vec<(TimedSegment, Option<SpeakerId>)> = Vec::new();
+    let mut i = 0;
+    while i < words.len() {
+        let sp = speaker_at(words[i].start, words[i].end, turns);
+        let mut j = i + 1;
+        while j < words.len() && speaker_at(words[j].start, words[j].end, turns) == sp {
+            j += 1;
+        }
+        let text = words[i..j]
+            .iter()
+            .map(|w| w.text.trim())
+            .collect::<Vec<_>>()
+            .join(" ");
+        out.push((
+            TimedSegment {
+                start: words[i].start,
+                end: words[j - 1].end,
+                text,
+            },
+            sp,
+        ));
+        i = j;
+    }
+    out
+}
+
 /// Speaker whose turn has the greatest overlap with [start, end]; None if none overlap.
 fn speaker_at(start: f32, end: f32, turns: &[SpeakerTurn]) -> Option<SpeakerId> {
     let mut best: Option<(f32, SpeakerId)> = None;
@@ -176,6 +215,106 @@ fn speaker_at(start: f32, end: f32, turns: &[SpeakerTurn]) -> Option<SpeakerId> 
         }
     }
     best.map(|(_, sp)| sp)
+}
+
+#[derive(serde::Serialize)]
+struct JsonWord {
+    word: String,
+    start: f32,
+    end: f32,
+    speaker: Option<u32>,            // 0-based (Deepgram convention)
+    speaker_confidence: Option<f32>, // overlap-based proxy, see note
+}
+
+/// Fraction of [start,end] covered by the assigned speaker's turn(s). 1.0 = fully
+/// inside one turn, <1.0 = spans a boundary. NOT an ML confidence (overlap proxy).
+pub fn speaker_overlap_confidence(
+    start: f32,
+    end: f32,
+    sp: SpeakerId,
+    turns: &[SpeakerTurn],
+) -> f32 {
+    let dur = (end - start).max(f32::EPSILON);
+    let covered: f32 = turns
+        .iter()
+        .filter(|t| t.speaker == sp)
+        .map(|t| (end.min(t.end) - start.max(t.start)).max(0.0))
+        .sum();
+    (covered / dur).clamp(0.0, 1.0)
+}
+
+/// Render Deepgram-shaped word-level JSON. `speaker` is 0-based.
+pub fn render_word_json(words: &[TimedSegment], turns: Option<&[SpeakerTurn]>) -> String {
+    let json_words: Vec<JsonWord> = words
+        .iter()
+        .map(|w| {
+            let sp = turns.and_then(|t| speaker_at(w.start, w.end, t));
+            JsonWord {
+                word: w.text.trim().to_string(),
+                start: w.start,
+                end: w.end,
+                speaker: sp.map(|s| s.0),
+                speaker_confidence: sp
+                    .map(|s| speaker_overlap_confidence(w.start, w.end, s, turns.unwrap_or(&[]))),
+            }
+        })
+        .collect();
+    serde_json::to_string_pretty(&serde_json::json!({ "words": json_words }))
+        .unwrap_or_else(|_| "{\"words\":[]}".to_string())
+}
+
+/// Per-word WebVTT with inline timing tags (karaoke highlight). One cue per line;
+/// within a cue each word is prefixed with its `<mm:ss.mmm>` start tag. Lines are
+/// grouped by consecutive same-speaker run when diarization turns are given, else by
+/// sentence-final punctuation (`. ! ? …`) so cues read as natural sentences instead of
+/// one word per cue.
+pub fn render_karaoke(words: &[TimedSegment], turns: Option<&[SpeakerTurn]>) -> String {
+    let mut out = String::from("WEBVTT\n\n");
+    let mut i = 0;
+    while i < words.len() {
+        // Speaker of the line (for the optional <v> voice tag), from the first word.
+        let sp = turns.and_then(|t| speaker_at(words[i].start, words[i].end, t));
+        // Extend the line until the grouping boundary.
+        let mut j = i + 1;
+        while j < words.len() {
+            let boundary = match turns {
+                // Diarized: break when the speaker changes.
+                Some(t) => speaker_at(words[j].start, words[j].end, t) != sp,
+                // Undiarized: break after a word ending a sentence.
+                None => words[j - 1].text.trim_end().ends_with(['.', '!', '?', '…']),
+            };
+            if boundary {
+                break;
+            }
+            j += 1;
+        }
+        let speaker_tag = sp
+            .map(|s| format!("<v {}>", speaker_label(s)))
+            .unwrap_or_default();
+        let body: String = words[i..j]
+            .iter()
+            .map(|w| format!("<{}>{}", fmt_vtt_short(w.start), w.text.trim()))
+            .collect::<Vec<_>>()
+            .join(" ");
+        out.push_str(&format!(
+            "{} --> {}\n{}{}\n\n",
+            fmt_vtt(words[i].start),
+            fmt_vtt(words[j - 1].end),
+            speaker_tag,
+            body
+        ));
+        i = j;
+    }
+    out.trim_end().to_string()
+}
+
+/// `MM:SS.mmm` (karaoke word tag form, no hours).
+fn fmt_vtt_short(t: f32) -> String {
+    let total_ms = (t * 1000.0).round() as u64;
+    let ms = total_ms % 1000;
+    let s = (total_ms / 1000) % 60;
+    let m = total_ms / 60000;
+    format!("{:02}:{:02}.{:03}", m, s, ms)
 }
 
 /// JSON shape for `OutputFormat::Json`.
@@ -201,6 +340,7 @@ struct JsonDoc {
 pub fn render(
     plain_text: &str,
     segments: &[TimedSegment],
+    words: Option<&[TimedSegment]>,
     speakers: Option<&[SpeakerTurn]>,
     format: OutputFormat,
 ) -> String {
@@ -208,9 +348,14 @@ pub fn render(
         return plain_text.to_string();
     }
 
-    let resolved: Vec<(TimedSegment, Option<SpeakerId>)> = match speakers {
-        Some(turns) => split_segments_by_speakers(segments, turns),
-        None => segments.iter().map(|s| (s.clone(), None)).collect(),
+    let resolved: Vec<(TimedSegment, Option<SpeakerId>)> = match (words, speakers) {
+        // Accurate word path: group words by speaker.
+        (Some(w), Some(turns)) => assign_words_to_speakers(w, turns),
+        // Words but no diarization: collapse to the sentence segments (avoid per-word cues).
+        (Some(_), None) => segments.iter().map(|s| (s.clone(), None)).collect(),
+        // No words: existing behavior.
+        (None, Some(turns)) => split_segments_by_speakers(segments, turns),
+        (None, None) => segments.iter().map(|s| (s.clone(), None)).collect(),
     };
 
     let prefix = |sp: Option<SpeakerId>| -> String {
@@ -274,6 +419,8 @@ pub fn render(
             };
             serde_json::to_string_pretty(&docs).unwrap_or_else(|_| "{\"segments\":[]}".to_string())
         }
+
+        OutputFormat::Karaoke => render_karaoke(words.unwrap_or(&[]), speakers),
     }
 }
 
@@ -350,7 +497,7 @@ mod tests {
     fn plain_returns_joined_text_verbatim() {
         let segs = vec![seg(0.0, 1.0, "hello"), seg(1.0, 2.0, "world")];
         assert_eq!(
-            render("hello world", &segs, None, OutputFormat::Plain),
+            render("hello world", &segs, None, None, OutputFormat::Plain),
             "hello world"
         );
     }
@@ -358,21 +505,21 @@ mod tests {
     #[test]
     fn inline_prefixes_timestamps() {
         let segs = vec![seg(0.0, 2.0, "привет"), seg(12.0, 14.0, "world")];
-        let out = render("привет world", &segs, None, OutputFormat::Inline);
+        let out = render("привет world", &segs, None, None, OutputFormat::Inline);
         assert_eq!(out, "[00:00] привет\n[00:12] world");
     }
 
     #[test]
     fn srt_numbers_and_arrows() {
         let segs = vec![seg(0.0, 2.5, "hi")];
-        let out = render("hi", &segs, None, OutputFormat::Srt);
+        let out = render("hi", &segs, None, None, OutputFormat::Srt);
         assert_eq!(out, "1\n00:00:00,000 --> 00:00:02,500\nhi\n");
     }
 
     #[test]
     fn vtt_has_header_and_dot_separator() {
         let segs = vec![seg(1.0, 2.0, "hi")];
-        let out = render("hi", &segs, None, OutputFormat::Vtt);
+        let out = render("hi", &segs, None, None, OutputFormat::Vtt);
         assert!(out.starts_with("WEBVTT\n\n"));
         assert!(out.contains("00:00:01.000 --> 00:00:02.000"));
     }
@@ -380,7 +527,7 @@ mod tests {
     #[test]
     fn json_includes_segments() {
         let segs = vec![seg(0.0, 1.0, "hi")];
-        let out = render("hi", &segs, None, OutputFormat::Json);
+        let out = render("hi", &segs, None, None, OutputFormat::Json);
         assert!(out.contains("\"segments\""));
         assert!(out.contains("\"text\": \"hi\""));
         assert!(!out.contains("\"speaker\"")); // omitted when no speakers
@@ -440,11 +587,116 @@ mod tests {
                 speaker: SpeakerId(1),
             },
         ];
-        let inline = render("hi yo", &segs, Some(&turns), OutputFormat::Inline);
+        let inline = render("hi yo", &segs, None, Some(&turns), OutputFormat::Inline);
         assert_eq!(inline, "[00:00] Speaker 1: hi\n[00:02] Speaker 2: yo");
-        let vtt = render("hi yo", &segs, Some(&turns), OutputFormat::Vtt);
+        let vtt = render("hi yo", &segs, None, Some(&turns), OutputFormat::Vtt);
         assert!(vtt.contains("<v Speaker 1>hi"));
-        let srt = render("hi yo", &segs, Some(&turns), OutputFormat::Srt);
+        let srt = render("hi yo", &segs, None, Some(&turns), OutputFormat::Srt);
         assert!(srt.contains("Speaker 2: yo"));
+    }
+
+    #[test]
+    fn words_split_at_real_speaker_boundary() {
+        let words = vec![
+            seg(0.0, 1.0, "aaa"),
+            seg(1.0, 2.0, "bbb"),
+            seg(6.0, 7.0, "ccc"),
+        ];
+        let turns = vec![
+            SpeakerTurn {
+                start: 0.0,
+                end: 5.0,
+                speaker: SpeakerId(0),
+            },
+            SpeakerTurn {
+                start: 5.0,
+                end: 8.0,
+                speaker: SpeakerId(1),
+            },
+        ];
+        let out = assign_words_to_speakers(&words, &turns);
+        assert_eq!(out.len(), 2);
+        assert_eq!(out[0].1, Some(SpeakerId(0)));
+        assert_eq!(out[0].0.text, "aaa bbb");
+        assert_eq!(out[1].1, Some(SpeakerId(1)));
+        assert_eq!(out[1].0.text, "ccc");
+    }
+
+    #[test]
+    fn words_no_turns_one_group_none() {
+        let words = vec![seg(0.0, 1.0, "a"), seg(1.0, 2.0, "b")];
+        let out = assign_words_to_speakers(&words, &[]);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].1, None);
+        assert_eq!(out[0].0.text, "a b");
+    }
+
+    #[test]
+    fn word_json_is_deepgram_shaped() {
+        let words = vec![seg(15.2, 15.5, "hello"), seg(15.6, 16.1, "there")];
+        let turns = vec![SpeakerTurn {
+            start: 0.0,
+            end: 20.0,
+            speaker: SpeakerId(0),
+        }];
+        let json = render_word_json(&words, Some(&turns));
+        // 0-based speaker, deepgram field names, words present
+        assert!(json.contains("\"word\": \"hello\""));
+        assert!(json.contains("\"speaker\": 0"));
+        assert!(json.contains("\"speaker_confidence\""));
+        // fully inside the single turn -> confidence 1.0
+        assert!(json.contains("\"speaker_confidence\": 1.0"));
+    }
+
+    #[test]
+    fn overlap_confidence_is_fractional_on_boundary() {
+        // word 4..6 with turn 0..5 -> half inside
+        let c = speaker_overlap_confidence(
+            4.0,
+            6.0,
+            SpeakerId(0),
+            &[SpeakerTurn {
+                start: 0.0,
+                end: 5.0,
+                speaker: SpeakerId(0),
+            }],
+        );
+        assert!((c - 0.5).abs() < 1e-6);
+    }
+
+    #[test]
+    fn karaoke_vtt_has_word_tags() {
+        let words = vec![seg(15.259, 15.6, "hello"), seg(15.6, 16.1, "there")];
+        let turns = vec![SpeakerTurn {
+            start: 0.0,
+            end: 20.0,
+            speaker: SpeakerId(0),
+        }];
+        let out = render_karaoke(&words, Some(&turns));
+        assert!(out.starts_with("WEBVTT"));
+        assert!(out.contains("<v Speaker 1>")); // 1-based human label
+        assert!(out.contains("<00:15.259>hello")); // per-word timing tag
+        assert!(out.contains("<00:15.600>there"));
+    }
+
+    #[test]
+    fn karaoke_no_diarize_groups_lines_by_sentence_punctuation() {
+        let words = vec![
+            seg(0.0, 0.5, "Hello"),
+            seg(0.5, 1.0, "world."),
+            seg(1.0, 1.5, "Bye"),
+        ];
+        let out = render_karaoke(&words, None);
+        // Two cues: "Hello world." then "Bye" — not three one-word cues.
+        assert_eq!(out.matches("-->").count(), 2);
+        assert!(out.contains("<00:00.000>Hello <00:00.500>world."));
+        assert!(out.contains("<00:01.000>Bye"));
+        assert!(!out.contains("<v ")); // no speaker tag without diarization
+    }
+
+    #[test]
+    fn is_word_level_flags() {
+        assert!(OutputFormat::Karaoke.is_word_level());
+        assert!(!OutputFormat::Srt.is_word_level());
     }
 }

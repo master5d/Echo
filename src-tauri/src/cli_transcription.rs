@@ -2,7 +2,7 @@
 //! core that renders the result in the requested format to stdout or a file.
 
 use crate::file_transcription::transcribe_file_detailed;
-use crate::transcript_format::{render, OutputFormat};
+use crate::transcript_format::OutputFormat;
 use anyhow::{Context, Result};
 use std::path::Path;
 use tauri::AppHandle;
@@ -34,8 +34,9 @@ is auto-detected); the value is ignored."
 
     // Resolve output format: explicit --format wins, else infer from -o extension, else plain.
     let fmt = match format {
-        Some(f) => OutputFormat::from_cli(f)
-            .with_context(|| format!("Unknown --format '{f}'. Use plain|inline|srt|vtt|json."))?,
+        Some(f) => OutputFormat::from_cli(f).with_context(|| {
+            format!("Unknown --format '{f}'. Use plain|inline|srt|vtt|json|karaoke.")
+        })?,
         None => output
             .and_then(|p| p.extension())
             .and_then(|e| e.to_str())
@@ -43,14 +44,35 @@ is auto-detected); the value is ignored."
             .unwrap_or(OutputFormat::Plain),
     };
 
-    let details =
-        transcribe_file_detailed(app_handle, input, language, model, diarize, speaker_hint)?;
-    let rendered = render(
-        &details.text,
-        &details.segments,
-        details.speakers.as_deref(),
-        fmt,
-    );
+    let want_words = diarize || fmt.is_word_level();
+    let details = transcribe_file_detailed(
+        app_handle,
+        input,
+        language,
+        model,
+        diarize,
+        speaker_hint,
+        want_words,
+    )?;
+    let rendered = match fmt {
+        OutputFormat::Json if details.words.is_some() => {
+            crate::transcript_format::render_word_json(
+                details.words.as_deref().unwrap(),
+                details.speakers.as_deref(),
+            )
+        }
+        OutputFormat::Karaoke => crate::transcript_format::render_karaoke(
+            details.words.as_deref().unwrap_or(&[]),
+            details.speakers.as_deref(),
+        ),
+        _ => crate::transcript_format::render(
+            &details.text,
+            &details.segments,
+            details.words.as_deref(),
+            details.speakers.as_deref(),
+            fmt,
+        ),
+    };
 
     if let Some(out_path) = output {
         std::fs::write(out_path, &rendered).context("Failed to write output file")?;

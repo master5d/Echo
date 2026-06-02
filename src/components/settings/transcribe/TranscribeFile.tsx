@@ -3,7 +3,7 @@ import { type FC, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { commands } from "@/bindings";
 
-type Format = "plain" | "inline" | "srt" | "vtt" | "json";
+type Format = "plain" | "inline" | "srt" | "vtt" | "json" | "karaoke";
 
 export const TranscribeFile: FC = () => {
   const { t } = useTranslation();
@@ -97,7 +97,8 @@ export const TranscribeFile: FC = () => {
           <option value="inline">{t("settings.transcribe.fmtInline")}</option>
           <option value="srt">SRT</option>
           <option value="vtt">VTT</option>
-          <option value="json">JSON</option>
+          <option value="json">{t("settings.transcribe.fmtJson")}</option>
+          <option value="karaoke">{t("settings.transcribe.fmtKaraoke")}</option>
         </select>
       )}
 

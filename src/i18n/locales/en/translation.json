@@ -641,6 +641,8 @@
       "noFile": "No file selected",
       "timestamps": "Include timestamps",
       "fmtInline": "Inline [MM:SS]",
+      "fmtJson": "JSON (Word-level)",
+      "fmtKaraoke": "Karaoke VTT",
       "diarize": "Speaker diarization",
       "speakersPlaceholder": "Speaker count hint",
       "run": "Transcribe",
