@@ -29,6 +29,9 @@ pub struct TranscriptionDetails {
 pub struct TranscribeOpts {
     /// Request word-level timestamps from the engine (Whisper only).
     pub word_timestamps: bool,
+    /// Emit `transcription-progress` events (set only by the file path; keeps the
+    /// dictation hot path silent).
+    pub emit_progress: bool,
 }
 use transcribe_rs::{
     onnx::{
@@ -89,6 +92,7 @@ pub struct TranscriptionManager {
     watcher_handle: Arc<Mutex<Option<thread::JoinHandle<()>>>>,
     is_loading: Arc<Mutex<bool>>,
     loading_condvar: Arc<Condvar>,
+    cancel_flag: std::sync::Arc<AtomicBool>,
 }
 
 impl TranscriptionManager {
@@ -103,6 +107,7 @@ impl TranscriptionManager {
             watcher_handle: Arc::new(Mutex::new(None)),
             is_loading: Arc::new(Mutex::new(false)),
             loading_condvar: Arc::new(Condvar::new()),
+            cancel_flag: std::sync::Arc::new(AtomicBool::new(false)),
         };
 
         // Start the idle watcher
@@ -206,6 +211,19 @@ impl TranscriptionManager {
             is_loading: self.is_loading.clone(),
             loading_condvar: self.loading_condvar.clone(),
         })
+    }
+
+    /// Request cancellation of the in-flight file transcription.
+    pub fn request_cancel(&self) {
+        self.cancel_flag.store(true, Ordering::Relaxed);
+    }
+    /// Clear the cancel flag (call at the start of a cancellable run).
+    pub fn reset_cancel(&self) {
+        self.cancel_flag.store(false, Ordering::Relaxed);
+    }
+    /// Whether cancellation was requested.
+    pub fn is_cancelled(&self) -> bool {
+        self.cancel_flag.load(Ordering::Relaxed)
     }
 
     pub fn unload_model(&self) -> Result<()> {
@@ -626,9 +644,35 @@ impl TranscriptionManager {
                                 ..Default::default()
                             };
 
-                            whisper_engine
-                                .transcribe_with(&audio, &params)
-                                .map_err(|e| anyhow::anyhow!("Whisper transcription failed: {}", e))
+                            if opts.emit_progress {
+                                let app = self.app_handle.clone();
+                                let cancel_for_abort = self.cancel_flag.clone();
+                                whisper_engine
+                                    .transcribe_with_callbacks(
+                                        &audio,
+                                        &params,
+                                        move |p: i32| {
+                                            crate::progress::emit_progress(
+                                                &app,
+                                                crate::progress::ProgressPhase::Transcribing,
+                                                Some(p.clamp(0, 100) as u8),
+                                            );
+                                        },
+                                        move || {
+                                            cancel_for_abort
+                                                .load(std::sync::atomic::Ordering::Relaxed)
+                                        },
+                                    )
+                                    .map_err(|e| {
+                                        anyhow::anyhow!("Whisper transcription failed: {}", e)
+                                    })
+                            } else {
+                                whisper_engine
+                                    .transcribe_with(&audio, &params)
+                                    .map_err(|e| {
+                                        anyhow::anyhow!("Whisper transcription failed: {}", e)
+                                    })
+                            }
                         }
                         LoadedEngine::Parakeet(parakeet_engine) => {
                             let params = ParakeetParams {
