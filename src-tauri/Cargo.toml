@@ -122,6 +122,10 @@ tauri-utils = { git = "https://github.com/cjpais/tauri.git", branch = "handy-2.1
 # exposes whisper.cpp word/token timestamps (see feat/word-level-timestamps). Pinned to a
 # rev so the build is reproducible; same pattern as the patched tauri fork above.
 transcribe-rs = { git = "https://github.com/master5d/transcribe-rs", branch = "word-timestamps" }
+# Diarization progress fork: published speakrs 0.4.2 + a progress-sink patch exposing
+# per-stage diarization progress (see feat/diarization-progress). Pinned to the fork's
+# progress branch; same pattern as the transcribe-rs fork above.
+speakrs = { git = "https://github.com/master5d/speakrs", branch = "progress" }
 
 [dev-dependencies]
 tempfile = "3"
