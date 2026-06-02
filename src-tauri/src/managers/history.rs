@@ -1,8 +1,8 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Local, Utc};
-use log::{debug, error, info};
+use log::{debug, error, info, warn};
 use rusqlite::{params, Connection, OptionalExtension};
-use rusqlite_migration::{Migrations, M};
+use rusqlite_migration::{Migrations, MigrationDefinitionError, M};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::fs;
@@ -46,6 +46,31 @@ static MIGRATIONS: &[M] = &[
         CREATE INDEX IF NOT EXISTS idx_coach_sessions_ts ON coach_sessions(timestamp);",
     ),
 ];
+
+/// Apply pending migrations, tolerating a database written by a NEWER build.
+///
+/// When several Echo versions share one data directory (or after a downgrade), a newer
+/// build can bump the SQLite `user_version` past this build's migration count. The
+/// migration schema is additive (new columns are nullable), so this build can still read
+/// and write the columns it knows about. `to_latest` reports that situation as
+/// `DatabaseTooFarAhead`; treat it as non-fatal (log + continue) instead of bricking the
+/// app at startup. Any other migration error is still propagated.
+fn apply_migrations_tolerant(migrations: &Migrations, conn: &mut Connection) -> Result<()> {
+    match migrations.to_latest(conn) {
+        Ok(()) => Ok(()),
+        Err(rusqlite_migration::Error::MigrationDefinition(
+            MigrationDefinitionError::DatabaseTooFarAhead,
+        )) => {
+            warn!(
+                "History database is newer than this build (DatabaseTooFarAhead); \
+                 continuing without migrating. This happens when a newer Echo version \
+                 wrote the shared database."
+            );
+            Ok(())
+        }
+        Err(e) => Err(e.into()),
+    }
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub struct PaginatedHistory {
@@ -135,7 +160,7 @@ impl HistoryManager {
         debug!("Database version before migration: {}", version_before);
 
         // Apply any pending migrations
-        migrations.to_latest(&mut conn)?;
+        apply_migrations_tolerant(&migrations, &mut conn)?;
 
         // Get version after migration
         let version_after: i32 = conn.pragma_query_value(None, "user_version", |row| row.get(0))?;
@@ -795,6 +820,31 @@ impl HistoryManager {
 mod tests {
     use super::*;
     use rusqlite::{params, Connection};
+
+    #[test]
+    fn migrations_tolerate_database_too_far_ahead() {
+        // Bring an in-memory DB to the current schema, then simulate a NEWER build
+        // having bumped user_version beyond this build's migration count.
+        let mut conn = Connection::open_in_memory().expect("open in-memory db");
+        let migrations = Migrations::new(MIGRATIONS.to_vec());
+        migrations.to_latest(&mut conn).expect("baseline migrate");
+
+        let ahead = (MIGRATIONS.len() as i32) + 5;
+        conn.pragma_update(None, "user_version", ahead)
+            .expect("bump user_version");
+
+        // Sanity: the raw call now reports DatabaseTooFarAhead.
+        assert!(matches!(
+            migrations.to_latest(&mut conn),
+            Err(rusqlite_migration::Error::MigrationDefinition(
+                MigrationDefinitionError::DatabaseTooFarAhead
+            ))
+        ));
+
+        // The tolerant wrapper must NOT error (no startup panic on a newer DB).
+        apply_migrations_tolerant(&migrations, &mut conn)
+            .expect("tolerant apply must succeed on a too-far-ahead database");
+    }
 
     fn setup_conn() -> Connection {
         let conn = Connection::open_in_memory().expect("open in-memory db");
