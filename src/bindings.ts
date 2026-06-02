@@ -865,6 +865,22 @@ async getHistoryEntries(cursor: number | null, limit: number | null) : Promise<R
     else return { status: "error", error: e  as any };
 }
 },
+async getCoachDashboard(window: TrendWindow) : Promise<Result<CoachDashboard, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_coach_dashboard", { window }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async getCoachBaseline() : Promise<Result<Baseline | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_coach_baseline") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async toggleHistoryEntrySaved(id: number) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("toggle_history_entry_saved", { id }) };
@@ -914,42 +930,6 @@ async updateRecordingRetentionPeriod(period: string) : Promise<Result<null, stri
 }
 },
 /**
- * Transcribe a file from the GUI and return the rendered string.
- * `format` is one of: plain|inline|srt|vtt|json.
- */
-async transcribeFileToString(path: string, language: string | null, model: string | null, diarize: boolean, speakerHint: number | null, format: string) : Promise<Result<string, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("transcribe_file_to_string", { path, language, model, diarize, speakerHint, format }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-async cancelFileTranscription() : Promise<Result<null, string>> {
-    try {
-        return { status: "ok", data: await TAURI_INVOKE("cancel_file_transcription") };
-    } catch (e) {
-        if (e instanceof Error) throw e;
-        else return { status: "error", error: e as any };
-    }
-},
-async getCoachDashboard(window: TrendWindow) : Promise<Result<CoachDashboard, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("get_coach_dashboard", { window }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-async getCoachBaseline() : Promise<Result<Baseline | null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("get_coach_baseline") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
  * Stub implementation for non-macOS platforms
  * Always returns false since laptop detection is macOS-specific
  */
@@ -960,7 +940,23 @@ async isLaptop() : Promise<Result<boolean, string>> {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
-}
+},
+async transcribeFileToString(path: string, language: string | null, model: string | null, diarize: boolean, speakerHint: number | null, format: string) : Promise<Result<string, string>> {
+    try {
+        return { status: "ok", data: await TAURI_INVOKE("transcribe_file_to_string", { path, language, model, diarize, speakerHint, format }) };
+    } catch (e) {
+        if(e instanceof Error) throw e;
+        else return { status: "error", error: e as any };
+    }
+},
+async cancelFileTranscription() : Promise<Result<null, string>> {
+    try {
+        return { status: "ok", data: await TAURI_INVOKE("cancel_file_transcription") };
+    } catch (e) {
+        if(e instanceof Error) throw e;
+        else return { status: "error", error: e as any };
+    }
+},
 }
 
 /** user-defined events **/
@@ -978,14 +974,12 @@ historyUpdatePayload: "history-update-payload"
 
 /** user-defined types **/
 
-export type AppSettings = { bindings: Partial<{ [key in string]: ShortcutBinding }>; push_to_talk: boolean; audio_feedback: boolean; audio_feedback_volume?: number; sound_theme?: SoundTheme; start_hidden?: boolean; autostart_enabled?: boolean; update_checks_enabled?: boolean; selected_model?: string; always_on_microphone?: boolean; selected_microphone?: string | null; clamshell_microphone?: string | null; selected_output_device?: string | null; translate_to_english?: boolean; selected_language?: string; overlay_position?: OverlayPosition; debug_mode?: boolean; log_level?: LogLevel; custom_words?: string[]; model_unload_timeout?: ModelUnloadTimeout; word_correction_threshold?: number; history_limit?: number; recording_retention_period?: RecordingRetentionPeriod; paste_method?: PasteMethod; clipboard_handling?: ClipboardHandling; auto_submit?: boolean; auto_submit_key?: AutoSubmitKey; post_process_enabled?: boolean; post_process_provider_id?: string; post_process_providers?: PostProcessProvider[]; post_process_api_keys?: SecretMap; post_process_models?: Partial<{ [key in string]: string }>; post_process_prompts?: LLMPrompt[]; post_process_selected_prompt_id?: string | null; mute_while_recording?: boolean; append_trailing_space?: boolean; app_language?: string; experimental_enabled?: boolean; lazy_stream_close?: boolean; keyboard_implementation?: KeyboardImplementation; show_tray_icon?: boolean; paste_delay_ms?: number; typing_tool?: TypingTool; external_script_path: string | null; capture_folder?: string; capture_trigger_phrases?: string; custom_filler_words?: string[] | null; whisper_accelerator?: WhisperAcceleratorSetting; ort_accelerator?: OrtAcceleratorSetting; whisper_gpu_device?: number; extra_recording_buffer_ms?: number; auto_punctuate?: boolean; auto_capitalize?: boolean; subtitle_overlay?: boolean; subtitle_font_size?: SubtitleFontSize; subtitle_max_chars?: number; subtitle_refresh_ms?: number; command_mode_enabled?: boolean; coach_toast_enabled?: boolean; snippets?: Snippet[]; self_correction_enabled?: boolean; spoken_lists_enabled?: boolean; dev_dictionary_enabled?: boolean }
+export type AppSettings = { bindings: Partial<{ [key in string]: ShortcutBinding }>; push_to_talk: boolean; audio_feedback: boolean; audio_feedback_volume?: number; sound_theme?: SoundTheme; start_hidden?: boolean; autostart_enabled?: boolean; update_checks_enabled?: boolean; selected_model?: string; always_on_microphone?: boolean; selected_microphone?: string | null; clamshell_microphone?: string | null; selected_output_device?: string | null; translate_to_english?: boolean; selected_language?: string; overlay_position?: OverlayPosition; debug_mode?: boolean; log_level?: LogLevel; custom_words?: string[]; model_unload_timeout?: ModelUnloadTimeout; word_correction_threshold?: number; history_limit?: number; recording_retention_period?: RecordingRetentionPeriod; paste_method?: PasteMethod; clipboard_handling?: ClipboardHandling; auto_submit?: boolean; auto_submit_key?: AutoSubmitKey; post_process_enabled?: boolean; post_process_provider_id?: string; post_process_providers?: PostProcessProvider[]; post_process_api_keys?: SecretMap; post_process_models?: Partial<{ [key in string]: string }>; post_process_prompts?: LLMPrompt[]; post_process_selected_prompt_id?: string | null; mute_while_recording?: boolean; append_trailing_space?: boolean; app_language?: string; experimental_enabled?: boolean; lazy_stream_close?: boolean; keyboard_implementation?: KeyboardImplementation; show_tray_icon?: boolean; paste_delay_ms?: number; typing_tool?: TypingTool; external_script_path: string | null; capture_folder: string; capture_trigger_phrases: string; custom_filler_words?: string[] | null; whisper_accelerator?: WhisperAcceleratorSetting; ort_accelerator?: OrtAcceleratorSetting; whisper_gpu_device?: number; extra_recording_buffer_ms?: number; auto_punctuate?: boolean; auto_capitalize?: boolean; subtitle_overlay?: boolean; subtitle_font_size?: SubtitleFontSize; subtitle_max_chars?: number; subtitle_refresh_ms?: number; command_mode_enabled?: boolean; coach_toast_enabled?: boolean; snippets?: Snippet[]; self_correction_enabled?: boolean; spoken_lists_enabled?: boolean; dev_dictionary_enabled?: boolean }
 export type AudioDevice = { index: string; name: string; is_default: boolean }
 export type AutoSubmitKey = "enter" | "ctrl_enter" | "cmd_enter"
 export type AvailableAccelerators = { whisper: string[]; ort: string[]; gpu_devices: GpuDeviceOption[] }
-export type Baseline = { avg_wpm: number; avg_filler_rate: number }
 export type BindingResponse = { success: boolean; binding: ShortcutBinding | null; error: string | null }
 export type ClipboardHandling = "dont_modify" | "copy_to_clipboard"
-export type CoachDashboard = { summary: PeriodSummary; trend: TrendPoint[]; current_streak: number; best_streak: number }
 export type CustomSounds = { start: boolean; stop: boolean }
 export type EngineType = "Whisper" | "Parakeet" | "Moonshine" | "MoonshineStreaming" | "SenseVoice" | "GigaAM" | "Canary" | "Cohere"
 export type GpuDeviceOption = { id: number; name: string; total_vram_mb: number }
@@ -1008,8 +1002,12 @@ export type ModelUnloadTimeout = "never" | "immediately" | "min_2" | "min_5" | "
 export type OrtAcceleratorSetting = "auto" | "cpu" | "cuda" | "directml" | "rocm"
 export type OverlayPosition = "none" | "top" | "bottom"
 export type PaginatedHistory = { entries: HistoryEntry[]; has_more: boolean }
-export type PasteMethod = "ctrl_v" | "direct" | "none" | "shift_insert" | "ctrl_shift_v" | "external_script"
+export type TrendWindow = "Days7" | "Days30" | "All"
 export type PeriodSummary = { avg_wpm: number; avg_filler_rate: number; session_count: number; prev_avg_wpm: number; prev_avg_filler_rate: number; prev_session_count: number }
+export type TrendPoint = { day: number; avg_wpm: number; avg_filler_rate: number }
+export type Baseline = { avg_wpm: number; avg_filler_rate: number }
+export type CoachDashboard = { summary: PeriodSummary; trend: TrendPoint[]; current_streak: number; best_streak: number }
+export type PasteMethod = "ctrl_v" | "direct" | "none" | "shift_insert" | "ctrl_shift_v" | "external_script"
 export type PermissionAccess = "allowed" | "denied" | "unknown"
 export type PostProcessProvider = { id: string; label: string; base_url: string; allow_base_url_edit?: boolean; models_endpoint?: string | null; supports_structured_output?: boolean }
 export type RecordingRetentionPeriod = "never" | "preserve_limit" | "days_3" | "weeks_2" | "months_3"
@@ -1025,8 +1023,6 @@ export type SoundTheme = "marimba" | "pop" | "custom"
  * overlay frontend (`SUBTITLE_FONT_PX`), keyed off this enum's serialized name.
  */
 export type SubtitleFontSize = "small" | "medium" | "large"
-export type TrendPoint = { day: number; avg_wpm: number; avg_filler_rate: number }
-export type TrendWindow = "Days7" | "Days30" | "All"
 export type TypingTool = "auto" | "wtype" | "kwtype" | "dotool" | "ydotool" | "xdotool"
 export type WhisperAcceleratorSetting = "auto" | "cpu" | "gpu"
 export type WindowsMicrophonePermissionStatus = { supported: boolean; overall_access: PermissionAccess; device_access: PermissionAccess; app_access: PermissionAccess; desktop_app_access: PermissionAccess }
