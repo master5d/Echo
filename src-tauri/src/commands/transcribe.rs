@@ -37,6 +37,7 @@ pub async fn transcribe_file_to_string(
     Ok(render(
         &details.text,
         &details.segments,
+        details.words.as_deref(),
         details.speakers.as_deref(),
         fmt,
     ))
