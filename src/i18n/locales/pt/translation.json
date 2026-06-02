@@ -16,7 +16,8 @@
     "history": "Histórico",
     "debug": "Depuração",
     "about": "Sobre",
-    "coach": "Coach"
+    "coach": "Coach",
+    "transcribe": "Transcribe File"
   },
   "onboarding": {
     "subtitle": "Para começar, escolha um modelo de transcrição",
@@ -632,6 +633,22 @@
       "phrasesLabel": "Capture trigger phrases",
       "phrasesDescription": "Comma-separated phrases that start a capture (e.g. capture note, save note)",
       "phrasesPlaceholder": "capture note, save note"
+    },
+    "transcribe": {
+      "tab": "Transcribe",
+      "title": "Transcribe File",
+      "pickFile": "Pick Audio/Video File",
+      "noFile": "No file selected",
+      "timestamps": "Include timestamps",
+      "fmtInline": "Inline [MM:SS]",
+      "fmtJson": "JSON (Word-level)",
+      "fmtKaraoke": "Karaoke VTT",
+      "diarize": "Speaker diarization",
+      "speakersPlaceholder": "Speaker count hint",
+      "run": "Transcribe",
+      "working": "Transcribing...",
+      "copy": "Copy All",
+      "saveAs": "Save As..."
     }
   },
   "footer": {

@@ -16,7 +16,8 @@
     "history": "히스토리",
     "debug": "디버그",
     "about": "정보",
-    "coach": "Coach"
+    "coach": "Coach",
+    "transcribe": "Transcribe File"
   },
   "onboarding": {
     "subtitle": "시작하려면 음성 인식 모델을 선택하세요",
@@ -632,6 +633,22 @@
       "phrasesLabel": "Capture trigger phrases",
       "phrasesDescription": "Comma-separated phrases that start a capture (e.g. capture note, save note)",
       "phrasesPlaceholder": "capture note, save note"
+    },
+    "transcribe": {
+      "tab": "Transcribe",
+      "title": "Transcribe File",
+      "pickFile": "Pick Audio/Video File",
+      "noFile": "No file selected",
+      "timestamps": "Include timestamps",
+      "fmtInline": "Inline [MM:SS]",
+      "fmtJson": "JSON (Word-level)",
+      "fmtKaraoke": "Karaoke VTT",
+      "diarize": "Speaker diarization",
+      "speakersPlaceholder": "Speaker count hint",
+      "run": "Transcribe",
+      "working": "Transcribing...",
+      "copy": "Copy All",
+      "saveAs": "Save As..."
     }
   },
   "footer": {
