@@ -111,9 +111,17 @@ tool that watches a folder.
   **Transcribe file** tab (pick a file, choose options, copy/save the result).
   - **Timestamps.** Emit segment timings as `plain` / `inline [mm:ss]` / `SRT` /
     `WebVTT` / `JSON` via `--format`.
+  - **Word-level timestamps.** On Whisper models, `--format karaoke` emits WebVTT
+    with per-word `<mm:ss.mmm>` highlight tags, and `--format json` with `--diarize`
+    emits a Deepgram-shaped per-word array (`word` / `start` / `end` / `speaker` /
+    `speaker_confidence`). Word timings come from a small [transcribe-rs
+    fork](https://github.com/master5d/transcribe-rs/tree/word-timestamps) that
+    surfaces whisper.cpp token timestamps; they're requested only when needed.
   - **Speaker diarization.** `--diarize` labels each section `Speaker 1/2/…`
     (powered by [speakrs](https://github.com/avencera/speakrs); models download
-    on first use). Falls back to timestamps-only if diarization is unavailable.
+    on first use). With word timings, speakers are attributed **per word** (each
+    word to the speaker turn covering it) instead of per coarse segment. Falls back
+    to timestamps-only if diarization is unavailable.
   - Choose engine/language with `--model` / `--language`. See `BUILD.md`.
 
 ### Privacy & performance

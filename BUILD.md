@@ -184,8 +184,16 @@ Flags:
 - `--language <LANG>` — `auto` (default) or a code like `ru`/`en`. `auto` enables the
   bilingual RU/EN initial-prompt steering on Whisper models.
 - `--format <FMT>` — output format: `plain` (default), `inline` (`[mm:ss]` prefixes),
-  `srt`, `vtt`, or `json`. When `--format` is omitted, it is inferred from the `-o`
-  extension (`.srt`/`.vtt`/`.json`), else `plain`.
+  `srt`, `vtt`, `json`, or `karaoke`. When `--format` is omitted, it is inferred from the
+  `-o` extension (`.srt`/`.vtt`/`.json`), else `plain` (`karaoke` is explicit-only — a
+  `.vtt` extension stays plain WebVTT).
+  - **`karaoke`** — WebVTT with per-word `<mm:ss.mmm>` highlight tags. Cues are grouped
+    by speaker run (with `--diarize`) or by sentence punctuation otherwise.
+  - **`json` + `--diarize`** — adds a Deepgram-shaped per-word array (`word`, `start`,
+    `end`, 0-based `speaker`, and an overlap-based `speaker_confidence` proxy).
+  - Word-level output is available on **Whisper** models only (Parakeet/GigaAM/… stay
+    segment-level). Token timestamps are requested only when `--diarize` or a word-level
+    format is used, so plain transcription pays no extra cost.
 - `--diarize` — label each section with the speaker (`Speaker 1`, `Speaker 2`, …).
   Diarization models download from HuggingFace on first use. If it fails, the transcript
   is still emitted with timestamps (speakers omitted).
@@ -198,6 +206,14 @@ normalize the input to 16 kHz mono). On Windows: `winget install Gyan.FFmpeg`.
 The CLI reuses the same engine and bilingual prompt steering as the GUI, so RU/EN mixing
 quality matches the app, and it runs in its own process — independent of any running GUI
 instance. The same options are available from the GUI's **Transcribe file** tab.
+
+> **transcribe-rs fork note:** `src-tauri/Cargo.toml` patches `transcribe-rs` to
+> [`master5d/transcribe-rs@word-timestamps`](https://github.com/master5d/transcribe-rs/tree/word-timestamps)
+> via `[patch.crates-io]`. That branch is the published 0.3.8 plus a surgical patch that
+> adds a `TimestampGranularity` knob to the Whisper engine and surfaces whisper.cpp
+> word/token timestamps (used for word-level output and per-word diarization). The patch
+> is feature-compatible with the crates.io release; cargo fetches and builds it like any
+> other dependency.
 
 > **Diarization backend note:** speaker diarization pulls `speakrs` → `ndarray-linalg`
 > with the **Intel MKL static** backend, which adds ~150 MB to the binary. The `staticlib`
