@@ -166,6 +166,38 @@ pub fn split_segments_by_speakers(
     out
 }
 
+/// Assign each word to the speaker covering its midpoint (via `speaker_at`), then
+/// regroup consecutive same-speaker words into sub-segments. Pure/deterministic.
+pub fn assign_words_to_speakers(
+    words: &[TimedSegment],
+    turns: &[SpeakerTurn],
+) -> Vec<(TimedSegment, Option<SpeakerId>)> {
+    let mut out: Vec<(TimedSegment, Option<SpeakerId>)> = Vec::new();
+    let mut i = 0;
+    while i < words.len() {
+        let sp = speaker_at(words[i].start, words[i].end, turns);
+        let mut j = i + 1;
+        while j < words.len() && speaker_at(words[j].start, words[j].end, turns) == sp {
+            j += 1;
+        }
+        let text = words[i..j]
+            .iter()
+            .map(|w| w.text.trim())
+            .collect::<Vec<_>>()
+            .join(" ");
+        out.push((
+            TimedSegment {
+                start: words[i].start,
+                end: words[j - 1].end,
+                text,
+            },
+            sp,
+        ));
+        i = j;
+    }
+    out
+}
+
 /// Speaker whose turn has the greatest overlap with [start, end]; None if none overlap.
 fn speaker_at(start: f32, end: f32, turns: &[SpeakerTurn]) -> Option<SpeakerId> {
     let mut best: Option<(f32, SpeakerId)> = None;
@@ -446,5 +478,41 @@ mod tests {
         assert!(vtt.contains("<v Speaker 1>hi"));
         let srt = render("hi yo", &segs, Some(&turns), OutputFormat::Srt);
         assert!(srt.contains("Speaker 2: yo"));
+    }
+
+    #[test]
+    fn words_split_at_real_speaker_boundary() {
+        let words = vec![
+            seg(0.0, 1.0, "aaa"),
+            seg(1.0, 2.0, "bbb"),
+            seg(6.0, 7.0, "ccc"),
+        ];
+        let turns = vec![
+            SpeakerTurn {
+                start: 0.0,
+                end: 5.0,
+                speaker: SpeakerId(0),
+            },
+            SpeakerTurn {
+                start: 5.0,
+                end: 8.0,
+                speaker: SpeakerId(1),
+            },
+        ];
+        let out = assign_words_to_speakers(&words, &turns);
+        assert_eq!(out.len(), 2);
+        assert_eq!(out[0].1, Some(SpeakerId(0)));
+        assert_eq!(out[0].0.text, "aaa bbb");
+        assert_eq!(out[1].1, Some(SpeakerId(1)));
+        assert_eq!(out[1].0.text, "ccc");
+    }
+
+    #[test]
+    fn words_no_turns_one_group_none() {
+        let words = vec![seg(0.0, 1.0, "a"), seg(1.0, 2.0, "b")];
+        let out = assign_words_to_speakers(&words, &[]);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].1, None);
+        assert_eq!(out[0].0.text, "a b");
     }
 }
