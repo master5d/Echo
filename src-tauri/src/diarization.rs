@@ -32,7 +32,21 @@ pub fn diarize(
     };
 
     // Run diarization
-    let result = pipeline.run(samples).context("Diarization run failed")?;
+    let app = app_handle.clone();
+    let mut last_pct: i32 = -1;
+    let result = pipeline
+        .run_with_progress(samples, move |frac| {
+            let pct = (frac * 100.0).clamp(0.0, 100.0) as i32;
+            if pct != last_pct {
+                last_pct = pct;
+                crate::progress::emit_progress(
+                    &app,
+                    crate::progress::ProgressPhase::Diarizing,
+                    Some(pct as u8),
+                );
+            }
+        })
+        .context("Diarization run failed")?;
 
     // Map speakrs segments to SpeakerTurn, ensuring 0-based contiguous IDs
     let mut speaker_map: HashMap<String, u32> = HashMap::new();

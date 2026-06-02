@@ -6131,8 +6131,7 @@ dependencies = [
 [[package]]
 name = "speakrs"
 version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ded38fa07482055eac9abb9c1bc515aad9b93651cf36f73cdb7cd2275a7e869a"
+source = "git+https://github.com/master5d/speakrs?branch=progress#2e3ef8075a1c88bf5bbb647572430939afaabb95"
 dependencies = [
  "crossbeam-channel",
  "hf-hub",
