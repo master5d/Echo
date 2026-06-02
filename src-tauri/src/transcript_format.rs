@@ -210,6 +210,52 @@ fn speaker_at(start: f32, end: f32, turns: &[SpeakerTurn]) -> Option<SpeakerId> 
     best.map(|(_, sp)| sp)
 }
 
+#[derive(serde::Serialize)]
+struct JsonWord {
+    word: String,
+    start: f32,
+    end: f32,
+    speaker: Option<u32>,            // 0-based (Deepgram convention)
+    speaker_confidence: Option<f32>, // overlap-based proxy, see note
+}
+
+/// Fraction of [start,end] covered by the assigned speaker's turn(s). 1.0 = fully
+/// inside one turn, <1.0 = spans a boundary. NOT an ML confidence (overlap proxy).
+pub fn speaker_overlap_confidence(
+    start: f32,
+    end: f32,
+    sp: SpeakerId,
+    turns: &[SpeakerTurn],
+) -> f32 {
+    let dur = (end - start).max(f32::EPSILON);
+    let covered: f32 = turns
+        .iter()
+        .filter(|t| t.speaker == sp)
+        .map(|t| (end.min(t.end) - start.max(t.start)).max(0.0))
+        .sum();
+    (covered / dur).clamp(0.0, 1.0)
+}
+
+/// Render Deepgram-shaped word-level JSON. `speaker` is 0-based.
+pub fn render_word_json(words: &[TimedSegment], turns: Option<&[SpeakerTurn]>) -> String {
+    let json_words: Vec<JsonWord> = words
+        .iter()
+        .map(|w| {
+            let sp = turns.and_then(|t| speaker_at(w.start, w.end, t));
+            JsonWord {
+                word: w.text.trim().to_string(),
+                start: w.start,
+                end: w.end,
+                speaker: sp.map(|s| s.0),
+                speaker_confidence: sp
+                    .map(|s| speaker_overlap_confidence(w.start, w.end, s, turns.unwrap_or(&[]))),
+            }
+        })
+        .collect();
+    serde_json::to_string_pretty(&serde_json::json!({ "words": json_words }))
+        .unwrap_or_else(|_| "{\"words\":[]}".to_string())
+}
+
 /// JSON shape for `OutputFormat::Json`.
 #[derive(Serialize)]
 struct JsonSegment {
@@ -514,5 +560,38 @@ mod tests {
         assert_eq!(out.len(), 1);
         assert_eq!(out[0].1, None);
         assert_eq!(out[0].0.text, "a b");
+    }
+
+    #[test]
+    fn word_json_is_deepgram_shaped() {
+        let words = vec![seg(15.2, 15.5, "hello"), seg(15.6, 16.1, "there")];
+        let turns = vec![SpeakerTurn {
+            start: 0.0,
+            end: 20.0,
+            speaker: SpeakerId(0),
+        }];
+        let json = render_word_json(&words, Some(&turns));
+        // 0-based speaker, deepgram field names, words present
+        assert!(json.contains("\"word\": \"hello\""));
+        assert!(json.contains("\"speaker\": 0"));
+        assert!(json.contains("\"speaker_confidence\""));
+        // fully inside the single turn -> confidence 1.0
+        assert!(json.contains("\"speaker_confidence\": 1.0"));
+    }
+
+    #[test]
+    fn overlap_confidence_is_fractional_on_boundary() {
+        // word 4..6 with turn 0..5 -> half inside
+        let c = speaker_overlap_confidence(
+            4.0,
+            6.0,
+            SpeakerId(0),
+            &[SpeakerTurn {
+                start: 0.0,
+                end: 5.0,
+                speaker: SpeakerId(0),
+            }],
+        );
+        assert!((c - 0.5).abs() < 1e-6);
     }
 }
