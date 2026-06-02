@@ -638,7 +638,17 @@
       "copy": "Копировать всё",
       "saveAs": "Сохранить как...",
       "fmtJson": "JSON (Word-level)",
-      "fmtKaraoke": "Karaoke VTT"
+      "fmtKaraoke": "Karaoke VTT",
+      "cancel": "Cancel",
+      "cancelled": "Cancelled",
+      "progress": {
+        "decoding": "Decoding audio…",
+        "loadingModel": "Loading model…",
+        "transcribing": "Transcribing…",
+        "diarizing": "Identifying speakers…",
+        "formatting": "Formatting…",
+        "done": "Done"
+      }
     },
     "capture": {
       "captureSuccess": "Saved to capture folder",

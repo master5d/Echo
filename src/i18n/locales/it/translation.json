@@ -648,7 +648,17 @@
       "run": "Transcribe",
       "working": "Transcribing...",
       "copy": "Copy All",
-      "saveAs": "Save As..."
+      "saveAs": "Save As...",
+      "cancel": "Cancel",
+      "cancelled": "Cancelled",
+      "progress": {
+        "decoding": "Decoding audio…",
+        "loadingModel": "Loading model…",
+        "transcribing": "Transcribing…",
+        "diarizing": "Identifying speakers…",
+        "formatting": "Formatting…",
+        "done": "Done"
+      }
     }
   },
   "footer": {
