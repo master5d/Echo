@@ -636,7 +636,9 @@
       "run": "Транскрибировать",
       "working": "Транскрипция...",
       "copy": "Копировать всё",
-      "saveAs": "Сохранить как..."
+      "saveAs": "Сохранить как...",
+      "fmtJson": "JSON (Word-level)",
+      "fmtKaraoke": "Karaoke VTT"
     },
     "capture": {
       "captureSuccess": "Saved to capture folder",
