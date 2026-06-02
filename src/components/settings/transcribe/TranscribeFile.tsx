@@ -17,7 +17,10 @@ export const TranscribeFile: FC = () => {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const [progress, setProgress] = useState<{ phase: string; percent: number | null } | null>(null);
+  const [progress, setProgress] = useState<{
+    phase: string;
+    percent: number | null;
+  } | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [outputPath, setOutputPath] = useState<string | null>(null);
   const [savedTo, setSavedTo] = useState<string | null>(null);
@@ -28,7 +31,17 @@ export const TranscribeFile: FC = () => {
       filters: [
         {
           name: "Audio/Video",
-          extensions: ["mp3", "wav", "m4a", "mp4", "mkv", "mov", "flac", "ogg", "webm"],
+          extensions: [
+            "mp3",
+            "wav",
+            "m4a",
+            "mp4",
+            "mkv",
+            "mov",
+            "flac",
+            "ogg",
+            "webm",
+          ],
         },
       ],
     });
@@ -42,7 +55,12 @@ export const TranscribeFile: FC = () => {
   const pickOutput = async () => {
     const { save: saveDialog } = await import("@tauri-apps/plugin-dialog");
     const ext = timestamps ? format : "txt";
-    const base = path ? path.replace(/\.[^/.]+$/, "").split(/[\\/]/).pop() : "transcript";
+    const base = path
+      ? path
+          .replace(/\.[^/.]+$/, "")
+          .split(/[\\/]/)
+          .pop()
+      : "transcript";
     const target = await saveDialog({ defaultPath: `${base}.${ext}` });
     if (typeof target === "string") setOutputPath(target);
   };
@@ -64,7 +82,8 @@ export const TranscribeFile: FC = () => {
     );
     const unlistenDl = await listen<{ percentage: number }>(
       "model-download-progress",
-      (e) => setProgress({ phase: "loading_model", percent: e.payload.percentage }),
+      (e) =>
+        setProgress({ phase: "loading_model", percent: e.payload.percentage }),
     );
     try {
       const res = await commands.transcribeFileToString(
@@ -107,7 +126,9 @@ export const TranscribeFile: FC = () => {
 
   return (
     <div className="max-w-3xl w-full mx-auto space-y-4 p-2">
-      <h2 className="text-lg font-semibold">{t("settings.transcribe.title")}</h2>
+      <h2 className="text-lg font-semibold">
+        {t("settings.transcribe.title")}
+      </h2>
 
       <div className="flex items-center gap-3">
         <button
@@ -130,7 +151,9 @@ export const TranscribeFile: FC = () => {
         >
           {t("settings.transcribe.saveTo")}
         </button>
-        <span className="text-xs text-text/60 truncate">{outputPath ?? ""}</span>
+        <span className="text-xs text-text/60 truncate">
+          {outputPath ?? ""}
+        </span>
       </div>
 
       <label className="flex items-center gap-2 text-sm">
@@ -180,7 +203,9 @@ export const TranscribeFile: FC = () => {
         <div className="space-y-2">
           <ProgressBar
             percent={progress.percent}
-            label={t(`settings.transcribe.progress.${progress.phase === "loading_model" ? "loadingModel" : progress.phase}`)}
+            label={t(
+              `settings.transcribe.progress.${progress.phase === "loading_model" ? "loadingModel" : progress.phase}`,
+            )}
           />
           <button
             type="button"
@@ -193,7 +218,9 @@ export const TranscribeFile: FC = () => {
         </div>
       )}
       {cancelling && !busy && (
-        <div className="text-sm text-text/60">{t("settings.transcribe.cancelled")}</div>
+        <div className="text-sm text-text/60">
+          {t("settings.transcribe.cancelled")}
+        </div>
       )}
 
       <div className="flex gap-2">
@@ -203,7 +230,9 @@ export const TranscribeFile: FC = () => {
           onClick={run}
           className="px-3 py-2 rounded bg-green-600 text-white text-sm disabled:opacity-40"
         >
-          {busy ? t("settings.transcribe.working") : t("settings.transcribe.run")}
+          {busy
+            ? t("settings.transcribe.working")
+            : t("settings.transcribe.run")}
         </button>
         {result && (
           <>

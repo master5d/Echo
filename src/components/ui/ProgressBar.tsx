@@ -8,7 +8,9 @@ interface ProgressBarProps {
 
 export const ProgressBar: FC<ProgressBarProps> = ({ percent, label }) => {
   const determinate = percent !== null && Number.isFinite(percent);
-  const width = determinate ? Math.max(0, Math.min(100, percent as number)) : 100;
+  const width = determinate
+    ? Math.max(0, Math.min(100, percent as number))
+    : 100;
   return (
     <div className="w-full space-y-1">
       <div className="flex justify-between text-xs text-text/60">

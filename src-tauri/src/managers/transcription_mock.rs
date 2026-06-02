@@ -3,6 +3,7 @@
 // Existing tests don't exercise transcription, so this is safe.
 
 use crate::managers::model::ModelManager;
+use crate::transcript_format::{SpeakerTurn, TimedSegment};
 use anyhow::Result;
 use serde::Serialize;
 use specta::Type;
@@ -19,6 +20,23 @@ pub struct ModelStateEvent {
 
 /// RAII guard that is a no-op in the mock — mirrors the real `LoadingGuard`.
 pub struct LoadingGuard;
+
+/// Mirror of the real `TranscriptionDetails` so consumers (`file_transcription`,
+/// `commands::transcribe`) type-check under the CI mock.
+#[derive(Debug, Clone, Serialize)]
+pub struct TranscriptionDetails {
+    pub text: String,
+    pub segments: Vec<TimedSegment>,
+    pub words: Option<Vec<TimedSegment>>,
+    pub speakers: Option<Vec<SpeakerTurn>>,
+}
+
+/// Mirror of the real `TranscribeOpts`.
+#[derive(Clone, Copy, Default)]
+pub struct TranscribeOpts {
+    pub word_timestamps: bool,
+    pub emit_progress: bool,
+}
 
 #[derive(Clone)]
 pub struct TranscriptionManager {
@@ -59,6 +77,27 @@ impl TranscriptionManager {
 
     pub fn transcribe(&self, _audio: Vec<f32>) -> Result<String> {
         Ok(String::new())
+    }
+
+    /// No-op cancellation surface in the mock.
+    pub fn request_cancel(&self) {}
+    pub fn reset_cancel(&self) {}
+    pub fn is_cancelled(&self) -> bool {
+        false
+    }
+
+    /// Returns empty details in the CI mock.
+    pub fn transcribe_detailed_with(
+        &self,
+        _audio: Vec<f32>,
+        _opts: TranscribeOpts,
+    ) -> Result<TranscriptionDetails> {
+        Ok(TranscriptionDetails {
+            text: String::new(),
+            segments: vec![],
+            words: None,
+            speakers: None,
+        })
     }
 }
 
