@@ -1,29 +1,36 @@
 import { open } from "@tauri-apps/plugin-dialog";
-import { type FC, useState } from "react";
+import { type FC } from "react";
 import { useTranslation } from "react-i18next";
-import { commands } from "@/bindings";
-import { listen } from "@tauri-apps/api/event";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-
-type Format = "plain" | "inline" | "srt" | "vtt" | "json" | "karaoke";
+import {
+  useTranscribeStore,
+  type TranscribeFormat,
+} from "@/stores/transcribeStore";
 
 export const TranscribeFile: FC = () => {
   const { t } = useTranslation();
-  const [path, setPath] = useState<string | null>(null);
-  const [timestamps, setTimestamps] = useState(false);
-  const [format, setFormat] = useState<Format>("inline");
-  const [diarize, setDiarize] = useState(false);
-  const [speakers, setSpeakers] = useState<string>("");
-  const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
-  const [progress, setProgress] = useState<{
-    phase: string;
-    percent: number | null;
-  } | null>(null);
-  const [cancelling, setCancelling] = useState(false);
-  const [outputPath, setOutputPath] = useState<string | null>(null);
-  const [savedTo, setSavedTo] = useState<string | null>(null);
+  const {
+    path,
+    timestamps,
+    format,
+    diarize,
+    speakers,
+    outputPath,
+    busy,
+    result,
+    error,
+    progress,
+    cancelling,
+    savedTo,
+    setPath,
+    setTimestamps,
+    setFormat,
+    setDiarize,
+    setSpeakers,
+    setOutputPath,
+    run,
+    cancel,
+  } = useTranscribeStore();
 
   const pickFile = async () => {
     const selected = await open({
@@ -45,11 +52,7 @@ export const TranscribeFile: FC = () => {
         },
       ],
     });
-    if (typeof selected === "string") {
-      setPath(selected);
-      setResult("");
-      setError(null);
-    }
+    if (typeof selected === "string") setPath(selected);
   };
 
   const pickOutput = async () => {
@@ -63,56 +66,6 @@ export const TranscribeFile: FC = () => {
       : "transcript";
     const target = await saveDialog({ defaultPath: `${base}.${ext}` });
     if (typeof target === "string") setOutputPath(target);
-  };
-
-  const run = async () => {
-    if (!path) return;
-    setBusy(true);
-    setError(null);
-    setResult("");
-    setSavedTo(null);
-    setCancelling(false);
-    setProgress({ phase: "decoding", percent: null });
-    const effectiveFormat: Format = timestamps ? format : "plain";
-    const hint = diarize && speakers.trim() ? Number(speakers.trim()) : null;
-
-    const unlisten = await listen<{ phase: string; percent: number | null }>(
-      "transcription-progress",
-      (e) => setProgress(e.payload),
-    );
-    const unlistenDl = await listen<{ percentage: number }>(
-      "model-download-progress",
-      (e) =>
-        setProgress({ phase: "loading_model", percent: e.payload.percentage }),
-    );
-    try {
-      const res = await commands.transcribeFileToString(
-        path,
-        null,
-        null,
-        diarize,
-        Number.isFinite(hint) ? hint : null,
-        effectiveFormat,
-      );
-      if (res.status === "ok") {
-        setResult(res.data);
-        if (outputPath) {
-          const { writeTextFile } = await import("@tauri-apps/plugin-fs");
-          await writeTextFile(outputPath, res.data);
-          setSavedTo(outputPath);
-        }
-      } else if (!cancelling) setError(res.error);
-    } finally {
-      unlisten();
-      unlistenDl();
-      setBusy(false);
-      setProgress(null);
-    }
-  };
-
-  const cancel = async () => {
-    setCancelling(true);
-    await commands.cancelFileTranscription();
   };
 
   const save = async () => {
@@ -168,7 +121,7 @@ export const TranscribeFile: FC = () => {
       {timestamps && (
         <select
           value={format}
-          onChange={(e) => setFormat(e.target.value as Format)}
+          onChange={(e) => setFormat(e.target.value as TranscribeFormat)}
           className="text-sm bg-transparent border border-slate-700 rounded px-2 py-1"
         >
           <option value="inline">{t("settings.transcribe.fmtInline")}</option>
