@@ -15,6 +15,21 @@ use tauri::{AppHandle, Manager};
 /// Sample rate the engine and diarizer both expect (ffmpeg downmixes to this).
 pub const TARGET_SAMPLE_RATE: u32 = 16_000;
 
+/// `Command` that doesn't flash a console window on Windows. The GUI app runs
+/// with `windows_subsystem = "windows"` (no console of its own), so spawning a
+/// child process like ffmpeg would otherwise pop a visible console window for
+/// the child's lifetime. No-op on other platforms.
+fn no_window_command(program: &str) -> Command {
+    #[allow(unused_mut)]
+    let mut cmd = Command::new(program);
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        cmd.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
+    }
+    cmd
+}
+
 /// Transcribe a file to full details. `diarize`/`speaker_hint` are accepted now
 /// but only take effect once `diarization::diarize` is implemented (Phase 2);
 /// until then a warning is emitted and speakers stay `None`.
@@ -30,7 +45,7 @@ pub fn transcribe_file_detailed(
     let input_str = input.to_str().context("Input path is not valid UTF-8")?;
 
     // ffmpeg guard — a clear message beats a cryptic spawn failure.
-    let ffmpeg_ok = Command::new("ffmpeg")
+    let ffmpeg_ok = no_window_command("ffmpeg")
         .arg("-version")
         .stdout(Stdio::null())
         .stderr(Stdio::null())
@@ -111,7 +126,7 @@ fn run_engine(
     let temp_wav = std::env::temp_dir().join(format!("echo_cli_{}.wav", ts));
 
     println!("[*] Extracting audio via ffmpeg (16kHz mono)...");
-    let status = Command::new("ffmpeg")
+    let status = no_window_command("ffmpeg")
         .args([
             "-i",
             input_str,
