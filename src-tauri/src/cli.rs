@@ -46,7 +46,8 @@ pub struct CliArgs {
     #[arg(long, value_name = "MODEL")]
     pub model: Option<String>,
 
-    /// Output format for offline transcription: plain (default), inline, srt, vtt, json, karaoke.
+    /// Output format for offline transcription: plain (default), inline, srt, vtt, json, karaoke, speaker.
+    /// `speaker` groups diarized turns as `[Speaker N] (M:SS - M:SS)` blocks.
     #[arg(long, value_name = "FORMAT")]
     pub format: Option<String>,
 

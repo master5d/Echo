@@ -152,6 +152,12 @@ export const TranscribeFile: FC = () => {
         />
       )}
 
+      {diarize && (
+        <p className="text-xs text-text/50 whitespace-pre-line leading-relaxed border-l-2 border-amber-500/40 pl-3">
+          {t("settings.transcribe.diarizeCliNote")}
+        </p>
+      )}
+
       {busy && progress && (
         <div className="space-y-2">
           <ProgressBar
