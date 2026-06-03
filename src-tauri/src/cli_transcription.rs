@@ -35,7 +35,7 @@ is auto-detected); the value is ignored."
     // Resolve output format: explicit --format wins, else infer from -o extension, else plain.
     let fmt = match format {
         Some(f) => OutputFormat::from_cli(f).with_context(|| {
-            format!("Unknown --format '{f}'. Use plain|inline|srt|vtt|json|karaoke.")
+            format!("Unknown --format '{f}'. Use plain|inline|srt|vtt|json|karaoke|speaker.")
         })?,
         None => output
             .and_then(|p| p.extension())

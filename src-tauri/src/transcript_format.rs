@@ -32,6 +32,10 @@ pub enum OutputFormat {
     Vtt,
     Json,
     Karaoke,
+    /// Speaker-grouped transcript: consecutive same-speaker segments collapsed
+    /// into one block headed `[Speaker N] (M:SS - M:SS)` followed by the text.
+    /// Intended for diarized output (`--diarize`).
+    Speaker,
 }
 
 impl OutputFormat {
@@ -44,6 +48,7 @@ impl OutputFormat {
             "vtt" | "webvtt" => Some(Self::Vtt),
             "json" => Some(Self::Json),
             "karaoke" => Some(Self::Karaoke),
+            "speaker" | "speakers" | "diarized" => Some(Self::Speaker),
             _ => None,
         }
     }
@@ -88,6 +93,13 @@ pub fn fmt_vtt(secs: f32) -> String {
 pub fn fmt_inline(secs: f32) -> String {
     let total = secs.max(0.0).round() as u64;
     format!("{:02}:{:02}", total / 60, total % 60)
+}
+
+/// `M:SS` clock for speaker-block headers — minutes have no leading zero and may
+/// exceed 59 (e.g. `0:01`, `2:14`, `75:30`). Matches the `(0:01 - 0:16)` style.
+pub fn fmt_clock(secs: f32) -> String {
+    let total = secs.max(0.0).round() as u64;
+    format!("{}:{:02}", total / 60, total % 60)
 }
 
 fn hmsms(secs: f32) -> (u64, u64, u64, u64) {
@@ -421,6 +433,41 @@ pub fn render(
         }
 
         OutputFormat::Karaoke => render_karaoke(words.unwrap_or(&[]), speakers),
+
+        // Speaker-grouped blocks: `[Speaker N] (M:SS - M:SS)\n<turn text>` with a
+        // blank line between turns. Consecutive same-speaker sub-segments collapse
+        // into one block.
+        OutputFormat::Speaker => {
+            let mut out = String::new();
+            let mut i = 0;
+            while i < resolved.len() {
+                let sp = resolved[i].1;
+                let mut j = i + 1;
+                while j < resolved.len() && resolved[j].1 == sp {
+                    j += 1;
+                }
+                let start = resolved[i].0.start;
+                let end = resolved[j - 1].0.end;
+                let label = sp
+                    .map(speaker_label)
+                    .unwrap_or_else(|| "Speaker ?".to_string());
+                let text = resolved[i..j]
+                    .iter()
+                    .map(|(s, _)| s.text.trim())
+                    .filter(|t| !t.is_empty())
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                out.push_str(&format!(
+                    "[{}] ({} - {})\n{}\n\n",
+                    label,
+                    fmt_clock(start),
+                    fmt_clock(end),
+                    text
+                ));
+                i = j;
+            }
+            out.trim_end().to_string()
+        }
     }
 }
 
@@ -698,5 +745,48 @@ mod tests {
     fn is_word_level_flags() {
         assert!(OutputFormat::Karaoke.is_word_level());
         assert!(!OutputFormat::Srt.is_word_level());
+    }
+
+    #[test]
+    fn fmt_clock_has_no_leading_zero_minute() {
+        assert_eq!(fmt_clock(1.0), "0:01");
+        assert_eq!(fmt_clock(16.0), "0:16");
+        assert_eq!(fmt_clock(134.0), "2:14");
+        assert_eq!(fmt_clock(4530.0), "75:30");
+    }
+
+    #[test]
+    fn speaker_format_groups_turns_with_clock_headers() {
+        let segs = vec![seg(1.0, 16.0, "Hi there."), seg(17.0, 56.0, "Vastu is.")];
+        let turns = vec![
+            SpeakerTurn {
+                start: 0.0,
+                end: 16.5,
+                speaker: SpeakerId(1),
+            },
+            SpeakerTurn {
+                start: 16.5,
+                end: 60.0,
+                speaker: SpeakerId(0),
+            },
+        ];
+        let out = render("", &segs, None, Some(&turns), OutputFormat::Speaker);
+        assert!(out.contains("[Speaker 2] (0:01 - 0:16)\nHi there."));
+        assert!(out.contains("[Speaker 1] (0:17 - 0:56)\nVastu is."));
+        // one blank line between turn blocks, no trailing blank
+        assert!(out.contains("Hi there.\n\n[Speaker 1]"));
+        assert!(!out.ends_with('\n'));
+    }
+
+    #[test]
+    fn speaker_format_parses_from_cli() {
+        assert_eq!(
+            OutputFormat::from_cli("speaker"),
+            Some(OutputFormat::Speaker)
+        );
+        assert_eq!(
+            OutputFormat::from_cli("diarized"),
+            Some(OutputFormat::Speaker)
+        );
     }
 }
