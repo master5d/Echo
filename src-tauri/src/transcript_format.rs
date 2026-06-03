@@ -434,41 +434,130 @@ pub fn render(
 
         OutputFormat::Karaoke => render_karaoke(words.unwrap_or(&[]), speakers),
 
-        // Speaker-grouped blocks: `[Speaker N] (M:SS - M:SS)\n<turn text>` with a
-        // blank line between turns. Consecutive same-speaker sub-segments collapse
-        // into one block.
-        OutputFormat::Speaker => {
-            let mut out = String::new();
-            let mut i = 0;
-            while i < resolved.len() {
-                let sp = resolved[i].1;
-                let mut j = i + 1;
-                while j < resolved.len() && resolved[j].1 == sp {
-                    j += 1;
-                }
-                let start = resolved[i].0.start;
-                let end = resolved[j - 1].0.end;
-                let label = sp
-                    .map(speaker_label)
-                    .unwrap_or_else(|| "Speaker ?".to_string());
-                let text = resolved[i..j]
-                    .iter()
-                    .map(|(s, _)| s.text.trim())
-                    .filter(|t| !t.is_empty())
-                    .collect::<Vec<_>>()
-                    .join(" ");
-                out.push_str(&format!(
-                    "[{}] ({} - {})\n{}\n\n",
-                    label,
-                    fmt_clock(start),
-                    fmt_clock(end),
-                    text
-                ));
-                i = j;
-            }
-            out.trim_end().to_string()
+        OutputFormat::Speaker => render_speaker_blocks(words, segments, speakers),
+    }
+}
+
+/// Majority speaker among `words` by per-word max-overlap vote; `None` if none of
+/// the words overlap any turn.
+fn majority_speaker(words: &[TimedSegment], turns: &[SpeakerTurn]) -> Option<SpeakerId> {
+    use std::collections::HashMap;
+    let mut counts: HashMap<u32, usize> = HashMap::new();
+    for w in words {
+        if let Some(sp) = speaker_at(w.start, w.end, turns) {
+            *counts.entry(sp.0).or_insert(0) += 1;
         }
     }
+    // Max count; ties broken by lowest speaker id for determinism.
+    counts
+        .into_iter()
+        .max_by(|a, b| a.1.cmp(&b.1).then(b.0.cmp(&a.0)))
+        .map(|(id, _)| SpeakerId(id))
+}
+
+/// Speaker-grouped transcript: `[Speaker N] (M:SS - M:SS)\n<turn text>` blocks,
+/// blank line between turns. Attribution is **sentence-level** — words are
+/// grouped into sentences (ending on `. ! ? …`) and each sentence takes the
+/// majority speaker of its words, so turns align to sentences instead of
+/// fragmenting on per-word diarization jitter. Falls back to segment-level when
+/// no word timings are available. Gaps with no diarization coverage inherit the
+/// neighbouring speaker (forward- then backward-fill) to avoid stray `Speaker ?`.
+pub fn render_speaker_blocks(
+    words: Option<&[TimedSegment]>,
+    segments: &[TimedSegment],
+    turns: Option<&[SpeakerTurn]>,
+) -> String {
+    struct Unit {
+        start: f32,
+        end: f32,
+        text: String,
+        sp: Option<SpeakerId>,
+    }
+
+    let mut units: Vec<Unit> = match (words, turns) {
+        (Some(w), Some(t)) if !w.is_empty() => {
+            let mut out: Vec<Unit> = Vec::new();
+            let mut i = 0;
+            while i < w.len() {
+                let mut j = i;
+                loop {
+                    let ends = w[j].text.trim_end().ends_with(['.', '!', '?', '…']);
+                    j += 1;
+                    if ends || j >= w.len() {
+                        break;
+                    }
+                }
+                out.push(Unit {
+                    start: w[i].start,
+                    end: w[j - 1].end,
+                    text: w[i..j]
+                        .iter()
+                        .map(|x| x.text.trim())
+                        .filter(|s| !s.is_empty())
+                        .collect::<Vec<_>>()
+                        .join(" "),
+                    sp: majority_speaker(&w[i..j], t),
+                });
+                i = j;
+            }
+            out
+        }
+        // No word timings: treat each segment as a unit tagged by max overlap.
+        _ => segments
+            .iter()
+            .map(|s| Unit {
+                start: s.start,
+                end: s.end,
+                text: s.text.trim().to_string(),
+                sp: turns.and_then(|t| speaker_at(s.start, s.end, t)),
+            })
+            .collect(),
+    };
+
+    // Fill `None` units from neighbours (forward then backward).
+    let mut last: Option<SpeakerId> = None;
+    for u in units.iter_mut() {
+        match u.sp {
+            Some(sp) => last = Some(sp),
+            None => u.sp = last,
+        }
+    }
+    let mut next: Option<SpeakerId> = None;
+    for u in units.iter_mut().rev() {
+        match u.sp {
+            Some(sp) => next = Some(sp),
+            None => u.sp = next,
+        }
+    }
+
+    // Merge consecutive same-speaker units into blocks.
+    let mut out = String::new();
+    let mut i = 0;
+    while i < units.len() {
+        let sp = units[i].sp;
+        let mut j = i + 1;
+        while j < units.len() && units[j].sp == sp {
+            j += 1;
+        }
+        let label = sp
+            .map(speaker_label)
+            .unwrap_or_else(|| "Speaker ?".to_string());
+        let text = units[i..j]
+            .iter()
+            .map(|u| u.text.as_str())
+            .filter(|t| !t.is_empty())
+            .collect::<Vec<_>>()
+            .join(" ");
+        out.push_str(&format!(
+            "[{}] ({} - {})\n{}\n\n",
+            label,
+            fmt_clock(units[i].start),
+            fmt_clock(units[j - 1].end),
+            text
+        ));
+        i = j;
+    }
+    out.trim_end().to_string()
 }
 
 #[cfg(test)]
@@ -788,5 +877,41 @@ mod tests {
             OutputFormat::from_cli("diarized"),
             Some(OutputFormat::Speaker)
         );
+    }
+
+    #[test]
+    fn speaker_format_is_sentence_level_not_word_jittery() {
+        // Word-level path: a single stray word overlaps the other speaker's turn,
+        // but sentence-majority keeps each sentence whole — no mid-phrase split.
+        let words = vec![
+            seg(0.0, 1.0, "Hi"),
+            seg(1.0, 2.0, "there"),
+            seg(2.0, 3.0, "friend."),
+            seg(3.0, 4.0, "How"),
+            seg(4.0, 5.0, "are"),
+            seg(5.0, 6.0, "you?"),
+        ];
+        let turns = vec![
+            SpeakerTurn {
+                start: 0.0,
+                end: 4.0,
+                speaker: SpeakerId(0),
+            },
+            SpeakerTurn {
+                start: 4.0,
+                end: 5.0,
+                speaker: SpeakerId(1),
+            },
+            SpeakerTurn {
+                start: 5.0,
+                end: 6.0,
+                speaker: SpeakerId(0),
+            },
+        ];
+        let out = render("", &[], Some(&words), Some(&turns), OutputFormat::Speaker);
+        assert!(out.contains("[Speaker 1] (0:00 - 0:06)"));
+        assert!(out.contains("Hi there friend. How are you?"));
+        // The 4..5 blip does not fragment the turn into extra blocks.
+        assert_eq!(out.matches("[Speaker").count(), 1);
     }
 }
