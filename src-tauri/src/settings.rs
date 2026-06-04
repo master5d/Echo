@@ -420,6 +420,14 @@ pub struct AppSettings {
     pub post_process_prompts: Vec<LLMPrompt>,
     #[serde(default)]
     pub post_process_selected_prompt_id: Option<String>,
+    #[serde(default = "default_translate_enabled")]
+    pub translate_enabled: bool,
+    #[serde(default = "default_translate_target")]
+    pub translate_target: crate::translate::Lang,
+    #[serde(default = "default_translate_model")]
+    pub translate_model: String,
+    #[serde(default = "default_translate_base_url")]
+    pub translate_base_url: String,
     #[serde(default)]
     pub mute_while_recording: bool,
     #[serde(default)]
@@ -522,6 +530,22 @@ fn default_always_on_microphone() -> bool {
 
 fn default_translate_to_english() -> bool {
     false
+}
+
+fn default_translate_enabled() -> bool {
+    false
+}
+
+fn default_translate_target() -> crate::translate::Lang {
+    crate::translate::Lang::English
+}
+
+fn default_translate_model() -> String {
+    "hy-mt1.5".to_string()
+}
+
+fn default_translate_base_url() -> String {
+    "http://127.0.0.1:11434/v1".to_string()
 }
 
 fn default_start_hidden() -> bool {
@@ -913,6 +937,10 @@ pub fn get_default_settings() -> AppSettings {
         post_process_models: default_post_process_models(),
         post_process_prompts: default_post_process_prompts(),
         post_process_selected_prompt_id: None,
+        translate_enabled: default_translate_enabled(),
+        translate_target: default_translate_target(),
+        translate_model: default_translate_model(),
+        translate_base_url: default_translate_base_url(),
         mute_while_recording: false,
         append_trailing_space: false,
         app_language: default_app_language(),
@@ -1129,5 +1157,31 @@ mod tests {
         let out = format!("{:?}", map);
         assert!(!out.contains("secret"));
         assert!(out.contains("[REDACTED]"));
+    }
+}
+
+#[cfg(test)]
+mod translate_settings_tests {
+    use super::*;
+
+    #[test]
+    fn missing_translate_keys_use_defaults() {
+        let mut value =
+            serde_json::to_value(get_default_settings()).expect("default settings serialize");
+        let object = value.as_object_mut().expect("settings serialize as object");
+        object.remove("translate_enabled");
+        object.remove("translate_target");
+        object.remove("translate_model");
+        object.remove("translate_base_url");
+
+        let settings: AppSettings =
+            serde_json::from_value(value).expect("translate defaults fill missing fields");
+        assert!(!settings.translate_enabled);
+        assert_eq!(settings.translate_target, crate::translate::Lang::English);
+        assert_eq!(settings.translate_model, "hy-mt1.5");
+        assert_eq!(
+            settings.translate_base_url,
+            "http://127.0.0.1:11434/v1"
+        );
     }
 }

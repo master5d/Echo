@@ -23,6 +23,7 @@ mod settings;
 mod shortcut;
 mod transcript_format;
 mod transcription_coordinator;
+mod translate;
 mod utils;
 mod voice_commands;
 
@@ -560,6 +561,7 @@ pub fn run(cli_args: CliArgs) {
                 let format = cli_args.format.clone();
                 let diarize = cli_args.diarize;
                 let speakers = cli_args.speakers;
+                let translate = cli_args.translate.clone();
 
                 // Initialize core logic before starting transcription
                 initialize_core_logic(&app_handle);
@@ -574,6 +576,7 @@ pub fn run(cli_args: CliArgs) {
                         format.as_deref(),
                         diarize,
                         speakers,
+                        translate.as_deref(),
                     ) {
                         eprintln!("[!] CLI Transcription failed: {}", e);
                         std::process::exit(1);

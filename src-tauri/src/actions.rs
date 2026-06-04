@@ -396,6 +396,28 @@ fn get_active_window_title() -> Option<String> {
     None
 }
 
+/// Optionally translate `text` into `target`. Translation is strictly additive and
+/// must NEVER break dictation: on any translator error (server down, timeout, empty
+/// result) the ORIGINAL text is returned, so the user always gets their words —
+/// untranslated at worst, never lost.
+fn maybe_translate(
+    text: &str,
+    enabled: bool,
+    target: crate::translate::Lang,
+    translator: &dyn crate::translate::Translator,
+) -> String {
+    if !enabled || text.trim().is_empty() {
+        return text.to_string();
+    }
+    match translator.translate(text, target) {
+        Ok(translated) => translated,
+        Err(e) => {
+            warn!("Translation failed; pasting original dictation verbatim: {e:#}");
+            text.to_string()
+        }
+    }
+}
+
 pub(crate) async fn process_transcription_output(
     app: &AppHandle,
     transcription: &str,
@@ -558,6 +580,32 @@ pub(crate) async fn process_transcription_output(
                 }
             }
         }
+    }
+
+    // Optional translation: speak in one language, paste another. Runs after
+    // post-processing but BEFORE snippet expansion so canned snippets (URLs,
+    // signatures) stay verbatim. Offloaded to a blocking thread so it never stalls
+    // the async pipeline, and graceful on failure (returns the original text).
+    if settings.translate_enabled {
+        let target = settings.translate_target;
+        let translator = crate::translate::ServerTranslator {
+            provider: crate::settings::PostProcessProvider {
+                id: "translate-local".to_string(),
+                label: "Translate".to_string(),
+                base_url: settings.translate_base_url.clone(),
+                allow_base_url_edit: false,
+                models_endpoint: None,
+                supports_structured_output: false,
+            },
+            model: settings.translate_model.clone(),
+            api_key: String::new(),
+        };
+        let src = final_text.clone();
+        final_text = tokio::task::spawn_blocking(move || {
+            maybe_translate(&src, true, target, &translator)
+        })
+        .await
+        .unwrap_or(final_text);
     }
 
     // Snippet expansion is the final transform so canned text (URLs, signatures)
@@ -992,3 +1040,54 @@ pub static ACTION_MAP: Lazy<HashMap<String, Arc<dyn ShortcutAction>>> = Lazy::ne
     );
     map
 });
+
+#[cfg(test)]
+mod translate_tests {
+    use super::*;
+    use crate::translate::{Lang, Translator};
+
+    struct OkTranslator;
+    impl Translator for OkTranslator {
+        fn translate(&self, _text: &str, _target: Lang) -> anyhow::Result<String> {
+            Ok("ПЕРЕВОД".to_string())
+        }
+    }
+    struct ErrTranslator;
+    impl Translator for ErrTranslator {
+        fn translate(&self, _text: &str, _target: Lang) -> anyhow::Result<String> {
+            Err(anyhow::anyhow!("server down"))
+        }
+    }
+
+    #[test]
+    fn translates_when_enabled() {
+        assert_eq!(
+            maybe_translate("hello", true, Lang::Russian, &OkTranslator),
+            "ПЕРЕВОД"
+        );
+    }
+
+    #[test]
+    fn passthrough_when_disabled() {
+        assert_eq!(
+            maybe_translate("hello", false, Lang::Russian, &OkTranslator),
+            "hello"
+        );
+    }
+
+    #[test]
+    fn graceful_on_translator_error_returns_original() {
+        assert_eq!(
+            maybe_translate("hello", true, Lang::Russian, &ErrTranslator),
+            "hello"
+        );
+    }
+
+    #[test]
+    fn empty_text_is_passthrough() {
+        assert_eq!(
+            maybe_translate("   ", true, Lang::Russian, &OkTranslator),
+            "   "
+        );
+    }
+}
