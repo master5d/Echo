@@ -1179,9 +1179,6 @@ mod translate_settings_tests {
         assert!(!settings.translate_enabled);
         assert_eq!(settings.translate_target, crate::translate::Lang::English);
         assert_eq!(settings.translate_model, "hy-mt1.5");
-        assert_eq!(
-            settings.translate_base_url,
-            "http://127.0.0.1:11434/v1"
-        );
+        assert_eq!(settings.translate_base_url, "http://127.0.0.1:11434/v1");
     }
 }

@@ -1,13 +1,4 @@
-#[derive(
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    serde::Serialize,
-    serde::Deserialize,
-    specta::Type,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize, specta::Type)]
 pub enum Lang {
     Chinese,
     English,
@@ -255,7 +246,10 @@ mod tests {
     fn display_names_and_all() {
         assert_eq!(Lang::from_display_name("Russian"), Some(Lang::Russian));
         assert_eq!(Lang::from_display_name("chinese"), Some(Lang::Chinese));
-        assert_eq!(Lang::from_display_name("Traditional Chinese"), Some(Lang::TraditionalChinese));
+        assert_eq!(
+            Lang::from_display_name("Traditional Chinese"),
+            Some(Lang::TraditionalChinese)
+        );
         assert_eq!(Lang::from_display_name("Unknown"), None);
 
         assert_eq!(format!("{}", Lang::Russian), "Russian");

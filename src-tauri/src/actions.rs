@@ -601,11 +601,10 @@ pub(crate) async fn process_transcription_output(
             api_key: String::new(),
         };
         let src = final_text.clone();
-        final_text = tokio::task::spawn_blocking(move || {
-            maybe_translate(&src, true, target, &translator)
-        })
-        .await
-        .unwrap_or(final_text);
+        final_text =
+            tokio::task::spawn_blocking(move || maybe_translate(&src, true, target, &translator))
+                .await
+                .unwrap_or(final_text);
     }
 
     // Snippet expansion is the final transform so canned text (URLs, signatures)

@@ -567,12 +567,18 @@ mod tests {
 
     #[test]
     fn from_extension_md_is_plain() {
-        assert_eq!(OutputFormat::from_extension("md"), Some(OutputFormat::Plain));
+        assert_eq!(
+            OutputFormat::from_extension("md"),
+            Some(OutputFormat::Plain)
+        );
         assert_eq!(
             OutputFormat::from_extension("markdown"),
             Some(OutputFormat::Plain)
         );
-        assert_eq!(OutputFormat::from_extension("txt"), Some(OutputFormat::Plain));
+        assert_eq!(
+            OutputFormat::from_extension("txt"),
+            Some(OutputFormat::Plain)
+        );
     }
 
     fn seg(start: f32, end: f32, text: &str) -> TimedSegment {
