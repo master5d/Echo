@@ -661,7 +661,9 @@
       },
       "saveTo": "Save to…",
       "savedTo": "Saved to {{path}}",
-      "diarizeCliNote": "Diarization runs on CPU and is slow for long files — and an in-app run can stop if you switch tabs. For reliable speaker-labelled output, use the CLI:\necho --transcribe-file \"FILE\" -o \"OUT.txt\" --diarize --format speaker"
+      "diarizeCliNote": "Diarization runs on CPU and is slow for long files — and an in-app run can stop if you switch tabs. For reliable speaker-labelled output, use the CLI:\necho --transcribe-file \"FILE\" -o \"OUT.txt\" --diarize --format speaker",
+      "translate": "Přeložit do",
+      "translateNone": "Bez překladu"
     }
   },
   "footer": {
