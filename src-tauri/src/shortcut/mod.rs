@@ -536,12 +536,15 @@ pub fn change_translate_enabled_setting(app: AppHandle, enabled: bool) -> Result
     Ok(())
 }
 
-/// Set the dictation translation target language by ISO code (e.g. "en"/"ru"/"uk").
+/// Set the dictation translation target language. Takes a `Lang` directly (the
+/// frontend `Settings.translate_target` is a `Lang`), so it round-trips through the
+/// generic settings update path without ISO-code reparsing.
 #[tauri::command]
 #[specta::specta]
-pub fn change_translate_target_setting(app: AppHandle, lang: String) -> Result<(), String> {
-    let target = crate::translate::Lang::from_code(&lang)
-        .ok_or_else(|| format!("Unknown translate language '{lang}'"))?;
+pub fn change_translate_target_setting(
+    app: AppHandle,
+    target: crate::translate::Lang,
+) -> Result<(), String> {
     let mut settings = settings::get_settings(&app);
     settings.translate_target = target;
     settings::write_settings(&app, settings);

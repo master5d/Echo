@@ -29,6 +29,7 @@ import { SubtitleRefreshMs } from "./SubtitleRefreshMs";
 import { CommandMode } from "./CommandMode";
 import { Snippets } from "./Snippets";
 import { SelfCorrection } from "./SelfCorrection";
+import { TranslateDictation } from "./TranslateDictation";
 import { SpokenLists } from "./SpokenLists";
 import { DevDictionary } from "./DevDictionary";
 import { CaptureFolder } from "./CaptureFolder";
@@ -65,6 +66,7 @@ export const AdvancedSettings: React.FC = () => {
         <AutoCapitalize descriptionMode="tooltip" grouped={true} />
         <SelfCorrection descriptionMode="tooltip" grouped={true} />
         <SpokenLists descriptionMode="tooltip" grouped={true} />
+        <TranslateDictation grouped={true} />
         <AppendTrailingSpace descriptionMode="tooltip" grouped={true} />
       </SettingsGroup>
 

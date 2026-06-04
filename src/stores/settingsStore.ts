@@ -8,6 +8,7 @@ import type {
   OrtAcceleratorSetting,
   SubtitleFontSize,
   Snippet,
+  Lang,
 } from "@/bindings";
 import { commands } from "@/bindings";
 
@@ -111,6 +112,10 @@ const settingUpdaters: {
     commands.updateRecordingRetentionPeriod(value as string),
   translate_to_english: (value) =>
     commands.changeTranslateToEnglishSetting(value as boolean),
+  translate_enabled: (value) =>
+    commands.changeTranslateEnabledSetting(value as boolean),
+  translate_target: (value) =>
+    commands.changeTranslateTargetSetting(value as Lang),
   selected_language: (value) =>
     commands.changeSelectedLanguageSetting(value as string),
   overlay_position: (value) =>

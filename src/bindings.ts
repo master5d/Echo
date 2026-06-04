@@ -90,11 +90,13 @@ async changeTranslateEnabledSetting(enabled: boolean) : Promise<Result<null, str
 }
 },
 /**
- * Set the dictation translation target language by ISO code (e.g. "en"/"ru"/"uk").
+ * Set the dictation translation target language. Takes a `Lang` directly (the
+ * frontend `Settings.translate_target` is a `Lang`), so it round-trips through the
+ * generic settings update path without ISO-code reparsing.
  */
-async changeTranslateTargetSetting(lang: string) : Promise<Result<null, string>> {
+async changeTranslateTargetSetting(target: Lang) : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("change_translate_target_setting", { lang }) };
+    return { status: "ok", data: await TAURI_INVOKE("change_translate_target_setting", { target }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
