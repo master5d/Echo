@@ -7,6 +7,34 @@ import {
   type TranscribeFormat,
 } from "@/stores/transcribeStore";
 
+// Hy-MT target languages (ISO code -> English name). The backend lower-cases the
+// code via Lang::from_code, so casing here is cosmetic.
+const TRANSLATE_LANGS: ReadonlyArray<[string, string]> = [
+  ["en", "English"],
+  ["ru", "Russian"],
+  ["uk", "Ukrainian"],
+  ["zh", "Chinese"],
+  ["zh-Hant", "Traditional Chinese"],
+  ["es", "Spanish"],
+  ["fr", "French"],
+  ["de", "German"],
+  ["it", "Italian"],
+  ["pt", "Portuguese"],
+  ["ja", "Japanese"],
+  ["ko", "Korean"],
+  ["ar", "Arabic"],
+  ["tr", "Turkish"],
+  ["vi", "Vietnamese"],
+  ["pl", "Polish"],
+  ["cs", "Czech"],
+  ["nl", "Dutch"],
+  ["hi", "Hindi"],
+  ["fa", "Persian"],
+  ["he", "Hebrew"],
+  ["th", "Thai"],
+  ["id", "Indonesian"],
+];
+
 export const TranscribeFile: FC = () => {
   const { t } = useTranslation();
   const {
@@ -28,6 +56,8 @@ export const TranscribeFile: FC = () => {
     setDiarize,
     setSpeakers,
     setOutputPath,
+    translateTarget,
+    setTranslateTarget,
     run,
     cancel,
   } = useTranscribeStore();
@@ -57,7 +87,7 @@ export const TranscribeFile: FC = () => {
 
   const pickOutput = async () => {
     const { save: saveDialog } = await import("@tauri-apps/plugin-dialog");
-    const ext = timestamps ? format : "txt";
+    const ext = timestamps ? format : "md";
     const base = path
       ? path
           .replace(/\.[^/.]+$/, "")
@@ -72,7 +102,7 @@ export const TranscribeFile: FC = () => {
     const { save: saveDialog } = await import("@tauri-apps/plugin-dialog");
     const { writeTextFile } = await import("@tauri-apps/plugin-fs");
     const target = await saveDialog({
-      defaultPath: `transcript.${timestamps ? format : "txt"}`,
+      defaultPath: `transcript.${timestamps ? format : "md"}`,
     });
     if (typeof target === "string") await writeTextFile(target, result);
   };
@@ -157,6 +187,22 @@ export const TranscribeFile: FC = () => {
           {t("settings.transcribe.diarizeCliNote")}
         </p>
       )}
+
+      <label className="flex items-center gap-2 text-sm">
+        {t("settings.transcribe.translate")}
+        <select
+          value={translateTarget ?? ""}
+          onChange={(e) => setTranslateTarget(e.target.value || null)}
+          className="text-sm bg-transparent border border-slate-700 rounded px-2 py-1"
+        >
+          <option value="">{t("settings.transcribe.translateNone")}</option>
+          {TRANSLATE_LANGS.map(([code, name]) => (
+            <option key={code} value={code}>
+              {name}
+            </option>
+          ))}
+        </select>
+      </label>
 
       {busy && progress && (
         <div className="space-y-2">

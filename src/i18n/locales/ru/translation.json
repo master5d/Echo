@@ -651,7 +651,9 @@
       },
       "saveTo": "Save to…",
       "savedTo": "Saved to {{path}}",
-      "diarizeCliNote": "Диаризация работает на CPU и медленная для длинных файлов — а запуск в приложении может прерваться при переключении вкладок. Для надёжного результата со спикерами используйте CLI:\necho --transcribe-file \"ФАЙЛ\" -o \"ВЫХОД.txt\" --diarize --format speaker"
+      "diarizeCliNote": "Диаризация работает на CPU и медленная для длинных файлов — а запуск в приложении может прерваться при переключении вкладок. Для надёжного результата со спикерами используйте CLI:\necho --transcribe-file \"ФАЙЛ\" -o \"ВЫХОД.txt\" --diarize --format speaker",
+      "translate": "Перевести на",
+      "translateNone": "Без перевода"
     },
     "capture": {
       "captureSuccess": "Saved to capture folder",

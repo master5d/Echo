@@ -20,6 +20,8 @@ interface TranscribeState {
   diarize: boolean;
   speakers: string;
   outputPath: string | null;
+  // Optional offline-translation target (ISO code like "en"/"ru"); null = no translation.
+  translateTarget: string | null;
 
   // Run state (persist so a long transcription stays visible after navigating
   // away and back — the component used to hold this locally and lost it on
@@ -37,6 +39,7 @@ interface TranscribeState {
   setDiarize: (b: boolean) => void;
   setSpeakers: (s: string) => void;
   setOutputPath: (p: string | null) => void;
+  setTranslateTarget: (c: string | null) => void;
 
   run: () => Promise<void>;
   cancel: () => Promise<void>;
@@ -49,6 +52,7 @@ export const useTranscribeStore = create<TranscribeState>((set, get) => ({
   diarize: false,
   speakers: "",
   outputPath: null,
+  translateTarget: null,
 
   busy: false,
   result: "",
@@ -63,10 +67,19 @@ export const useTranscribeStore = create<TranscribeState>((set, get) => ({
   setDiarize: (b) => set({ diarize: b }),
   setSpeakers: (s) => set({ speakers: s }),
   setOutputPath: (p) => set({ outputPath: p }),
+  setTranslateTarget: (c) => set({ translateTarget: c }),
 
   run: async () => {
-    const { path, timestamps, format, diarize, speakers, outputPath, busy } =
-      get();
+    const {
+      path,
+      timestamps,
+      format,
+      diarize,
+      speakers,
+      outputPath,
+      translateTarget,
+      busy,
+    } = get();
     if (!path || busy) return;
 
     set({
@@ -103,6 +116,7 @@ export const useTranscribeStore = create<TranscribeState>((set, get) => ({
         diarize,
         Number.isFinite(hint) ? hint : null,
         effectiveFormat,
+        translateTarget,
       );
       if (res.status === "ok") {
         set({ result: res.data });

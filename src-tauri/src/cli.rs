@@ -58,4 +58,9 @@ pub struct CliArgs {
     /// Optional known speaker count hint for diarization (else auto-detected).
     #[arg(long, value_name = "N")]
     pub speakers: Option<usize>,
+
+    /// Translate the transcript into a target language offline (Hy-MT) and emit the
+    /// translated plain text. Value is a language code like "en"/"ru"/"uk".
+    #[arg(long, value_name = "LANG")]
+    pub translate: Option<String>,
 }

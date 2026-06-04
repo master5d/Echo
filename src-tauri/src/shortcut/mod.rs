@@ -525,6 +525,32 @@ pub fn change_translate_to_english_setting(app: AppHandle, enabled: bool) -> Res
     Ok(())
 }
 
+/// Offline Hy-MT translation (separate from the Whisper translate-to-English above):
+/// toggle whether dictation output is translated into `translate_target`.
+#[tauri::command]
+#[specta::specta]
+pub fn change_translate_enabled_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.translate_enabled = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+/// Set the dictation translation target language. Takes a `Lang` directly (the
+/// frontend `Settings.translate_target` is a `Lang`), so it round-trips through the
+/// generic settings update path without ISO-code reparsing.
+#[tauri::command]
+#[specta::specta]
+pub fn change_translate_target_setting(
+    app: AppHandle,
+    target: crate::translate::Lang,
+) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.translate_target = target;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
 #[tauri::command]
 #[specta::specta]
 pub fn change_selected_language_setting(app: AppHandle, language: String) -> Result<(), String> {
