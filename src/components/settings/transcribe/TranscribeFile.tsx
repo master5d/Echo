@@ -57,7 +57,7 @@ export const TranscribeFile: FC = () => {
 
   const pickOutput = async () => {
     const { save: saveDialog } = await import("@tauri-apps/plugin-dialog");
-    const ext = timestamps ? format : "txt";
+    const ext = timestamps ? format : "md";
     const base = path
       ? path
           .replace(/\.[^/.]+$/, "")
@@ -72,7 +72,7 @@ export const TranscribeFile: FC = () => {
     const { save: saveDialog } = await import("@tauri-apps/plugin-dialog");
     const { writeTextFile } = await import("@tauri-apps/plugin-fs");
     const target = await saveDialog({
-      defaultPath: `transcript.${timestamps ? format : "txt"}`,
+      defaultPath: `transcript.${timestamps ? format : "md"}`,
     });
     if (typeof target === "string") await writeTextFile(target, result);
   };
