@@ -30,6 +30,93 @@ fn no_window_command(program: &str) -> Command {
     cmd
 }
 
+/// Locate the ffmpeg executable. Tries PATH first, then common package-manager
+/// install locations on Windows (WinGet links dir, Chocolatey, Scoop) so the
+/// GUI app works even when it was launched before the PATH update took effect.
+fn find_ffmpeg() -> Option<String> {
+    // Fast path: already on PATH.
+    let ok = no_window_command("ffmpeg")
+        .arg("-version")
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false);
+    if ok {
+        return Some("ffmpeg".into());
+    }
+
+    // Windows fallback: check common package-manager locations.
+    #[cfg(windows)]
+    {
+        use std::path::PathBuf;
+
+        let mut candidates: Vec<PathBuf> = Vec::new();
+
+        // WinGet links directory (symlinks created by winget).
+        if let Ok(local) = std::env::var("LOCALAPPDATA") {
+            candidates.push(
+                PathBuf::from(&local)
+                    .join("Microsoft")
+                    .join("WinGet")
+                    .join("Links")
+                    .join("ffmpeg.exe"),
+            );
+            // Also scan Gyan.FFmpeg package folder (version-agnostic glob).
+            let pkg_root = PathBuf::from(&local)
+                .join("Microsoft")
+                .join("WinGet")
+                .join("Packages");
+            if let Ok(entries) = std::fs::read_dir(&pkg_root) {
+                for entry in entries.flatten() {
+                    let name = entry.file_name();
+                    if name.to_string_lossy().starts_with("Gyan.FFmpeg") {
+                        let bin = entry.path().join("ffmpeg-*").join("bin").join("ffmpeg.exe");
+                        // read_dir the version folder instead of globbing.
+                        if let Ok(versions) = std::fs::read_dir(entry.path()) {
+                            for v in versions.flatten() {
+                                candidates.push(v.path().join("bin").join("ffmpeg.exe"));
+                            }
+                        }
+                        let _ = bin;
+                    }
+                }
+            }
+        }
+
+        // Chocolatey.
+        candidates.push(PathBuf::from(r"C:\ProgramData\chocolatey\bin\ffmpeg.exe"));
+
+        // Scoop (current user).
+        if let Ok(user) = std::env::var("USERPROFILE") {
+            candidates.push(
+                PathBuf::from(&user)
+                    .join("scoop")
+                    .join("shims")
+                    .join("ffmpeg.exe"),
+            );
+        }
+
+        for p in &candidates {
+            if p.exists() {
+                let path_str = p.to_string_lossy().into_owned();
+                let probe = no_window_command(&path_str)
+                    .arg("-version")
+                    .stdout(Stdio::null())
+                    .stderr(Stdio::null())
+                    .status()
+                    .map(|s| s.success())
+                    .unwrap_or(false);
+                if probe {
+                    return Some(path_str);
+                }
+            }
+        }
+    }
+
+    None
+}
+
 /// Transcribe a file to full details. `diarize`/`speaker_hint` are accepted now
 /// but only take effect once `diarization::diarize` is implemented (Phase 2);
 /// until then a warning is emitted and speakers stay `None`.
@@ -45,18 +132,11 @@ pub fn transcribe_file_detailed(
     let input_str = input.to_str().context("Input path is not valid UTF-8")?;
 
     // ffmpeg guard — a clear message beats a cryptic spawn failure.
-    let ffmpeg_ok = no_window_command("ffmpeg")
-        .arg("-version")
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status()
-        .map(|s| s.success())
-        .unwrap_or(false);
-    if !ffmpeg_ok {
+    let Some(ffmpeg_exe) = find_ffmpeg() else {
         anyhow::bail!(
             "ffmpeg not found on PATH. Install it (e.g. `winget install Gyan.FFmpeg`) and retry."
         );
-    }
+    };
 
     // Resolve effective model/language and warn if the model can't code-switch RU/EN.
     let base_settings = get_settings(app_handle);
@@ -93,6 +173,7 @@ use a Whisper model — e.g. `--model turbo`.",
         app_handle,
         input_str,
         &effective_model,
+        &ffmpeg_exe,
         diarize,
         speaker_hint,
         want_words,
@@ -109,6 +190,7 @@ fn run_engine(
     app_handle: &AppHandle,
     input_str: &str,
     model_id: &str,
+    ffmpeg_exe: &str,
     diarize: bool,
     speaker_hint: Option<usize>,
     want_words: bool,
@@ -126,7 +208,7 @@ fn run_engine(
     let temp_wav = std::env::temp_dir().join(format!("echo_cli_{}.wav", ts));
 
     println!("[*] Extracting audio via ffmpeg (16kHz mono)...");
-    let status = no_window_command("ffmpeg")
+    let status = no_window_command(ffmpeg_exe)
         .args([
             "-i",
             input_str,
