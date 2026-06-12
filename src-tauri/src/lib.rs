@@ -25,6 +25,7 @@ mod shortcut;
 mod transcript_format;
 mod transcription_coordinator;
 mod translate;
+mod tts;
 mod utils;
 mod voice_commands;
 
@@ -163,6 +164,7 @@ fn initialize_core_logic(app_handle: &AppHandle) {
     );
     let history_manager =
         Arc::new(HistoryManager::new(app_handle).expect("Failed to initialize history manager"));
+    let tts_manager = Arc::new(crate::tts::TtsManager::new());
 
     // Apply accelerator preferences before any model loads
     managers::transcription::apply_accelerator_settings(app_handle);
@@ -172,6 +174,7 @@ fn initialize_core_logic(app_handle: &AppHandle) {
     app_handle.manage(model_manager.clone());
     app_handle.manage(transcription_manager.clone());
     app_handle.manage(history_manager.clone());
+    app_handle.manage(tts_manager.clone());
 
     // Note: Shortcuts are NOT initialized here.
     // The frontend is responsible for calling the `initialize_shortcuts` command
@@ -460,6 +463,9 @@ pub fn run(cli_args: CliArgs) {
             commands::history::update_recording_retention_period,
             commands::transcribe::transcribe_file_to_string,
             commands::transcribe::cancel_file_transcription,
+            commands::tts::tts_list_voices,
+            commands::tts::tts_speak,
+            commands::tts::tts_stop,
             commands::coach::get_coach_dashboard,
             commands::coach::get_coach_baseline,
             helpers::clamshell::is_laptop,
