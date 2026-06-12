@@ -10,9 +10,26 @@ pub enum Outcome {
     Timeout,
 }
 
+/// What the UI layer needs to know to show a question. Also returned by the
+/// `agent_bridge_current` command so a freshly created panel window can pull
+/// the active question on mount (the `agent-question` event may fire before
+/// the webview is ready to listen — cold-window race).
+#[derive(Clone, Debug, serde::Serialize, specta::Type)]
+pub struct QuestionEvent {
+    pub id: i64,
+    pub kind: String,
+    pub question: String,
+    pub options: Vec<String>,
+    pub timeout_s: u64,
+    pub speak: bool,
+    pub source: String,
+}
+
 #[derive(Clone)]
 pub struct BridgeState {
     pending: Arc<Mutex<HashMap<i64, Sender<Outcome>>>>,
+    /// The question currently on screen (None between questions).
+    current: Arc<Mutex<Option<QuestionEvent>>>,
     /// Serializes asks so the panel shows one question at a time.
     pub ask_serial: Arc<Mutex<()>>,
     /// Number of asks waiting for the serial lock (for the 429 cap).
@@ -29,9 +46,20 @@ impl BridgeState {
     pub fn new() -> Self {
         Self {
             pending: Arc::new(Mutex::new(HashMap::new())),
+            current: Arc::new(Mutex::new(None)),
             ask_serial: Arc::new(Mutex::new(())),
             waiting: Arc::new(std::sync::atomic::AtomicUsize::new(0)),
         }
+    }
+
+    /// Records the question currently shown by the panel.
+    pub fn set_current(&self, ev: QuestionEvent) {
+        *lock_ok(&self.current) = Some(ev);
+    }
+
+    /// The question currently on screen, if any (panel pulls this on mount).
+    pub fn current(&self) -> Option<QuestionEvent> {
+        lock_ok(&self.current).clone()
     }
 
     pub fn begin_question(&self, id: i64) -> PendingQuestion {
@@ -48,6 +76,7 @@ impl BridgeState {
     /// Returns false if the id is unknown (already resolved / timed out).
     pub fn resolve(&self, id: i64, outcome: Outcome) -> bool {
         if let Some(tx) = lock_ok(&self.pending).remove(&id) {
+            self.clear_current_if(id);
             let _ = tx.send(outcome);
             true
         } else {
@@ -55,9 +84,12 @@ impl BridgeState {
         }
     }
 
-    /// Id of the oldest pending question, if any (used by the panel on mount).
-    pub fn pending_id(&self) -> Option<i64> {
-        lock_ok(&self.pending).keys().min().copied()
+    /// Clears the on-screen question if it is `id` (resolve and timeout paths).
+    pub fn clear_current_if(&self, id: i64) {
+        let mut cur = lock_ok(&self.current);
+        if cur.as_ref().is_some_and(|c| c.id == id) {
+            *cur = None;
+        }
     }
 }
 

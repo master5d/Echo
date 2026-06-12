@@ -1,3 +1,4 @@
+pub use super::state::QuestionEvent;
 use super::state::{BridgeState, Outcome};
 use super::storage::BridgeStore;
 use anyhow::Result;
@@ -11,18 +12,6 @@ pub struct ServerConfig {
     /// 0 = ephemeral (tests); real default comes from settings (4123).
     pub port: u16,
     pub token: String,
-}
-
-/// What the UI layer needs to know to show a question.
-#[derive(Clone, Debug, serde::Serialize)]
-pub struct QuestionEvent {
-    pub id: i64,
-    pub kind: String,
-    pub question: String,
-    pub options: Vec<String>,
-    pub timeout_s: u64,
-    pub speak: bool,
-    pub source: String,
 }
 
 pub type AskSink = Arc<dyn Fn(QuestionEvent) + Send + Sync>;
@@ -188,7 +177,9 @@ fn handle_ask(
         return json_response(429, &serde_json::json!({"error": "ask queue full"}));
     }
     state.waiting.fetch_add(1, Ordering::SeqCst);
-    let _serial = state.ask_serial.lock().unwrap(); // one question on screen at a time
+    // One question on screen at a time; recover from poisoning so a panicked
+    // handler can't wedge every future ask.
+    let _serial = state.ask_serial.lock().unwrap_or_else(|e| e.into_inner());
     state.waiting.fetch_sub(1, Ordering::SeqCst);
 
     let options_json = if b.options.is_empty() {
@@ -202,7 +193,7 @@ fn handle_ask(
     };
     let timeout_s = b.timeout_s.clamp(5, MAX_TIMEOUT_S);
     let pending = state.begin_question(id);
-    sink(QuestionEvent {
+    let ev = QuestionEvent {
         id,
         kind: b.kind.clone(),
         question: b.question.clone(),
@@ -210,8 +201,13 @@ fn handle_ask(
         timeout_s,
         speak: b.speak,
         source: b.source.clone(),
-    });
+    };
+    // Recorded BEFORE the sink so a freshly created panel window can pull it
+    // on mount even if the emitted event raced past an unloaded webview.
+    state.set_current(ev.clone());
+    sink(ev);
     let outcome = pending.wait(Duration::from_secs(timeout_s));
+    state.clear_current_if(id);
     let (status, answer) = match &outcome {
         Outcome::Answered(a) => {
             let _ = store.mark_answered(id, a);

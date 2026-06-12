@@ -41,6 +41,7 @@ impl BridgeStore {
         })
     }
 
+    #[cfg(test)]
     pub fn open_in_memory() -> Result<Self> {
         let conn = Connection::open_in_memory()?;
         conn.execute_batch(SCHEMA)?;

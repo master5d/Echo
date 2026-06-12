@@ -167,6 +167,61 @@ fn initialize_core_logic(app_handle: &AppHandle) {
         Arc::new(HistoryManager::new(app_handle).expect("Failed to initialize history manager"));
     let tts_manager = Arc::new(crate::tts::TtsManager::new());
 
+    // Agent Bridge: localhost HTTP API for agent↔user questions
+    let bridge_settings = crate::settings::get_settings(app_handle);
+    if bridge_settings.agent_bridge_enabled {
+        match app_handle.path().app_data_dir() {
+            Ok(app_data) => {
+                match (
+                    crate::agent_bridge::token::load_or_create_token(&app_data),
+                    crate::agent_bridge::storage::BridgeStore::open(
+                        &app_data.join("agent_bridge.db"),
+                    ),
+                ) {
+                    (Ok(token), Ok(store)) => {
+                        let store = Arc::new(store);
+                        let bridge_state = crate::agent_bridge::state::BridgeState::new();
+                        app_handle.manage(bridge_state.clone());
+                        app_handle.manage(store.clone());
+                        let evt_handle = app_handle.clone();
+                        let sink: crate::agent_bridge::server::AskSink = Arc::new(move |ev| {
+                            use tauri::Emitter;
+                            if ev.speak {
+                                if let Some(tts) =
+                                    evt_handle.try_state::<Arc<crate::tts::TtsManager>>()
+                                {
+                                    let _ = tts.speak(ev.question.clone(), None);
+                                }
+                            }
+                            crate::agent_bridge::window::show_panel(&evt_handle);
+                            let _ = evt_handle.emit("agent-question", &ev);
+                        });
+                        match crate::agent_bridge::server::start_server(
+                            crate::agent_bridge::server::ServerConfig {
+                                port: bridge_settings.agent_bridge_port,
+                                token,
+                            },
+                            store,
+                            bridge_state,
+                            sink,
+                        ) {
+                            Ok(port) => {
+                                log::info!("agent-bridge listening on 127.0.0.1:{}", port)
+                            }
+                            Err(e) => log::error!("agent-bridge failed to start: {}", e),
+                        }
+                    }
+                    (t, s) => log::error!(
+                        "agent-bridge init failed: token_err={:?} store_ok={}",
+                        t.err(),
+                        s.is_ok()
+                    ),
+                }
+            }
+            Err(e) => log::error!("agent-bridge: no app data dir: {}", e),
+        }
+    }
+
     // Apply accelerator preferences before any model loads
     managers::transcription::apply_accelerator_settings(app_handle);
 
@@ -467,6 +522,10 @@ pub fn run(cli_args: CliArgs) {
             commands::tts::tts_list_voices,
             commands::tts::tts_speak,
             commands::tts::tts_stop,
+            commands::agent_bridge::agent_bridge_answer,
+            commands::agent_bridge::agent_bridge_dismiss,
+            commands::agent_bridge::agent_bridge_answers,
+            commands::agent_bridge::agent_bridge_current,
             commands::coach::get_coach_dashboard,
             commands::coach::get_coach_baseline,
             helpers::clamshell::is_laptop,
