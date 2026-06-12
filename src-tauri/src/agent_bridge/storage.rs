@@ -76,12 +76,15 @@ impl BridgeStore {
     }
 
     fn set_status(&self, id: i64, status: &str, answer: Option<&str>) -> Result<()> {
-        let conn = self.conn.lock().unwrap();
-        conn.execute(
+        let conn = self.conn.lock().unwrap_or_else(|e| e.into_inner());
+        let affected = conn.execute(
             "UPDATE agent_questions
              SET status = ?2, answer = ?3, answered_at = ?4 WHERE id = ?1",
             rusqlite::params![id, status, answer, now_ms()],
         )?;
+        if affected == 0 {
+            anyhow::bail!("question {id} not found");
+        }
         Ok(())
     }
 
@@ -134,6 +137,12 @@ mod tests {
         assert_eq!(rows[0].status, "answered");
         assert_eq!(rows[0].answer.as_deref(), Some("yes"));
         assert_eq!(rows[0].question, "Deploy?");
+    }
+
+    #[test]
+    fn set_status_unknown_id_errors() {
+        let s = mem();
+        assert!(s.mark_answered(999, "x").is_err());
     }
 
     #[test]

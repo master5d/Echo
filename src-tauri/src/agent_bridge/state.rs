@@ -36,7 +36,8 @@ impl BridgeState {
 
     pub fn begin_question(&self, id: i64) -> PendingQuestion {
         let (tx, rx) = channel();
-        self.pending.lock().unwrap().insert(id, tx);
+        let prev = lock_ok(&self.pending).insert(id, tx);
+        debug_assert!(prev.is_none(), "duplicate question id {id}");
         PendingQuestion {
             id,
             rx,
@@ -46,7 +47,7 @@ impl BridgeState {
 
     /// Returns false if the id is unknown (already resolved / timed out).
     pub fn resolve(&self, id: i64, outcome: Outcome) -> bool {
-        if let Some(tx) = self.pending.lock().unwrap().remove(&id) {
+        if let Some(tx) = lock_ok(&self.pending).remove(&id) {
             let _ = tx.send(outcome);
             true
         } else {
@@ -54,11 +55,16 @@ impl BridgeState {
         }
     }
 
-    /// Id of the currently pending question, if any (used by GET /v1/pending
-    /// and by the panel on mount).
+    /// Id of the oldest pending question, if any (used by the panel on mount).
     pub fn pending_id(&self) -> Option<i64> {
-        self.pending.lock().unwrap().keys().next().copied()
+        lock_ok(&self.pending).keys().min().copied()
     }
+}
+
+/// Recover the guard even if a previous holder panicked — the bridge must not
+/// wedge on a poisoned lock.
+fn lock_ok<T>(m: &Mutex<T>) -> std::sync::MutexGuard<'_, T> {
+    m.lock().unwrap_or_else(|e| e.into_inner())
 }
 
 impl PendingQuestion {
@@ -66,10 +72,23 @@ impl PendingQuestion {
         match self.rx.recv_timeout(timeout) {
             Ok(o) => o,
             Err(_) => {
-                self.state.pending.lock().unwrap().remove(&self.id);
-                Outcome::Timeout
+                let removed = lock_ok(&self.state.pending).remove(&self.id);
+                if removed.is_none() {
+                    // resolve() won the race during our timeout and already
+                    // sent the outcome — collect it instead of dropping it.
+                    self.rx.try_recv().unwrap_or(Outcome::Timeout)
+                } else {
+                    Outcome::Timeout
+                }
             }
         }
+    }
+}
+
+impl Drop for PendingQuestion {
+    fn drop(&mut self) {
+        // Insurance against sender leaks if a holder unwinds without wait().
+        lock_ok(&self.state.pending).remove(&self.id);
     }
 }
 

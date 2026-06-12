@@ -17,8 +17,29 @@ pub fn load_or_create_token(app_data_dir: &Path) -> Result<String> {
     getrandom::fill(&mut bytes).context("getrandom failed")?;
     let token: String = bytes.iter().map(|b| format!("{b:02x}")).collect();
     std::fs::create_dir_all(app_data_dir)?;
-    std::fs::write(&path, &token)?;
+    write_owner_only(&path, &token)?;
     Ok(token)
+}
+
+/// Owner-only (0600) on Unix; on Windows the per-user %APPDATA% ACL applies.
+#[cfg(unix)]
+fn write_owner_only(path: &Path, contents: &str) -> Result<()> {
+    use std::io::Write;
+    use std::os::unix::fs::OpenOptionsExt;
+    let mut f = std::fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .mode(0o600)
+        .open(path)?;
+    f.write_all(contents.as_bytes())?;
+    Ok(())
+}
+
+#[cfg(not(unix))]
+fn write_owner_only(path: &Path, contents: &str) -> Result<()> {
+    std::fs::write(path, contents)?;
+    Ok(())
 }
 
 #[cfg(test)]
