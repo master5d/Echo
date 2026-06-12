@@ -739,5 +739,13 @@
     "processing": "처리 중...",
     "cancel": "녹음 취소",
     "preparing": "준비 중…"
+  },
+  "agentPanel": {
+    "from": "Question from {{source}}",
+    "typeOrDictate": "Type — or answer by voice with your dictation hotkey",
+    "yes": "Yes",
+    "no": "No",
+    "dismiss": "Dismiss",
+    "timeLeft": "{{count}}s"
   }
 }

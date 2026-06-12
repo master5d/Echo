@@ -739,5 +739,13 @@
     "processing": "Постобробка...",
     "cancel": "Скасувати запис",
     "preparing": "Підготовка…"
+  },
+  "agentPanel": {
+    "from": "Question from {{source}}",
+    "typeOrDictate": "Type — or answer by voice with your dictation hotkey",
+    "yes": "Yes",
+    "no": "No",
+    "dismiss": "Dismiss",
+    "timeLeft": "{{count}}s"
   }
 }
