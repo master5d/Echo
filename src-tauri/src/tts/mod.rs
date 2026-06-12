@@ -1,8 +1,8 @@
-use std::io::Cursor;
-use std::sync::{Arc, Mutex};
+use rodio::{OutputStreamBuilder, Sink};
 use serde::{Deserialize, Serialize};
 use specta::Type;
-use rodio::{OutputStreamBuilder, Sink};
+use std::io::Cursor;
+use std::sync::{Arc, Mutex};
 
 #[cfg(windows)]
 mod windows;
@@ -50,7 +50,8 @@ impl TtsManager {
     }
 
     pub fn speak(&self, text: String, voice_id: Option<String>) -> Result<(), String> {
-        let engine = self.engine
+        let engine = self
+            .engine
             .as_ref()
             .ok_or_else(|| "no TTS engine available on this platform".to_string())?;
 
@@ -60,7 +61,7 @@ impl TtsManager {
         let wav_bytes = engine.synthesize(&text, voice_id.as_deref())?;
 
         let current_sink = self.current_sink.clone();
-        
+
         // Playback in a separate thread to not block
         std::thread::spawn(move || {
             if let Err(e) = Self::play_wav(wav_bytes, current_sink) {
@@ -79,7 +80,10 @@ impl TtsManager {
         Ok(())
     }
 
-    pub(crate) fn play_wav(wav_bytes: Vec<u8>, current_sink: Arc<Mutex<Option<Arc<Sink>>>>) -> Result<(), Box<dyn std::error::Error>> {
+    pub(crate) fn play_wav(
+        wav_bytes: Vec<u8>,
+        current_sink: Arc<Mutex<Option<Arc<Sink>>>>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let cursor = Cursor::new(wav_bytes);
 
         let stream_builder = OutputStreamBuilder::from_default_device()?;
@@ -88,12 +92,12 @@ impl TtsManager {
 
         // rodio::play in this fork handles decoding if passed a Read + Seek
         let sink = Arc::new(rodio::play(mixer, cursor)?);
-        
+
         {
             let mut sink_lock = current_sink.lock().map_err(|e| e.to_string())?;
             *sink_lock = Some(sink.clone());
         }
-        
+
         sink.sleep_until_end();
 
         Ok(())

@@ -36,11 +36,7 @@ impl TtsEngine for WindowsTts {
             let voices = SpeechSynthesizer::AllVoices().map_err(|e| e.to_string())?;
             let target = voices
                 .into_iter()
-                .find(|v| {
-                    v.Id()
-                        .map(|h| h.to_string() == id)
-                        .unwrap_or(false)
-                })
+                .find(|v| v.Id().map(|h| h.to_string() == id).unwrap_or(false))
                 .ok_or_else(|| format!("TTS voice not found: {id}"))?;
             synth.SetVoice(&target).map_err(|e| e.to_string())?;
         }

@@ -1,6 +1,6 @@
+use crate::tts::{TtsManager, VoiceInfo};
 use std::sync::Arc;
 use tauri::State;
-use crate::tts::{TtsManager, VoiceInfo};
 
 #[tauri::command]
 #[specta::specta]
