@@ -12,7 +12,7 @@ Write-Host "--- Echo: Fast Build Workflow ---" -ForegroundColor Cyan
 # 1. Autodetect Vulkan SDK
 $vulkanPath = "C:\VulkanSDK"
 if (Test-Path $vulkanPath) {
-    $latestSdk = Get-ChildItem $vulkanPath -Directory | Sort-Object Name -Descending | Select-Object -First 1
+    $latestSdk = Get-ChildItem $vulkanPath -Directory | Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1
     if ($null -ne $latestSdk) {
         $env:VULKAN_SDK = $latestSdk.FullName
         Write-Host "Using VULKAN_SDK: $($env:VULKAN_SDK)"
@@ -30,7 +30,9 @@ if (Test-Path $vswhere) {
             $tempFile = [IO.Path]::GetTempFileName()
             cmd.exe /c "call `"$vsDevCmd`" -arch=x64 > nul && set > `"$tempFile`""
             Get-Content $tempFile | ForEach-Object {
-                if ($_ -match "^(.*?)=(.*)$") {
+                # [^=]+ (not .*?): cmd emits hidden vars like "=C:=..." whose
+                # empty name would crash SetEnvironmentVariable under -Stop.
+                if ($_ -match "^([^=]+)=(.*)$") {
                     $name = $Matches[1]
                     $value = $Matches[2]
                     # Avoid overwriting critical PowerShell/System variables
@@ -60,16 +62,19 @@ foreach ($var in $vsVars) {
 }
 
 # 4. Construct Command
-$cargoArgs = @("--profile", $Profile)
-if ($NoDiarization) {
-    $cargoArgs += "--no-default-features"
-}
-
 if ($Bundle) {
-    $finalCmd = "npm run tauri build -- -- " + ($cargoArgs -join " ")
+    # tauri-cli appends --release itself; forwarding a custom --profile would
+    # conflict and the bundler looks for artifacts in target/release anyway.
+    # Bundles always build with the shipping `release` profile.
+    $tauriArgs = @()
+    if ($NoDiarization) { $tauriArgs = @("--", "--", "--no-default-features") }
+    Write-Host "Executing: npm run tauri build $($tauriArgs -join ' ')" -ForegroundColor Green
+    npm run tauri build @tauriArgs
 } else {
-    $finalCmd = "cargo build --manifest-path `"$PSScriptRoot\..\src-tauri\Cargo.toml`" " + ($cargoArgs -join " ")
+    $cargoArgs = @("--profile", $Profile)
+    if ($NoDiarization) { $cargoArgs += "--no-default-features" }
+    $manifest = Join-Path $PSScriptRoot "..\src-tauri\Cargo.toml"
+    Write-Host "Executing: cargo build --manifest-path $manifest $($cargoArgs -join ' ')" -ForegroundColor Green
+    cargo build --manifest-path $manifest @cargoArgs
 }
-
-Write-Host "Executing: $finalCmd" -ForegroundColor Green
-Invoke-Expression $finalCmd
+exit $LASTEXITCODE

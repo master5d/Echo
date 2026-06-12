@@ -138,10 +138,11 @@ which handles the LLVM environment and Vulkan SDK detection:
 
 1.  **Cargo Profile**: Use `--profile fast` for daily builds.
     ```bash
-    cargo build --profile fast
-    # or via npm
-    npm run tauri build -- -- --profile fast
+    cargo build --manifest-path src-tauri/Cargo.toml --profile fast
     ```
+    Note: `npm run tauri build` always uses the `release` profile — tauri-cli
+    appends `--release` itself and the bundler expects `target/release`
+    artifacts, so custom profiles apply to bare `cargo build` only.
 
 2.  **sccache**: Speeds up repeated builds by caching dependency crates across
     clean builds.
