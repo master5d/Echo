@@ -109,6 +109,53 @@ cargo tauri dev   # or: cargo run --manifest-path src-tauri/Cargo.toml
 If you switch toolchains, `cargo clean -p whisper-rs-sys` first so CMake
 reconfigures from scratch (a stale cache keeps the old generator/instance).
 
+## Fast builds (daily workflow)
+
+For daily development, a `fast` cargo profile is available which provides
+release-grade optimization (thin LTO, 16 codegen units) with much faster
+compile times than the full `release` profile (fat LTO).
+
+### Quick start with script
+
+The easiest way to build on Windows is using the provided PowerShell script
+which handles the LLVM environment and Vulkan SDK detection:
+
+```powershell
+# Default: fast build
+./scripts/build-fast.ps1
+
+# Even faster (skips heavy Intel MKL dependency)
+./scripts/build-fast.ps1 -NoDiarization
+
+# Build and bundle
+./scripts/build-fast.ps1 -Bundle
+
+# Release-grade build
+./scripts/build-fast.ps1 -Profile release
+```
+
+### Manual workflow
+
+1.  **Cargo Profile**: Use `--profile fast` for daily builds.
+    ```bash
+    cargo build --profile fast
+    # or via npm
+    npm run tauri build -- -- --profile fast
+    ```
+
+2.  **sccache**: Speeds up repeated builds by caching dependency crates across
+    clean builds.
+    - Prerequisite: `RUSTC_WRAPPER=sccache` must be set as an environment variable.
+    - Check status: `sccache --show-stats`.
+
+3.  **Skipping Diarization**: To significantly speed up compilation, skip the
+    heavy Intel MKL dependency by disabling default features:
+    ```bash
+    npm run tauri dev -- -- --no-default-features
+    ```
+    *Note: If built without default features, passing `--diarize` at runtime
+    will error by design.*
+
 ## Linux Install (from source)
 
 The raw binary (`src-tauri/target/release/handy`) cannot run standalone — it needs Tauri resource files (tray icons, sounds, VAD model) to be co-located at the expected path.
