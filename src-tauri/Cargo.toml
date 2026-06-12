@@ -9,6 +9,12 @@ default-run = "echo"
 
 [profile.dev]
 incremental = true # Compile your binary in smaller steps.
+debug = "line-tables-only" # Full debuginfo bloats link time; backtraces still work.
+
+# Dependencies are compiled once and cached — optimize them so debug-run audio
+# paths (resampler, FFT, VAD) are usable; the workspace crate stays at opt 0.
+[profile.dev.package."*"]
+opt-level = 2
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -135,3 +141,11 @@ lto = true
 codegen-units = 1
 strip = true
 panic = "unwind"
+
+# Daily release-grade builds: thin LTO + parallel codegen links minutes faster
+# at ~equal runtime perf. Shipping artifacts keep using `release` (fat LTO).
+# Usage: cargo build --profile fast  /  npm run tauri build -- -- --profile fast
+[profile.fast]
+inherits = "release"
+lto = "thin"
+codegen-units = 16
