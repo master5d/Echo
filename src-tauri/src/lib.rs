@@ -5,6 +5,7 @@ mod apple_intelligence;
 pub mod audio_toolkit;
 mod capture;
 pub mod cli;
+mod cli_ask;
 mod cli_transcription;
 mod coach;
 mod coach_progress;
@@ -394,6 +395,21 @@ pub fn run(cli_args: CliArgs) {
     // Detect portable mode before anything else
     portable::init();
 
+    if let Some(question) = cli_args.ask.as_deref() {
+        let code = crate::cli_ask::run_ask(
+            question,
+            cli_args.ask_options.as_deref(),
+            cli_args.ask_timeout,
+            cli_args.ask_speak,
+            cli_args.ask_port,
+        )
+        .unwrap_or_else(|e| {
+            eprintln!("error: {e}");
+            1
+        });
+        std::process::exit(code);
+    }
+
     // Parse console logging directives from RUST_LOG, falling back to info-level logging
     // when the variable is unset
     let console_filter = build_console_filter();
@@ -583,9 +599,9 @@ pub fn run(cli_args: CliArgs) {
     }
 
     // Single-instance forwards CLI flags to a running GUI instance. Skip it in
-    // headless --transcribe-file mode so the CLI always runs in its own process,
-    // even when the GUI is already open.
-    if cli_args.transcribe_file.is_none() {
+    // headless --transcribe-file or --ask mode so the CLI always runs in its
+    // own process, even when the GUI is already open.
+    if cli_args.transcribe_file.is_none() && cli_args.ask.is_none() {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             if args.iter().any(|a| a == "--toggle-transcription") {
                 platform::signal_handle::send_transcription_input(app, "transcribe", "CLI");

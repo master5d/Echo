@@ -63,4 +63,20 @@ pub struct CliArgs {
     /// translated plain text. Value is a language code like "en"/"ru"/"uk".
     #[arg(long, value_name = "LANG")]
     pub translate: Option<String>,
+
+    /// Ask the user a question via the running Echo instance and print the answer
+    #[arg(long, value_name = "TEXT")]
+    pub ask: Option<String>,
+    /// Comma-separated options (makes --ask a choice question)
+    #[arg(long, value_name = "A,B,C")]
+    pub ask_options: Option<String>,
+    /// Timeout in seconds for --ask (default 300)
+    #[arg(long, default_value_t = 300)]
+    pub ask_timeout: u64,
+    /// Speak the question aloud (TTS)
+    #[arg(long, default_value_t = false)]
+    pub ask_speak: bool,
+    /// Agent Bridge port (default 4123)
+    #[arg(long, default_value_t = 4123)]
+    pub ask_port: u16,
 }
