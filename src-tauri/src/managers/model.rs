@@ -91,6 +91,7 @@ pub struct ModelManager {
     available_models: Mutex<HashMap<String, ModelInfo>>,
     cancel_flags: Arc<Mutex<HashMap<String, Arc<AtomicBool>>>>,
     extracting_models: Arc<Mutex<HashSet<String>>>,
+    #[cfg_attr(not(feature = "diarization"), allow(dead_code))]
     diarization_ensured: Arc<AtomicBool>,
 }
 
@@ -1442,6 +1443,7 @@ impl ModelManager {
     }
 
     /// Returns true exactly once per flag lifetime (first caller runs the ensure).
+    #[cfg_attr(not(feature = "diarization"), allow(dead_code))]
     fn should_run_diarization_ensure(flag: &std::sync::atomic::AtomicBool) -> bool {
         flag.compare_exchange(
             false,
@@ -1454,6 +1456,7 @@ impl ModelManager {
 
     /// Ensures the diarization models are present (either in the local models/diarization
     /// directory or in the hf-hub cache). Downloads from HuggingFace if missing.
+    #[cfg(feature = "diarization")]
     pub fn ensure_diarization_models(&self) -> Result<()> {
         if !Self::should_run_diarization_ensure(&self.diarization_ensured) {
             return Ok(());
@@ -1475,6 +1478,13 @@ impl ModelManager {
 
         let _ = self.app_handle.emit("model-setup-completed", "diarization");
         Ok(())
+    }
+
+    #[cfg(not(feature = "diarization"))]
+    pub fn ensure_diarization_models(&self) -> Result<()> {
+        anyhow::bail!(
+            "diarization not included in this build (rebuild with --features diarization)"
+        );
     }
 
     pub fn cancel_download(&self, model_id: &str) -> Result<()> {

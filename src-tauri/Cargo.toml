@@ -88,7 +88,11 @@ specta = "=2.0.0-rc.22"
 specta-typescript = "0.0.9"
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
 tauri-plugin-dialog = "2.6"
-speakrs = "0.4.2"
+speakrs = { version = "0.4.2", optional = true }
+
+[features]
+default = ["diarization"]
+diarization = ["dep:speakrs"]
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"
@@ -144,7 +148,8 @@ panic = "unwind"
 
 # Daily release-grade builds: thin LTO + parallel codegen links minutes faster
 # at ~equal runtime perf. Shipping artifacts keep using `release` (fat LTO).
-# Usage: cargo build --profile fast  /  npm run tauri build -- -- --profile fast
+# Usage: cargo build --profile fast (bare cargo only — tauri-cli bundling
+# appends --release itself and expects target/release artifacts)
 [profile.fast]
 inherits = "release"
 lto = "thin"

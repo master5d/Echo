@@ -8,6 +8,7 @@ mod cli_transcription;
 mod coach;
 mod coach_progress;
 mod commands;
+#[cfg(feature = "diarization")]
 mod diarization;
 mod file_transcription;
 mod helpers;

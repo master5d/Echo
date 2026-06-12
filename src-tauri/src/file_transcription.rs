@@ -14,6 +14,9 @@ use tauri::{AppHandle, Manager};
 
 /// Sample rate the engine and diarizer both expect (ffmpeg downmixes to this).
 pub const TARGET_SAMPLE_RATE: u32 = 16_000;
+#[cfg(not(feature = "diarization"))]
+const DIARIZATION_NOT_INCLUDED: &str =
+    "diarization not included in this build (rebuild with --features diarization)";
 
 /// `Command` that doesn't flash a console window on Windows. The GUI app runs
 /// with `windows_subsystem = "windows"` (no console of its own), so spawning a
@@ -195,6 +198,13 @@ fn run_engine(
     speaker_hint: Option<usize>,
     want_words: bool,
 ) -> Result<TranscriptionDetails> {
+    #[cfg(not(feature = "diarization"))]
+    if diarize {
+        anyhow::bail!(DIARIZATION_NOT_INCLUDED);
+    }
+    #[cfg(not(feature = "diarization"))]
+    let _ = speaker_hint;
+
     use crate::audio_toolkit::audio::read_wav_samples;
     use crate::managers::transcription::TranscribeOpts;
     use crate::progress::{emit_progress, ProgressPhase};
@@ -246,6 +256,7 @@ fn run_engine(
 
     println!("[*] Transcribing (this may take a while for large files)...");
     emit_progress(app_handle, ProgressPhase::Transcribing, None);
+    #[cfg_attr(not(feature = "diarization"), allow(unused_mut))]
     let mut details = manager
         .transcribe_detailed_with(
             samples.clone(),
@@ -270,12 +281,22 @@ fn run_engine(
             .ensure_diarization_models()
             .context("Diarization model setup failed")?;
 
-        match crate::diarization::diarize(app_handle, &samples, TARGET_SAMPLE_RATE, speaker_hint) {
-            Ok(turns) if !turns.is_empty() => details.speakers = Some(turns),
-            Ok(_) => {
-                eprintln!("[!] Diarization produced no speaker turns; output has timestamps only.")
+        #[cfg(feature = "diarization")]
+        {
+            match crate::diarization::diarize(
+                app_handle,
+                &samples,
+                TARGET_SAMPLE_RATE,
+                speaker_hint,
+            ) {
+                Ok(turns) if !turns.is_empty() => details.speakers = Some(turns),
+                Ok(_) => {
+                    eprintln!(
+                        "[!] Diarization produced no speaker turns; output has timestamps only."
+                    )
+                }
+                Err(e) => eprintln!("[!] Diarization failed ({e}); output has timestamps only."),
             }
-            Err(e) => eprintln!("[!] Diarization failed ({e}); output has timestamps only."),
         }
 
         if manager.is_cancelled() {
