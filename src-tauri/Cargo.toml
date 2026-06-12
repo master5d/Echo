@@ -89,6 +89,8 @@ specta-typescript = "0.0.9"
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
 tauri-plugin-dialog = "2.6"
 speakrs = { version = "0.4.2", optional = true }
+tiny_http = "0.12"
+getrandom = "0.3"
 
 [features]
 default = ["diarization"]
@@ -145,6 +147,7 @@ speakrs = { git = "https://github.com/master5d/speakrs", branch = "progress" }
 
 [dev-dependencies]
 tempfile = "3"
+ureq = { version = "2", features = ["json"] }
 
 [profile.release]
 lto = true
