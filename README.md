@@ -251,6 +251,24 @@ echo --help                      # list all flags
 
 Debug mode toggles with `Ctrl+Shift+D` (Windows/Linux) or `Cmd+Shift+D` (macOS).
 
+## Agent Bridge
+
+Echo exposes a localhost HTTP API (`127.0.0.1:4123`) that allows external agents and scripts to "speak" to the user via Echo's floating panel. It's protected by a bearer token generated on first run.
+
+```bash
+# Example: Ask the user a question from a script
+TOKEN=$(cat "$APPDATA/com.sovern.echo/agent_bridge_token")
+curl -X POST http://127.0.0.1:4123/v1/ask \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "Deploy to production?",
+    "kind": "choice",
+    "options": ["Yes", "No"],
+    "source": "deploy-script"
+  }'
+```
+
 ## Platform support
 
 macOS (Intel + Apple Silicon), x64 Windows, x64 Linux (Ubuntu 22.04 / 24.04).
