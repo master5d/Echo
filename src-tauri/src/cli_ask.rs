@@ -35,16 +35,25 @@ pub fn run_ask(
         .enable_all()
         .build()?;
     let resp: serde_json::Value = rt.block_on(async {
-        reqwest::Client::new()
+        let r = reqwest::Client::new()
             .post(format!("http://127.0.0.1:{port}/v1/ask"))
             .bearer_auth(&token)
             .json(&body)
-            .timeout(std::time::Duration::from_secs(timeout_s + 30))
+            // saturating: a huge --ask-timeout must not overflow the Duration.
+            .timeout(std::time::Duration::from_secs(timeout_s.saturating_add(30)))
             .send()
-            .await?
-            .json()
-            .await
-            .map_err(anyhow::Error::from)
+            .await?;
+        let status = r.status();
+        let body: serde_json::Value = r.json().await?;
+        // Surface server-side rejections (401/429/400) instead of exiting silently.
+        if !status.is_success() {
+            let msg = body
+                .get("error")
+                .and_then(|e| e.as_str())
+                .unwrap_or("request rejected");
+            anyhow::bail!("server returned {}: {}", status.as_u16(), msg);
+        }
+        Ok::<_, anyhow::Error>(body)
     })?;
     match resp["status"].as_str() {
         Some("answered") => {

@@ -171,7 +171,10 @@ fn initialize_core_logic(app_handle: &AppHandle) {
     // Agent Bridge: localhost HTTP API for agent↔user questions
     let bridge_settings = crate::settings::get_settings(app_handle);
     if bridge_settings.agent_bridge_enabled {
-        match app_handle.path().app_data_dir() {
+        // Portable-aware: must match where the CLI (cli_ask.rs) reads the token,
+        // else portable mode splits the server's %APPDATA% token from the CLI's
+        // Data/ token and every --ask 401s.
+        match crate::portable::app_data_dir(app_handle) {
             Ok(app_data) => {
                 match (
                     crate::agent_bridge::token::load_or_create_token(&app_data),
