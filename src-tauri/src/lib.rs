@@ -1,13 +1,16 @@
 mod actions;
+mod agent_bridge;
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
 mod apple_intelligence;
 pub mod audio_toolkit;
 mod capture;
 pub mod cli;
+mod cli_ask;
 mod cli_transcription;
 mod coach;
 mod coach_progress;
 mod commands;
+#[cfg(feature = "diarization")]
 mod diarization;
 mod file_transcription;
 mod helpers;
@@ -24,6 +27,7 @@ mod shortcut;
 mod transcript_format;
 mod transcription_coordinator;
 mod translate;
+mod tts;
 mod utils;
 mod voice_commands;
 
@@ -162,6 +166,65 @@ fn initialize_core_logic(app_handle: &AppHandle) {
     );
     let history_manager =
         Arc::new(HistoryManager::new(app_handle).expect("Failed to initialize history manager"));
+    let tts_manager = Arc::new(crate::tts::TtsManager::new());
+
+    // Agent Bridge: localhost HTTP API for agent↔user questions
+    let bridge_settings = crate::settings::get_settings(app_handle);
+    if bridge_settings.agent_bridge_enabled {
+        // Portable-aware: must match where the CLI (cli_ask.rs) reads the token,
+        // else portable mode splits the server's %APPDATA% token from the CLI's
+        // Data/ token and every --ask 401s.
+        match crate::portable::app_data_dir(app_handle) {
+            Ok(app_data) => {
+                match (
+                    crate::agent_bridge::token::load_or_create_token(&app_data),
+                    crate::agent_bridge::storage::BridgeStore::open(
+                        &app_data.join("agent_bridge.db"),
+                    ),
+                ) {
+                    (Ok(token), Ok(store)) => {
+                        let store = Arc::new(store);
+                        let bridge_state = crate::agent_bridge::state::BridgeState::new();
+                        app_handle.manage(bridge_state.clone());
+                        app_handle.manage(store.clone());
+                        let evt_handle = app_handle.clone();
+                        let sink: crate::agent_bridge::server::AskSink = Arc::new(move |ev| {
+                            use tauri::Emitter;
+                            if ev.speak {
+                                if let Some(tts) =
+                                    evt_handle.try_state::<Arc<crate::tts::TtsManager>>()
+                                {
+                                    let _ = tts.speak(ev.question.clone(), None);
+                                }
+                            }
+                            crate::agent_bridge::window::show_panel(&evt_handle);
+                            let _ = evt_handle.emit("agent-question", &ev);
+                        });
+                        match crate::agent_bridge::server::start_server(
+                            crate::agent_bridge::server::ServerConfig {
+                                port: bridge_settings.agent_bridge_port,
+                                token,
+                            },
+                            store,
+                            bridge_state,
+                            sink,
+                        ) {
+                            Ok(port) => {
+                                log::info!("agent-bridge listening on 127.0.0.1:{}", port)
+                            }
+                            Err(e) => log::error!("agent-bridge failed to start: {}", e),
+                        }
+                    }
+                    (t, s) => log::error!(
+                        "agent-bridge init failed: token_err={:?} store_ok={}",
+                        t.err(),
+                        s.is_ok()
+                    ),
+                }
+            }
+            Err(e) => log::error!("agent-bridge: no app data dir: {}", e),
+        }
+    }
 
     // Apply accelerator preferences before any model loads
     managers::transcription::apply_accelerator_settings(app_handle);
@@ -171,6 +234,7 @@ fn initialize_core_logic(app_handle: &AppHandle) {
     app_handle.manage(model_manager.clone());
     app_handle.manage(transcription_manager.clone());
     app_handle.manage(history_manager.clone());
+    app_handle.manage(tts_manager.clone());
 
     // Note: Shortcuts are NOT initialized here.
     // The frontend is responsible for calling the `initialize_shortcuts` command
@@ -334,6 +398,21 @@ pub fn run(cli_args: CliArgs) {
     // Detect portable mode before anything else
     portable::init();
 
+    if let Some(question) = cli_args.ask.as_deref() {
+        let code = crate::cli_ask::run_ask(
+            question,
+            cli_args.ask_options.as_deref(),
+            cli_args.ask_timeout,
+            cli_args.ask_speak,
+            cli_args.ask_port,
+        )
+        .unwrap_or_else(|e| {
+            eprintln!("error: {e}");
+            1
+        });
+        std::process::exit(code);
+    }
+
     // Parse console logging directives from RUST_LOG, falling back to info-level logging
     // when the variable is unset
     let console_filter = build_console_filter();
@@ -459,6 +538,13 @@ pub fn run(cli_args: CliArgs) {
             commands::history::update_recording_retention_period,
             commands::transcribe::transcribe_file_to_string,
             commands::transcribe::cancel_file_transcription,
+            commands::tts::tts_list_voices,
+            commands::tts::tts_speak,
+            commands::tts::tts_stop,
+            commands::agent_bridge::agent_bridge_answer,
+            commands::agent_bridge::agent_bridge_dismiss,
+            commands::agent_bridge::agent_bridge_answers,
+            commands::agent_bridge::agent_bridge_current,
             commands::coach::get_coach_dashboard,
             commands::coach::get_coach_baseline,
             helpers::clamshell::is_laptop,
@@ -516,9 +602,9 @@ pub fn run(cli_args: CliArgs) {
     }
 
     // Single-instance forwards CLI flags to a running GUI instance. Skip it in
-    // headless --transcribe-file mode so the CLI always runs in its own process,
-    // even when the GUI is already open.
-    if cli_args.transcribe_file.is_none() {
+    // headless --transcribe-file or --ask mode so the CLI always runs in its
+    // own process, even when the GUI is already open.
+    if cli_args.transcribe_file.is_none() && cli_args.ask.is_none() {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             if args.iter().any(|a| a == "--toggle-transcription") {
                 platform::signal_handle::send_transcription_input(app, "transcribe", "CLI");

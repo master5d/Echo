@@ -739,5 +739,13 @@
     "processing": "処理中...",
     "cancel": "録音をキャンセル",
     "preparing": "準備中…"
+  },
+  "agentPanel": {
+    "from": "Question from {{source}}",
+    "typeOrDictate": "Type — or answer by voice with your dictation hotkey",
+    "yes": "Yes",
+    "no": "No",
+    "dismiss": "Dismiss",
+    "timeLeft": "{{count}}s"
   }
 }

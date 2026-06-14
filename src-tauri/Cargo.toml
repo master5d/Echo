@@ -9,6 +9,12 @@ default-run = "echo"
 
 [profile.dev]
 incremental = true # Compile your binary in smaller steps.
+debug = "line-tables-only" # Full debuginfo bloats link time; backtraces still work.
+
+# Dependencies are compiled once and cached — optimize them so debug-run audio
+# paths (resampler, FFT, VAD) are usable; the workspace crate stays at opt 0.
+[profile.dev.package."*"]
+opt-level = 2
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -82,7 +88,13 @@ specta = "=2.0.0-rc.22"
 specta-typescript = "0.0.9"
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
 tauri-plugin-dialog = "2.6"
-speakrs = "0.4.2"
+speakrs = { version = "0.4.2", optional = true }
+tiny_http = "0.12"
+getrandom = "0.3"
+
+[features]
+default = ["diarization"]
+diarization = ["dep:speakrs"]
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"
@@ -102,6 +114,12 @@ windows = { version = "0.61.3", features = [
   "Win32_Foundation",
   "Win32_UI_WindowsAndMessaging",
   "Win32_System_Console",
+  "Media",
+  "Media_Core",
+  "Media_SpeechSynthesis",
+  "Storage_Streams",
+  "Foundation",
+  "Foundation_Collections",
 ] }
 winreg = "0.55"
 
@@ -129,9 +147,19 @@ speakrs = { git = "https://github.com/master5d/speakrs", branch = "progress" }
 
 [dev-dependencies]
 tempfile = "3"
+ureq = { version = "2", features = ["json"] }
 
 [profile.release]
 lto = true
 codegen-units = 1
 strip = true
 panic = "unwind"
+
+# Daily release-grade builds: thin LTO + parallel codegen links minutes faster
+# at ~equal runtime perf. Shipping artifacts keep using `release` (fat LTO).
+# Usage: cargo build --profile fast (bare cargo only — tauri-cli bundling
+# appends --release itself and expects target/release artifacts)
+[profile.fast]
+inherits = "release"
+lto = "thin"
+codegen-units = 16

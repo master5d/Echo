@@ -388,6 +388,10 @@ pub struct AppSettings {
     pub debug_mode: bool,
     #[serde(default = "default_log_level")]
     pub log_level: LogLevel,
+    #[serde(default = "default_agent_bridge_enabled")]
+    pub agent_bridge_enabled: bool,
+    #[serde(default = "default_agent_bridge_port")]
+    pub agent_bridge_port: u16,
     #[serde(default)]
     pub custom_words: Vec<String>,
     #[serde(default)]
@@ -577,6 +581,14 @@ fn default_debug_mode() -> bool {
 
 fn default_log_level() -> LogLevel {
     LogLevel::Debug
+}
+
+fn default_agent_bridge_enabled() -> bool {
+    true
+}
+
+fn default_agent_bridge_port() -> u16 {
+    4123
 }
 
 fn default_word_correction_threshold() -> f64 {
@@ -919,6 +931,8 @@ pub fn get_default_settings() -> AppSettings {
         translate_to_english: false,
         selected_language: "auto".to_string(),
         overlay_position: default_overlay_position(),
+        agent_bridge_enabled: default_agent_bridge_enabled(),
+        agent_bridge_port: default_agent_bridge_port(),
         debug_mode: false,
         log_level: default_log_level(),
         custom_words: Vec::new(),

@@ -739,5 +739,13 @@
     "processing": "...جاري المعالجة",
     "cancel": "إلغاء التسجيل",
     "preparing": "جارٍ التحضير…"
+  },
+  "agentPanel": {
+    "from": "Question from {{source}}",
+    "typeOrDictate": "Type — or answer by voice with your dictation hotkey",
+    "yes": "Yes",
+    "no": "No",
+    "dismiss": "Dismiss",
+    "timeLeft": "{{count}}s"
   }
 }

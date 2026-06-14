@@ -68,3 +68,6 @@ docs/superpowers/
 # Local coding-agent scaffolding (Gemini CLI config + plan/notes copies)
 .gemini/
 agent-work/
+
+# Serena MCP project artifacts (created by delegate agents)
+.serena/

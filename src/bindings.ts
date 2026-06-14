@@ -963,6 +963,61 @@ async cancelFileTranscription() : Promise<Result<null, string>> {
     else return { status: "error", error: e  as any };
 }
 },
+async ttsListVoices() : Promise<Result<VoiceInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("tts_list_voices") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async ttsSpeak(text: string, voiceId: string | null) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("tts_speak", { text, voiceId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async ttsStop() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("tts_stop") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async agentBridgeAnswer(id: number, answer: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agent_bridge_answer", { id, answer }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async agentBridgeDismiss(id: number) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agent_bridge_dismiss", { id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async agentBridgeAnswers(sinceMs: number) : Promise<Result<QuestionRow[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agent_bridge_answers", { sinceMs }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * The question currently on screen, if any — pulled by the panel on mount
+ * (the `agent-question` event can race past a cold webview).
+ */
+async agentBridgeCurrent() : Promise<QuestionEvent | null> {
+    return await TAURI_INVOKE("agent_bridge_current");
+},
 async getCoachDashboard(window: TrendWindow) : Promise<Result<CoachDashboard, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_coach_dashboard", { window }) };
@@ -1008,7 +1063,7 @@ historyUpdatePayload: "history-update-payload"
 
 /** user-defined types **/
 
-export type AppSettings = { bindings: Partial<{ [key in string]: ShortcutBinding }>; push_to_talk: boolean; audio_feedback: boolean; audio_feedback_volume?: number; sound_theme?: SoundTheme; start_hidden?: boolean; autostart_enabled?: boolean; update_checks_enabled?: boolean; selected_model?: string; always_on_microphone?: boolean; selected_microphone?: string | null; clamshell_microphone?: string | null; selected_output_device?: string | null; translate_to_english?: boolean; selected_language?: string; overlay_position?: OverlayPosition; debug_mode?: boolean; log_level?: LogLevel; custom_words?: string[]; model_unload_timeout?: ModelUnloadTimeout; word_correction_threshold?: number; history_limit?: number; recording_retention_period?: RecordingRetentionPeriod; paste_method?: PasteMethod; clipboard_handling?: ClipboardHandling; auto_submit?: boolean; auto_submit_key?: AutoSubmitKey; post_process_enabled?: boolean; post_process_provider_id?: string; post_process_providers?: PostProcessProvider[]; post_process_api_keys?: SecretMap; post_process_models?: Partial<{ [key in string]: string }>; post_process_prompts?: LLMPrompt[]; post_process_selected_prompt_id?: string | null; translate_enabled?: boolean; translate_target?: Lang; translate_model?: string; translate_base_url?: string; mute_while_recording?: boolean; append_trailing_space?: boolean; app_language?: string; experimental_enabled?: boolean; lazy_stream_close?: boolean; keyboard_implementation?: KeyboardImplementation; show_tray_icon?: boolean; paste_delay_ms?: number; typing_tool?: TypingTool; external_script_path: string | null; capture_folder?: string; capture_trigger_phrases?: string; custom_filler_words?: string[] | null; whisper_accelerator?: WhisperAcceleratorSetting; ort_accelerator?: OrtAcceleratorSetting; whisper_gpu_device?: number; extra_recording_buffer_ms?: number; auto_punctuate?: boolean; auto_capitalize?: boolean; subtitle_overlay?: boolean; subtitle_font_size?: SubtitleFontSize; subtitle_max_chars?: number; subtitle_refresh_ms?: number; command_mode_enabled?: boolean; coach_toast_enabled?: boolean; snippets?: Snippet[]; self_correction_enabled?: boolean; spoken_lists_enabled?: boolean; dev_dictionary_enabled?: boolean }
+export type AppSettings = { bindings: Partial<{ [key in string]: ShortcutBinding }>; push_to_talk: boolean; audio_feedback: boolean; audio_feedback_volume?: number; sound_theme?: SoundTheme; start_hidden?: boolean; autostart_enabled?: boolean; update_checks_enabled?: boolean; selected_model?: string; always_on_microphone?: boolean; selected_microphone?: string | null; clamshell_microphone?: string | null; selected_output_device?: string | null; translate_to_english?: boolean; selected_language?: string; overlay_position?: OverlayPosition; debug_mode?: boolean; log_level?: LogLevel; agent_bridge_enabled?: boolean; agent_bridge_port?: number; custom_words?: string[]; model_unload_timeout?: ModelUnloadTimeout; word_correction_threshold?: number; history_limit?: number; recording_retention_period?: RecordingRetentionPeriod; paste_method?: PasteMethod; clipboard_handling?: ClipboardHandling; auto_submit?: boolean; auto_submit_key?: AutoSubmitKey; post_process_enabled?: boolean; post_process_provider_id?: string; post_process_providers?: PostProcessProvider[]; post_process_api_keys?: SecretMap; post_process_models?: Partial<{ [key in string]: string }>; post_process_prompts?: LLMPrompt[]; post_process_selected_prompt_id?: string | null; translate_enabled?: boolean; translate_target?: Lang; translate_model?: string; translate_base_url?: string; mute_while_recording?: boolean; append_trailing_space?: boolean; app_language?: string; experimental_enabled?: boolean; lazy_stream_close?: boolean; keyboard_implementation?: KeyboardImplementation; show_tray_icon?: boolean; paste_delay_ms?: number; typing_tool?: TypingTool; external_script_path: string | null; capture_folder?: string; capture_trigger_phrases?: string; custom_filler_words?: string[] | null; whisper_accelerator?: WhisperAcceleratorSetting; ort_accelerator?: OrtAcceleratorSetting; whisper_gpu_device?: number; extra_recording_buffer_ms?: number; auto_punctuate?: boolean; auto_capitalize?: boolean; subtitle_overlay?: boolean; subtitle_font_size?: SubtitleFontSize; subtitle_max_chars?: number; subtitle_refresh_ms?: number; command_mode_enabled?: boolean; coach_toast_enabled?: boolean; snippets?: Snippet[]; self_correction_enabled?: boolean; spoken_lists_enabled?: boolean; dev_dictionary_enabled?: boolean }
 export type AudioDevice = { index: string; name: string; is_default: boolean }
 export type AutoSubmitKey = "enter" | "ctrl_enter" | "cmd_enter"
 export type AvailableAccelerators = { whisper: string[]; ort: string[]; gpu_devices: GpuDeviceOption[] }
@@ -1043,6 +1098,14 @@ export type PasteMethod = "ctrl_v" | "direct" | "none" | "shift_insert" | "ctrl_
 export type PeriodSummary = { avg_wpm: number; avg_filler_rate: number; session_count: number; prev_avg_wpm: number; prev_avg_filler_rate: number; prev_session_count: number }
 export type PermissionAccess = "allowed" | "denied" | "unknown"
 export type PostProcessProvider = { id: string; label: string; base_url: string; allow_base_url_edit?: boolean; models_endpoint?: string | null; supports_structured_output?: boolean }
+/**
+ * What the UI layer needs to know to show a question. Also returned by the
+ * `agent_bridge_current` command so a freshly created panel window can pull
+ * the active question on mount (the `agent-question` event may fire before
+ * the webview is ready to listen — cold-window race).
+ */
+export type QuestionEvent = { id: number; kind: string; question: string; options: string[]; timeout_s: number; speak: boolean; source: string }
+export type QuestionRow = { id: number; source: string; kind: string; question: string; options: string | null; answer: string | null; status: string; asked_at: number; answered_at: number | null }
 export type RecordingRetentionPeriod = "never" | "preserve_limit" | "days_3" | "weeks_2" | "months_3"
 export type SecretMap = Partial<{ [key in string]: string }>
 export type ShortcutBinding = { id: string; name: string; description: string; default_binding: string; current_binding: string }
@@ -1059,6 +1122,7 @@ export type SubtitleFontSize = "small" | "medium" | "large"
 export type TrendPoint = { day: number; avg_wpm: number; avg_filler_rate: number }
 export type TrendWindow = "Days7" | "Days30" | "All"
 export type TypingTool = "auto" | "wtype" | "kwtype" | "dotool" | "ydotool" | "xdotool"
+export type VoiceInfo = { id: string; display_name: string; language: string }
 export type WhisperAcceleratorSetting = "auto" | "cpu" | "gpu"
 export type WindowsMicrophonePermissionStatus = { supported: boolean; overall_access: PermissionAccess; device_access: PermissionAccess; app_access: PermissionAccess; desktop_app_access: PermissionAccess }
 
