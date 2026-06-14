@@ -10,7 +10,7 @@ Echo (the dictation app) exposes a localhost Agent Bridge.
 1. Read the token: `%APPDATA%\com.sovern.echo\agent_bridge_token`.
 2. POST `http://127.0.0.1:4123/v1/ask` with `Authorization: Bearer <token>`:
    `{ "question": "...", "kind": "text"|"choice"|"confirm", "options": [...],
-      "timeout_s": 300, "speak": true|false, "source": "<your-name>" }`
+   "timeout_s": 300, "speak": true|false, "source": "<your-name>" }`
    The call BLOCKS until the human answers / dismisses / timeout:
    `{ "status": "answered"|"dismissed"|"timeout", "answer": "..." }`.
 3. Fire-and-forget messages: POST `/v1/notify` `{ "message": "...", "speak": true }`.

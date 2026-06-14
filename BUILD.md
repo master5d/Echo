@@ -137,9 +137,11 @@ which handles the LLVM environment and Vulkan SDK detection:
 ### Manual workflow
 
 1.  **Cargo Profile**: Use `--profile fast` for daily builds.
+
     ```bash
     cargo build --manifest-path src-tauri/Cargo.toml --profile fast
     ```
+
     Note: `npm run tauri build` always uses the `release` profile — tauri-cli
     appends `--release` itself and the bundler expects `target/release`
     artifacts, so custom profiles apply to bare `cargo build` only.
@@ -154,8 +156,8 @@ which handles the LLVM environment and Vulkan SDK detection:
     ```bash
     npm run tauri dev -- -- --no-default-features
     ```
-    *Note: If built without default features, passing `--diarize` at runtime
-    will error by design.*
+    _Note: If built without default features, passing `--diarize` at runtime
+    will error by design._
 
 ## Linux Install (from source)
 

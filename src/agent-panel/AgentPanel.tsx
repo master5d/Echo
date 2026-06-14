@@ -89,7 +89,9 @@ export default function AgentPanel() {
           value={text}
           placeholder={t("agentPanel.typeOrDictate")}
           onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && text.trim() && submit(text.trim())}
+          onKeyDown={(e) =>
+            e.key === "Enter" && text.trim() && submit(text.trim())
+          }
         />
       )}
       {q.kind === "choice" && (
