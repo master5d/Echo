@@ -489,6 +489,12 @@ pub struct AppSettings {
     pub spoken_lists_enabled: bool,
     #[serde(default)]
     pub dev_dictionary_enabled: bool,
+    #[serde(default = "default_tutor_enabled")]
+    pub tutor_enabled: bool,
+}
+
+pub fn default_tutor_enabled() -> bool {
+    false
 }
 
 pub fn default_spoken_lists_enabled() -> bool {
@@ -984,6 +990,7 @@ pub fn get_default_settings() -> AppSettings {
         self_correction_enabled: false,
         spoken_lists_enabled: default_spoken_lists_enabled(),
         dev_dictionary_enabled: false,
+        tutor_enabled: default_tutor_enabled(),
     }
 }
 
