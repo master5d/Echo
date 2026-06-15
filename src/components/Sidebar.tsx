@@ -9,6 +9,7 @@ import {
   Cpu,
   LineChart,
   FileAudio,
+  GraduationCap,
 } from "lucide-react";
 import EchoTextLogo from "./icons/EchoTextLogo";
 import EchoHand from "./icons/EchoHand";
@@ -18,6 +19,7 @@ import {
   AdvancedSettings,
   HistorySettings,
   CoachSettings,
+  TutorSettings,
   DebugSettings,
   AboutSettings,
   PostProcessingSettings,
@@ -77,6 +79,12 @@ export const SECTIONS_CONFIG = {
     labelKey: "sidebar.coach",
     icon: LineChart,
     component: CoachSettings,
+    enabled: () => true,
+  },
+  tutor: {
+    labelKey: "sidebar.tutor",
+    icon: GraduationCap,
+    component: TutorSettings,
     enabled: () => true,
   },
   postprocessing: {

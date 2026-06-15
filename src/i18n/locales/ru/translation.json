@@ -17,6 +17,7 @@
     "debug": "Отладка",
     "about": "О программе",
     "coach": "Coach",
+    "tutor": "Тьютор",
     "transcribe": "Транскрипция файла"
   },
   "onboarding": {
@@ -623,6 +624,18 @@
       "empty": "No sessions yet — dictate something to see progress.",
       "belowAvg": "below your avg",
       "aboveAvg": "above your avg"
+    },
+    "tutor": {
+      "enable": {
+        "label": "Языковой Тьютор",
+        "description": "Включить оценку и обратную связь для практики произношения."
+      },
+      "practice": "Практика",
+      "reference": "Эталонная фраза",
+      "spoken": "Что вы сказали",
+      "score": "Оценить",
+      "overall": "Общая точность",
+      "note": "Заметка"
     },
     "transcribe": {
       "tab": "Транскрипция",

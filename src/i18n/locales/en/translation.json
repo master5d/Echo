@@ -17,6 +17,7 @@
     "debug": "Debug",
     "about": "About",
     "coach": "Coach",
+    "tutor": "Tutor",
     "transcribe": "Transcribe File"
   },
   "onboarding": {
@@ -633,6 +634,18 @@
       "empty": "No sessions yet — dictate something to see progress.",
       "belowAvg": "below your avg",
       "aboveAvg": "above your avg"
+    },
+    "tutor": {
+      "enable": {
+        "label": "Language Tutor",
+        "description": "Enable scoring and feedback for pronunciation practice."
+      },
+      "practice": "Practice",
+      "reference": "Reference Phrase",
+      "spoken": "What you said",
+      "score": "Score",
+      "overall": "Overall",
+      "note": "Note"
     },
     "transcribe": {
       "tab": "Transcribe",

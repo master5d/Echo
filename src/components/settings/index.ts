@@ -7,6 +7,7 @@ export { CoachSettings } from "./coach/CoachSettings";
 export { AboutSettings } from "./about/AboutSettings";
 export { PostProcessingSettings } from "./post-processing/PostProcessingSettings";
 export { ModelsSettings } from "./models/ModelsSettings";
+export { TutorSettings } from "./tutor/TutorSettings";
 
 // Individual setting components
 export { MicrophoneSelector } from "./sound/MicrophoneSelector";

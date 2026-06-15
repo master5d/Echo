@@ -1,8 +1,8 @@
+use once_cell::sync::Lazy;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use strsim::levenshtein;
-use regex::Regex;
-use once_cell::sync::Lazy;
 
 static PUNCTUATION: Lazy<Regex> = Lazy::new(|| Regex::new(r"[^\p{L}\s]").unwrap());
 static WHITESPACE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+").unwrap());
@@ -16,11 +16,11 @@ pub struct WordScore {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Type)]
 pub struct ScoreReport {
-    pub overall: u8,            // 0..=100
-    pub words: Vec<WordScore>,  // per reference word, aligned
+    pub overall: u8,           // 0..=100
+    pub words: Vec<WordScore>, // per reference word, aligned
     pub reference_word_count: usize,
     pub matched_word_count: usize,
-    pub note: String,           // short human feedback, e.g. "Great!" / "Watch: <words>"
+    pub note: String, // short human feedback, e.g. "Great!" / "Watch: <words>"
 }
 
 fn normalize(text: &str) -> Vec<String> {
@@ -58,7 +58,7 @@ pub fn score_pronunciation(reference: &str, spoken: &str) -> ScoreReport {
         // We look ahead a bit to allow for some misrecognitions or skipped words
         let lookahead = 3;
         let end = (spoken_idx + lookahead).min(spoken_words.len());
-        
+
         for i in spoken_idx..end {
             let spoken_word = &spoken_words[i];
             let is_match = if ref_word == spoken_word {
@@ -92,7 +92,7 @@ pub fn score_pronunciation(reference: &str, spoken: &str) -> ScoreReport {
     }
 
     let overall = (100 * matched_count / ref_words.len()) as u8;
-    
+
     let unmatched_words: Vec<String> = word_scores
         .iter()
         .filter(|w| !w.matched)
@@ -149,7 +149,7 @@ mod tests {
 
     #[test]
     fn test_levenshtein_tolerance() {
-        // "pronunciation" len 13, 13/4 = 3. 
+        // "pronunciation" len 13, 13/4 = 3.
         // "pronunshation" dist 2
         let report = score_pronunciation("pronunciation", "pronunshation");
         assert_eq!(report.overall, 100);
