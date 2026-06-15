@@ -29,6 +29,7 @@ mod transcript_format;
 mod transcription_coordinator;
 mod translate;
 mod tts;
+mod tutor;
 mod utils;
 mod voice_commands;
 
@@ -550,6 +551,7 @@ pub fn run(cli_args: CliArgs) {
             commands::tts::tts_speak,
             commands::tts::tts_stop,
             commands::assistant::assistant_ask,
+            commands::tutor::tutor_score,
             commands::agent_bridge::agent_bridge_answer,
             commands::agent_bridge::agent_bridge_dismiss,
             commands::agent_bridge::agent_bridge_answers,

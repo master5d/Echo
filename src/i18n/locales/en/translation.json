@@ -19,7 +19,8 @@
     "coach": "Coach",
     "assistant": "Assistant",
     "transcribe": "Transcribe File",
-    "tts": "Voice"
+    "tts": "Voice",
+    "tutor": "Tutor"
   },
   "onboarding": {
     "subtitle": "To get started, choose a transcription model",
@@ -660,6 +661,18 @@
       "voiceAuto": "Auto (by language)",
       "rate": "Speaking rate",
       "testVoice": "Test voice"
+    },
+    "tutor": {
+      "enable": {
+        "label": "Language Tutor",
+        "description": "Enable scoring and feedback for pronunciation practice."
+      },
+      "practice": "Practice",
+      "reference": "Reference Phrase",
+      "spoken": "What you said",
+      "score": "Score",
+      "overall": "Overall",
+      "note": "Note"
     },
     "transcribe": {
       "tab": "Transcribe",

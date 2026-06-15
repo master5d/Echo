@@ -11,6 +11,7 @@ import {
   MessageCircle,
   FileAudio,
   Volume2,
+  GraduationCap,
 } from "lucide-react";
 import EchoTextLogo from "./icons/EchoTextLogo";
 import EchoHand from "./icons/EchoHand";
@@ -22,6 +23,7 @@ import {
   CoachSettings,
   AssistantSettings,
   TtsSettings,
+  TutorSettings,
   DebugSettings,
   AboutSettings,
   PostProcessingSettings,
@@ -93,6 +95,12 @@ export const SECTIONS_CONFIG = {
     labelKey: "sidebar.tts",
     icon: Volume2,
     component: TtsSettings,
+    enabled: () => true,
+  },
+  tutor: {
+    labelKey: "sidebar.tutor",
+    icon: GraduationCap,
+    component: TutorSettings,
     enabled: () => true,
   },
   postprocessing: {

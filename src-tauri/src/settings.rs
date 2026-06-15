@@ -499,6 +499,12 @@ pub struct AppSettings {
     pub assistant_enabled: bool,
     #[serde(default)]
     pub assistant_system_prompt: String,
+    #[serde(default = "default_tutor_enabled")]
+    pub tutor_enabled: bool,
+}
+
+pub fn default_tutor_enabled() -> bool {
+    false
 }
 
 pub fn default_spoken_lists_enabled() -> bool {
@@ -1011,6 +1017,7 @@ pub fn get_default_settings() -> AppSettings {
         dev_dictionary_enabled: false,
         assistant_enabled: default_assistant_enabled(),
         assistant_system_prompt: String::new(),
+        tutor_enabled: default_tutor_enabled(),
     }
 }
 
