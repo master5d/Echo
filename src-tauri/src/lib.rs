@@ -191,10 +191,17 @@ fn initialize_core_logic(app_handle: &AppHandle) {
                         let sink: crate::agent_bridge::server::AskSink = Arc::new(move |ev| {
                             use tauri::Emitter;
                             if ev.speak {
-                                if let Some(tts) =
-                                    evt_handle.try_state::<Arc<crate::tts::TtsManager>>()
-                                {
-                                    let _ = tts.speak(ev.question.clone(), None);
+                                let s = crate::settings::get_settings(&evt_handle);
+                                if s.tts_enabled {
+                                    if let Some(tts) =
+                                        evt_handle.try_state::<Arc<crate::tts::TtsManager>>()
+                                    {
+                                        let _ = tts.speak(
+                                            ev.question.clone(),
+                                            s.tts_voice_id.clone(),
+                                            s.tts_rate,
+                                        );
+                                    }
                                 }
                             }
                             crate::agent_bridge::window::show_panel(&evt_handle);

@@ -17,7 +17,8 @@
     "debug": "Debug",
     "about": "About",
     "coach": "Coach",
-    "transcribe": "Transcribe File"
+    "transcribe": "Transcribe File",
+    "tts": "Voice"
   },
   "onboarding": {
     "subtitle": "To get started, choose a transcription model",
@@ -633,6 +634,15 @@
       "empty": "No sessions yet — dictate something to see progress.",
       "belowAvg": "below your avg",
       "aboveAvg": "above your avg"
+    },
+    "tts": {
+      "title": "Voice (Text-to-Speech)",
+      "description": "Echo can speak agent questions and replies aloud.",
+      "speakAnswers": "Speak agent questions aloud",
+      "voice": "Voice",
+      "voiceAuto": "Auto (by language)",
+      "rate": "Speaking rate",
+      "testVoice": "Test voice"
     },
     "transcribe": {
       "tab": "Transcribe",

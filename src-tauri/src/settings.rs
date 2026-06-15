@@ -392,6 +392,12 @@ pub struct AppSettings {
     pub agent_bridge_enabled: bool,
     #[serde(default = "default_agent_bridge_port")]
     pub agent_bridge_port: u16,
+    #[serde(default = "default_tts_enabled")]
+    pub tts_enabled: bool,
+    #[serde(default)]
+    pub tts_voice_id: Option<String>,
+    #[serde(default = "default_tts_rate")]
+    pub tts_rate: f32,
     #[serde(default)]
     pub custom_words: Vec<String>,
     #[serde(default)]
@@ -589,6 +595,14 @@ fn default_agent_bridge_enabled() -> bool {
 
 fn default_agent_bridge_port() -> u16 {
     4123
+}
+
+fn default_tts_enabled() -> bool {
+    true
+}
+
+fn default_tts_rate() -> f32 {
+    1.0
 }
 
 fn default_word_correction_threshold() -> f64 {
@@ -933,6 +947,9 @@ pub fn get_default_settings() -> AppSettings {
         overlay_position: default_overlay_position(),
         agent_bridge_enabled: default_agent_bridge_enabled(),
         agent_bridge_port: default_agent_bridge_port(),
+        tts_enabled: default_tts_enabled(),
+        tts_voice_id: None,
+        tts_rate: default_tts_rate(),
         debug_mode: false,
         log_level: default_log_level(),
         custom_words: Vec::new(),

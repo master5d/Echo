@@ -17,7 +17,8 @@
     "debug": "Отладка",
     "about": "О программе",
     "coach": "Coach",
-    "transcribe": "Транскрипция файла"
+    "transcribe": "Транскрипция файла",
+    "tts": "Голос"
   },
   "onboarding": {
     "subtitle": "Для начала выберите модель транскрипции",
@@ -623,6 +624,15 @@
       "empty": "No sessions yet — dictate something to see progress.",
       "belowAvg": "below your avg",
       "aboveAvg": "above your avg"
+    },
+    "tts": {
+      "title": "Голос (синтез речи)",
+      "description": "Echo может озвучивать вопросы и ответы агента вслух.",
+      "speakAnswers": "Озвучивать вопросы агента",
+      "voice": "Голос",
+      "voiceAuto": "Авто (по языку)",
+      "rate": "Скорость речи",
+      "testVoice": "Проверить голос"
     },
     "transcribe": {
       "tab": "Транскрипция",
