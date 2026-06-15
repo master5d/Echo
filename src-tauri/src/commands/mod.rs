@@ -1,4 +1,5 @@
 pub mod agent_bridge;
+pub mod assistant;
 pub mod audio;
 pub mod coach;
 pub mod history;
@@ -6,6 +7,7 @@ pub mod models;
 pub mod transcribe;
 pub mod transcription;
 pub mod tts;
+pub mod tutor;
 
 use crate::settings::{get_settings, write_settings, AppSettings, LogLevel};
 use crate::utils::cancel_current_operation;

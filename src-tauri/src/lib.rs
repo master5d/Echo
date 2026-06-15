@@ -2,6 +2,7 @@ mod actions;
 mod agent_bridge;
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
 mod apple_intelligence;
+mod assistant;
 pub mod audio_toolkit;
 mod capture;
 pub mod cli;
@@ -28,6 +29,7 @@ mod transcript_format;
 mod transcription_coordinator;
 mod translate;
 mod tts;
+mod tutor;
 mod utils;
 mod voice_commands;
 
@@ -191,10 +193,17 @@ fn initialize_core_logic(app_handle: &AppHandle) {
                         let sink: crate::agent_bridge::server::AskSink = Arc::new(move |ev| {
                             use tauri::Emitter;
                             if ev.speak {
-                                if let Some(tts) =
-                                    evt_handle.try_state::<Arc<crate::tts::TtsManager>>()
-                                {
-                                    let _ = tts.speak(ev.question.clone(), None);
+                                let s = crate::settings::get_settings(&evt_handle);
+                                if s.tts_enabled {
+                                    if let Some(tts) =
+                                        evt_handle.try_state::<Arc<crate::tts::TtsManager>>()
+                                    {
+                                        let _ = tts.speak(
+                                            ev.question.clone(),
+                                            s.tts_voice_id.clone(),
+                                            s.tts_rate,
+                                        );
+                                    }
                                 }
                             }
                             crate::agent_bridge::window::show_panel(&evt_handle);
@@ -541,6 +550,8 @@ pub fn run(cli_args: CliArgs) {
             commands::tts::tts_list_voices,
             commands::tts::tts_speak,
             commands::tts::tts_stop,
+            commands::assistant::assistant_ask,
+            commands::tutor::tutor_score,
             commands::agent_bridge::agent_bridge_answer,
             commands::agent_bridge::agent_bridge_dismiss,
             commands::agent_bridge::agent_bridge_answers,

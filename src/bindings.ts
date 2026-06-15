@@ -971,9 +971,9 @@ async ttsListVoices() : Promise<Result<VoiceInfo[], string>> {
     else return { status: "error", error: e  as any };
 }
 },
-async ttsSpeak(text: string, voiceId: string | null) : Promise<Result<null, string>> {
+async ttsSpeak(text: string, voiceId: string | null, rate: number | null) : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("tts_speak", { text, voiceId }) };
+    return { status: "ok", data: await TAURI_INVOKE("tts_speak", { text, voiceId, rate }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -986,6 +986,17 @@ async ttsStop() : Promise<Result<null, string>> {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+async assistantAsk(text: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("assistant_ask", { text }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async tutorScore(reference: string, spoken: string) : Promise<ScoreReport> {
+    return await TAURI_INVOKE("tutor_score", { reference, spoken });
 },
 async agentBridgeAnswer(id: number, answer: string) : Promise<Result<null, string>> {
     try {
@@ -1063,7 +1074,7 @@ historyUpdatePayload: "history-update-payload"
 
 /** user-defined types **/
 
-export type AppSettings = { bindings: Partial<{ [key in string]: ShortcutBinding }>; push_to_talk: boolean; audio_feedback: boolean; audio_feedback_volume?: number; sound_theme?: SoundTheme; start_hidden?: boolean; autostart_enabled?: boolean; update_checks_enabled?: boolean; selected_model?: string; always_on_microphone?: boolean; selected_microphone?: string | null; clamshell_microphone?: string | null; selected_output_device?: string | null; translate_to_english?: boolean; selected_language?: string; overlay_position?: OverlayPosition; debug_mode?: boolean; log_level?: LogLevel; agent_bridge_enabled?: boolean; agent_bridge_port?: number; custom_words?: string[]; model_unload_timeout?: ModelUnloadTimeout; word_correction_threshold?: number; history_limit?: number; recording_retention_period?: RecordingRetentionPeriod; paste_method?: PasteMethod; clipboard_handling?: ClipboardHandling; auto_submit?: boolean; auto_submit_key?: AutoSubmitKey; post_process_enabled?: boolean; post_process_provider_id?: string; post_process_providers?: PostProcessProvider[]; post_process_api_keys?: SecretMap; post_process_models?: Partial<{ [key in string]: string }>; post_process_prompts?: LLMPrompt[]; post_process_selected_prompt_id?: string | null; translate_enabled?: boolean; translate_target?: Lang; translate_model?: string; translate_base_url?: string; mute_while_recording?: boolean; append_trailing_space?: boolean; app_language?: string; experimental_enabled?: boolean; lazy_stream_close?: boolean; keyboard_implementation?: KeyboardImplementation; show_tray_icon?: boolean; paste_delay_ms?: number; typing_tool?: TypingTool; external_script_path: string | null; capture_folder?: string; capture_trigger_phrases?: string; custom_filler_words?: string[] | null; whisper_accelerator?: WhisperAcceleratorSetting; ort_accelerator?: OrtAcceleratorSetting; whisper_gpu_device?: number; extra_recording_buffer_ms?: number; auto_punctuate?: boolean; auto_capitalize?: boolean; subtitle_overlay?: boolean; subtitle_font_size?: SubtitleFontSize; subtitle_max_chars?: number; subtitle_refresh_ms?: number; command_mode_enabled?: boolean; coach_toast_enabled?: boolean; snippets?: Snippet[]; self_correction_enabled?: boolean; spoken_lists_enabled?: boolean; dev_dictionary_enabled?: boolean }
+export type AppSettings = { bindings: Partial<{ [key in string]: ShortcutBinding }>; push_to_talk: boolean; audio_feedback: boolean; audio_feedback_volume?: number; sound_theme?: SoundTheme; start_hidden?: boolean; autostart_enabled?: boolean; update_checks_enabled?: boolean; selected_model?: string; always_on_microphone?: boolean; selected_microphone?: string | null; clamshell_microphone?: string | null; selected_output_device?: string | null; translate_to_english?: boolean; selected_language?: string; overlay_position?: OverlayPosition; debug_mode?: boolean; log_level?: LogLevel; agent_bridge_enabled?: boolean; agent_bridge_port?: number; tts_enabled?: boolean; tts_voice_id?: string | null; tts_rate?: number; assistant_enabled?: boolean; assistant_system_prompt?: string; tutor_enabled?: boolean; custom_words?: string[]; model_unload_timeout?: ModelUnloadTimeout; word_correction_threshold?: number; history_limit?: number; recording_retention_period?: RecordingRetentionPeriod; paste_method?: PasteMethod; clipboard_handling?: ClipboardHandling; auto_submit?: boolean; auto_submit_key?: AutoSubmitKey; post_process_enabled?: boolean; post_process_provider_id?: string; post_process_providers?: PostProcessProvider[]; post_process_api_keys?: SecretMap; post_process_models?: Partial<{ [key in string]: string }>; post_process_prompts?: LLMPrompt[]; post_process_selected_prompt_id?: string | null; translate_enabled?: boolean; translate_target?: Lang; translate_model?: string; translate_base_url?: string; mute_while_recording?: boolean; append_trailing_space?: boolean; app_language?: string; experimental_enabled?: boolean; lazy_stream_close?: boolean; keyboard_implementation?: KeyboardImplementation; show_tray_icon?: boolean; paste_delay_ms?: number; typing_tool?: TypingTool; external_script_path: string | null; capture_folder?: string; capture_trigger_phrases?: string; custom_filler_words?: string[] | null; whisper_accelerator?: WhisperAcceleratorSetting; ort_accelerator?: OrtAcceleratorSetting; whisper_gpu_device?: number; extra_recording_buffer_ms?: number; auto_punctuate?: boolean; auto_capitalize?: boolean; subtitle_overlay?: boolean; subtitle_font_size?: SubtitleFontSize; subtitle_max_chars?: number; subtitle_refresh_ms?: number; command_mode_enabled?: boolean; coach_toast_enabled?: boolean; snippets?: Snippet[]; self_correction_enabled?: boolean; spoken_lists_enabled?: boolean; dev_dictionary_enabled?: boolean }
 export type AudioDevice = { index: string; name: string; is_default: boolean }
 export type AutoSubmitKey = "enter" | "ctrl_enter" | "cmd_enter"
 export type AvailableAccelerators = { whisper: string[]; ort: string[]; gpu_devices: GpuDeviceOption[] }
@@ -1123,6 +1134,8 @@ export type TrendPoint = { day: number; avg_wpm: number; avg_filler_rate: number
 export type TrendWindow = "Days7" | "Days30" | "All"
 export type TypingTool = "auto" | "wtype" | "kwtype" | "dotool" | "ydotool" | "xdotool"
 export type VoiceInfo = { id: string; display_name: string; language: string }
+export type WordScore = { reference: string; spoken: string | null; matched: boolean }
+export type ScoreReport = { overall: number; words: WordScore[]; reference_word_count: number; matched_word_count: number; note: string }
 export type WhisperAcceleratorSetting = "auto" | "cpu" | "gpu"
 export type WindowsMicrophonePermissionStatus = { supported: boolean; overall_access: PermissionAccess; device_access: PermissionAccess; app_access: PermissionAccess; desktop_app_access: PermissionAccess }
 

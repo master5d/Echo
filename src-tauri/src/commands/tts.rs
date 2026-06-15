@@ -14,8 +14,9 @@ pub fn tts_speak(
     tts_manager: State<Arc<TtsManager>>,
     text: String,
     voice_id: Option<String>,
+    rate: Option<f32>,
 ) -> Result<(), String> {
-    tts_manager.speak(text, voice_id)
+    tts_manager.speak(text, voice_id, rate.unwrap_or(1.0))
 }
 
 #[tauri::command]

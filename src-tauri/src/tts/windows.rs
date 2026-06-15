@@ -29,10 +29,25 @@ impl TtsEngine for WindowsTts {
         Ok(out)
     }
 
-    fn synthesize(&self, text: &str, voice_id: Option<&str>) -> Result<Vec<u8>, String> {
+    fn synthesize(&self, text: &str, voice_id: Option<&str>, rate: f32) -> Result<Vec<u8>, String> {
         let synth = SpeechSynthesizer::new().map_err(|e| e.to_string())?;
 
-        if let Some(id) = voice_id {
+        // WinRT SpeakingRate is a multiplier; valid range is 0.5..=6.0.
+        let rate = rate.clamp(0.5, 6.0) as f64;
+        synth
+            .Options()
+            .map_err(|e| e.to_string())?
+            .SetSpeakingRate(rate)
+            .map_err(|e| e.to_string())?;
+
+        // Resolve the target voice id: explicit when given, otherwise
+        // auto-selected by the text's script (Cyrillic -> ru, else en).
+        let target_id: Option<String> = match voice_id {
+            Some(id) => Some(id.to_string()),
+            None => super::pick_voice_for_text(text, &self.list_voices()?).map(|v| v.id.clone()),
+        };
+
+        if let Some(id) = target_id {
             let voices = SpeechSynthesizer::AllVoices().map_err(|e| e.to_string())?;
             let target = voices
                 .into_iter()

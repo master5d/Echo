@@ -8,7 +8,10 @@ import {
   Sparkles,
   Cpu,
   LineChart,
+  MessageCircle,
   FileAudio,
+  Volume2,
+  GraduationCap,
 } from "lucide-react";
 import EchoTextLogo from "./icons/EchoTextLogo";
 import EchoHand from "./icons/EchoHand";
@@ -18,6 +21,9 @@ import {
   AdvancedSettings,
   HistorySettings,
   CoachSettings,
+  AssistantSettings,
+  TtsSettings,
+  TutorSettings,
   DebugSettings,
   AboutSettings,
   PostProcessingSettings,
@@ -77,6 +83,24 @@ export const SECTIONS_CONFIG = {
     labelKey: "sidebar.coach",
     icon: LineChart,
     component: CoachSettings,
+    enabled: () => true,
+  },
+  assistant: {
+    labelKey: "sidebar.assistant",
+    icon: MessageCircle,
+    component: AssistantSettings,
+    enabled: () => true,
+  },
+  tts: {
+    labelKey: "sidebar.tts",
+    icon: Volume2,
+    component: TtsSettings,
+    enabled: () => true,
+  },
+  tutor: {
+    labelKey: "sidebar.tutor",
+    icon: GraduationCap,
+    component: TutorSettings,
     enabled: () => true,
   },
   postprocessing: {

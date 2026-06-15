@@ -16,7 +16,29 @@ pub struct VoiceInfo {
 
 pub trait TtsEngine: Send + Sync {
     fn list_voices(&self) -> Result<Vec<VoiceInfo>, String>;
-    fn synthesize(&self, text: &str, voice_id: Option<&str>) -> Result<Vec<u8>, String>;
+    fn synthesize(&self, text: &str, voice_id: Option<&str>, rate: f32) -> Result<Vec<u8>, String>;
+}
+
+/// Pick a voice whose language matches the text's script. If >=30% of the
+/// alphabetic characters are Cyrillic, prefer a `ru*` voice; otherwise an
+/// `en*` voice. Falls back to the first available voice.
+pub fn pick_voice_for_text<'a>(text: &str, voices: &'a [VoiceInfo]) -> Option<&'a VoiceInfo> {
+    let alpha: Vec<char> = text.chars().filter(|c| c.is_alphabetic()).collect();
+    if alpha.is_empty() {
+        return voices.first();
+    }
+
+    let cyrillic = alpha
+        .iter()
+        .filter(|&&c| ('\u{0400}'..='\u{04FF}').contains(&c))
+        .count();
+    let is_russian = (cyrillic as f32 / alpha.len() as f32) >= 0.3;
+
+    let prefix = if is_russian { "ru" } else { "en" };
+    voices
+        .iter()
+        .find(|v| v.language.to_lowercase().starts_with(prefix))
+        .or_else(|| voices.first())
 }
 
 pub struct TtsManager {
@@ -49,7 +71,7 @@ impl TtsManager {
             .list_voices()
     }
 
-    pub fn speak(&self, text: String, voice_id: Option<String>) -> Result<(), String> {
+    pub fn speak(&self, text: String, voice_id: Option<String>, rate: f32) -> Result<(), String> {
         let engine = self
             .engine
             .as_ref()
@@ -58,7 +80,7 @@ impl TtsManager {
         // Stop current playback
         self.stop()?;
 
-        let wav_bytes = engine.synthesize(&text, voice_id.as_deref())?;
+        let wav_bytes = engine.synthesize(&text, voice_id.as_deref(), rate)?;
 
         let current_sink = self.current_sink.clone();
 
@@ -104,6 +126,47 @@ impl TtsManager {
     }
 }
 
+#[cfg(test)]
+mod voice_pick_tests {
+    use super::*;
+
+    fn voices() -> Vec<VoiceInfo> {
+        vec![
+            VoiceInfo {
+                id: "en-1".into(),
+                display_name: "David".into(),
+                language: "en-US".into(),
+            },
+            VoiceInfo {
+                id: "ru-1".into(),
+                display_name: "Irina".into(),
+                language: "ru-RU".into(),
+            },
+        ]
+    }
+
+    #[test]
+    fn russian_text_picks_ru_voice() {
+        let v = voices();
+        let picked = pick_voice_for_text("Привет, как дела?", &v).unwrap();
+        assert_eq!(picked.id, "ru-1");
+    }
+
+    #[test]
+    fn english_text_picks_en_voice() {
+        let v = voices();
+        let picked = pick_voice_for_text("Hello, how are you?", &v).unwrap();
+        assert_eq!(picked.id, "en-1");
+    }
+
+    #[test]
+    fn no_alpha_falls_back_to_first() {
+        let v = voices();
+        let picked = pick_voice_for_text("12345 !!!", &v).unwrap();
+        assert_eq!(picked.id, "en-1");
+    }
+}
+
 #[cfg(all(test, windows))]
 mod tests {
     use super::*;
@@ -123,7 +186,7 @@ mod tests {
         );
 
         let wav = engine
-            .synthesize("Echo speech engine online. Эхо на связи.", None)
+            .synthesize("Echo speech engine online. Эхо на связи.", None, 1.0)
             .expect("synthesize failed");
         assert!(wav.len() > 44, "WAV too small: {} bytes", wav.len());
         assert_eq!(&wav[0..4], b"RIFF", "not a WAV container");
