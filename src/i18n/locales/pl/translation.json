@@ -17,7 +17,10 @@
     "debug": "Debugowanie",
     "about": "O programie",
     "coach": "Coach",
-    "transcribe": "Transcribe File"
+    "transcribe": "Transcribe File",
+    "assistant": "Assistant",
+    "tts": "Voice",
+    "tutor": "Tutor"
   },
   "onboarding": {
     "subtitle": "Aby rozpocząć, wybierz model transkrypcji",
@@ -664,6 +667,43 @@
       "diarizeCliNote": "Diarization runs on CPU and is slow for long files — and an in-app run can stop if you switch tabs. For reliable speaker-labelled output, use the CLI:\necho --transcribe-file \"FILE\" -o \"OUT.txt\" --diarize --format speaker",
       "translate": "Przetłumacz na",
       "translateNone": "Brak tłumaczenia"
+    },
+    "assistant": {
+      "title": "Assistant",
+      "description": "Personal AI assistant that can answer questions and help with tasks.",
+      "enable": {
+        "label": "Enable Assistant",
+        "description": "Toggle assistant mode on or off."
+      },
+      "systemPrompt": {
+        "label": "System Prompt",
+        "description": "The base personality and instructions for the assistant. If empty, uses the default instructions."
+      },
+      "systemPromptPlaceholder": "You are Echo, a concise, friendly voice assistant...",
+      "tryIt": "Try it",
+      "ask": "Ask",
+      "speakReply": "Speak reply"
+    },
+    "tts": {
+      "title": "Voice (Text-to-Speech)",
+      "description": "Echo can speak agent questions and replies aloud.",
+      "speakAnswers": "Speak agent questions aloud",
+      "voice": "Voice",
+      "voiceAuto": "Auto (by language)",
+      "rate": "Speaking rate",
+      "testVoice": "Test voice"
+    },
+    "tutor": {
+      "enable": {
+        "label": "Language Tutor",
+        "description": "Enable scoring and feedback for pronunciation practice."
+      },
+      "practice": "Practice",
+      "reference": "Reference Phrase",
+      "spoken": "What you said",
+      "score": "Score",
+      "overall": "Overall",
+      "note": "Note"
     }
   },
   "footer": {
