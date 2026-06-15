@@ -1,4 +1,5 @@
 pub mod agent_bridge;
+pub mod assistant;
 pub mod audio;
 pub mod coach;
 pub mod history;

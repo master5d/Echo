@@ -495,10 +495,18 @@ pub struct AppSettings {
     pub spoken_lists_enabled: bool,
     #[serde(default)]
     pub dev_dictionary_enabled: bool,
+    #[serde(default = "default_assistant_enabled")]
+    pub assistant_enabled: bool,
+    #[serde(default)]
+    pub assistant_system_prompt: String,
 }
 
 pub fn default_spoken_lists_enabled() -> bool {
     true
+}
+
+pub fn default_assistant_enabled() -> bool {
+    false
 }
 
 pub fn default_auto_punctuate() -> bool {
@@ -1001,6 +1009,8 @@ pub fn get_default_settings() -> AppSettings {
         self_correction_enabled: false,
         spoken_lists_enabled: default_spoken_lists_enabled(),
         dev_dictionary_enabled: false,
+        assistant_enabled: default_assistant_enabled(),
+        assistant_system_prompt: String::new(),
     }
 }
 

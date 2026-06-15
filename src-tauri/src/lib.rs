@@ -2,6 +2,7 @@ mod actions;
 mod agent_bridge;
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
 mod apple_intelligence;
+mod assistant;
 pub mod audio_toolkit;
 mod capture;
 pub mod cli;
@@ -548,6 +549,7 @@ pub fn run(cli_args: CliArgs) {
             commands::tts::tts_list_voices,
             commands::tts::tts_speak,
             commands::tts::tts_stop,
+            commands::assistant::assistant_ask,
             commands::agent_bridge::agent_bridge_answer,
             commands::agent_bridge::agent_bridge_dismiss,
             commands::agent_bridge::agent_bridge_answers,

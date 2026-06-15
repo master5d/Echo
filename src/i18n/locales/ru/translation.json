@@ -17,6 +17,7 @@
     "debug": "Отладка",
     "about": "О программе",
     "coach": "Coach",
+    "assistant": "Ассистент",
     "transcribe": "Транскрипция файла",
     "tts": "Голос"
   },
@@ -617,13 +618,29 @@
       "trend": "Trend",
       "windowDays7": "7d",
       "windowDays30": "30d",
-      "windowAll": "All",
+      "windowAll": "Все",
       "streak": "Streak",
       "streakDays": "{{count}}-day streak",
       "streakBest": "best {{count}}",
       "empty": "No sessions yet — dictate something to see progress.",
       "belowAvg": "below your avg",
       "aboveAvg": "above your avg"
+    },
+    "assistant": {
+      "title": "Ассистент",
+      "description": "Персональный ИИ-ассистент, который может отвечать на вопросы и помогать с задачами.",
+      "enable": {
+        "label": "Включить ассистента",
+        "description": "Включить или выключить режим ассистента."
+      },
+      "systemPrompt": {
+        "label": "Системный промпт",
+        "description": "Базовая личность и инструкции для ассистента. Если оставить пустым, будут использоваться инструкции по умолчанию."
+      },
+      "systemPromptPlaceholder": "Вы — Echo, лаконичный и дружелюбный голосовой помощник...",
+      "tryIt": "Попробовать",
+      "ask": "Спросить",
+      "speakReply": "Озвучить ответ"
     },
     "tts": {
       "title": "Голос (синтез речи)",

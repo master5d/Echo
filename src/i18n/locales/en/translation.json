@@ -17,6 +17,7 @@
     "debug": "Debug",
     "about": "About",
     "coach": "Coach",
+    "assistant": "Assistant",
     "transcribe": "Transcribe File",
     "tts": "Voice"
   },
@@ -634,6 +635,22 @@
       "empty": "No sessions yet — dictate something to see progress.",
       "belowAvg": "below your avg",
       "aboveAvg": "above your avg"
+    },
+    "assistant": {
+      "title": "Assistant",
+      "description": "Personal AI assistant that can answer questions and help with tasks.",
+      "enable": {
+        "label": "Enable Assistant",
+        "description": "Toggle assistant mode on or off."
+      },
+      "systemPrompt": {
+        "label": "System Prompt",
+        "description": "The base personality and instructions for the assistant. If empty, uses the default instructions."
+      },
+      "systemPromptPlaceholder": "You are Echo, a concise, friendly voice assistant...",
+      "tryIt": "Try it",
+      "ask": "Ask",
+      "speakReply": "Speak reply"
     },
     "tts": {
       "title": "Voice (Text-to-Speech)",

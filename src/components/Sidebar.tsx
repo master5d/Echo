@@ -8,6 +8,7 @@ import {
   Sparkles,
   Cpu,
   LineChart,
+  MessageCircle,
   FileAudio,
   Volume2,
 } from "lucide-react";
@@ -19,6 +20,7 @@ import {
   AdvancedSettings,
   HistorySettings,
   CoachSettings,
+  AssistantSettings,
   TtsSettings,
   DebugSettings,
   AboutSettings,
@@ -79,6 +81,12 @@ export const SECTIONS_CONFIG = {
     labelKey: "sidebar.coach",
     icon: LineChart,
     component: CoachSettings,
+    enabled: () => true,
+  },
+  assistant: {
+    labelKey: "sidebar.assistant",
+    icon: MessageCircle,
+    component: AssistantSettings,
     enabled: () => true,
   },
   tts: {
